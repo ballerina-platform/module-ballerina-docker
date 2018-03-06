@@ -20,7 +20,7 @@ Annotation based docker extension implementation for ballerina.
 |password|Password for docker registry|None|
 |push|Push to remote registry|false|
 |imageBuild|Whether to build docker image|true|
-|baseImage|Base image to create the docker image|ballerina/ballerin:latest|
+|baseImage|Base image to create the docker image|ballerina/ballerina:latest|
 |debugEnable|Enable debug for ballerina|false|
 |debugPort|Remote debug port|5005|
 

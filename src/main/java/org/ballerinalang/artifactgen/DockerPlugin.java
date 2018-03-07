@@ -53,6 +53,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void codeGenerated(Path binaryPath) {
+        printInfo("Generating deployment artifacts …");
         String filePath = binaryPath.toAbsolutePath().toString();
         String userDir = new File(filePath).getParentFile().getAbsolutePath();
         try {
@@ -72,7 +73,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                                     DockerGenConstants.DOCKER_ANNOTATION);
                     if (dockerAnnotation != null) {
                         if (dockerCount < 1) {
-                            printInfo("Processing docker{} annotation for: " + serviceInfo.getName());
+                            printDebug("Processing docker{} annotation for: " + serviceInfo.getName());
                             dockerCount += 1;
                             dockerAnnotatedService = serviceInfo;
                         } else {

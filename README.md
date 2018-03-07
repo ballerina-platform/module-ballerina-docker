@@ -16,13 +16,13 @@ Annotation based docker extension implementation for ballerina.
 |name|Name of the docker image|output balx file name|
 |registry|Docker registry|None|
 |tag|Docker image tag|latest|
-|username|Username for docker registry|None|
-|password|Password for docker registry|None|
-|push|Push to remote registry|false|
-|imageBuild|Whether to build docker image|true|
-|baseImage|Base image to create the docker image|ballerina/ballerina:latest|
+|buildImage|Whether to build docker image|true|
+|baseImage|Base image to create the docker image|ballerina/b7a:latest|
 |debugEnable|Enable debug for ballerina|false|
 |debugPort|Remote debug port|5005|
+|push|Push to remote registry|false|
+|username|Username for docker registry|None|
+|password|Password for docker registry|None|
 
 
 ## How to run

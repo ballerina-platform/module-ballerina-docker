@@ -35,7 +35,7 @@ public class DockerModel {
     private String balxFilePath;
     private boolean push;
     private boolean isService;
-    private boolean imageBuild;
+    private boolean buildImage;
     private String baseImage;
     private List<Integer> ports;
 
@@ -119,12 +119,12 @@ public class DockerModel {
         this.balxFilePath = balxFilePath;
     }
 
-    public boolean isImageBuild() {
-        return imageBuild;
+    public boolean isBuildImage() {
+        return buildImage;
     }
 
-    public void setImageBuild(boolean imageBuild) {
-        this.imageBuild = imageBuild;
+    public void setBuildImage(boolean buildImage) {
+        this.buildImage = buildImage;
     }
 
     public String getBaseImage() {
@@ -165,7 +165,7 @@ public class DockerModel {
                 ", balxFilePath='" + balxFilePath + '\'' +
                 ", push=" + push +
                 ", isService=" + isService +
-                ", imageBuild=" + imageBuild +
+                ", buildImage=" + buildImage +
                 ", baseImage='" + baseImage + '\'' +
                 ", ports=" + ports +
                 '}';

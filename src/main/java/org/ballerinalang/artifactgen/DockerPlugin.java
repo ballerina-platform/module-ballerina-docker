@@ -20,7 +20,6 @@ package org.ballerinalang.artifactgen;
 
 import org.ballerinalang.artifactgen.utils.DockerGenUtils;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -43,9 +42,6 @@ import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printWarn;
 /**
  * Compiler plugin to generate docker artifacts.
  */
-@SupportedAnnotationPackages(
-        value = "ballerina.docker"
-)
 public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void init(DiagnosticLog diagnosticLog) {

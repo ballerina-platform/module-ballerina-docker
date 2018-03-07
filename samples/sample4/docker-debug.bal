@@ -1,4 +1,4 @@
-import ballerina.docker;
+import ballerinax.docker;
 import ballerina.net.http;
 
 @docker:configuration {

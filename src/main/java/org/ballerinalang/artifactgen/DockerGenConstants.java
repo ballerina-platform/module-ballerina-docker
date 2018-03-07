@@ -25,7 +25,7 @@ public class DockerGenConstants {
     public static final String ENABLE_DEBUG_LOGS = "debugDocker";
 
     // Annotation package constants
-    public static final String DOCKER_ANNOTATION_PACKAGE = "ballerina.docker";
+    public static final String DOCKER_ANNOTATION_PACKAGE = "ballerinax.docker";
     public static final String DOCKER_ANNOTATION = "configuration";
 
     //Docker annotation constants

@@ -17,7 +17,7 @@
 
 1. Compile the  hello-world-docker.bal file. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build docker-debug.bal 
+$> ballerina build docker_debug.bal 
 
 Run following command to start docker container: 
 docker run -d -p 9090:9090 -p 5005:5005 helloworld-debug:latest
@@ -29,8 +29,8 @@ docker run -d -p 9090:9090 -p 5005:5005 helloworld-debug:latest
 $> tree
 .
 ├── README.md
-├── docker-debug.bal
-├── docker-debug.balx
+├── docker_debug.bal
+├── docker_debug.balx
 └── target
     └── docker
         └── Dockerfile
@@ -59,7 +59,7 @@ CONTAINER ID        IMAGE                     COMMAND                  CREATED  
 6. Check the docker logs to verify docker image is in debug mode.
 ```bash
 $> docker logs -f 4c6fbbfe2dac
-ballerina: deploying service(s) in 'docker-debug.balx'
+ballerina: deploying service(s) in 'docker_debug.balx'
 Ballerina remote debugger is activated on port : 5005
 ```
 

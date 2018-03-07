@@ -8,7 +8,7 @@ package ballerina.docker;
 @Field {value:"password: Password for docker registry"}
 @Field {value:"baseImage: Base image for docker image building"}
 @Field {value:"push: Push to remote registry"}
-@Field {value:"imageBuild: Build docker image"}
+@Field {value:"buildImage: Build docker image"}
 @Field {value:"debugEnable: Enable debug for ballerina program"}
 @Field {value:"debugPort: Remote debug port for ballerina program"}
 public annotation configuration attach service, function {
@@ -19,7 +19,7 @@ public annotation configuration attach service, function {
     string password;
     string baseImage;
     boolean push;
-    boolean imageBuild;
+    boolean buildImage;
     boolean debugEnable;
     int debugPort;
 }

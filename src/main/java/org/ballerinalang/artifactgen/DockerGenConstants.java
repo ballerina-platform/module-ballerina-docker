@@ -36,7 +36,7 @@ public class DockerGenConstants {
     public static final String DOCKER_PASSWORD = "password";
     public static final String DOCKER_PUSH = "push";
     public static final String DOCKER_TAG_LATEST = "latest";
-    public static final String DOCKER_IMAGE_BUILD = "imageBuild";
+    public static final String DOCKER_IMAGE_BUILD = "buildImage";
     public static final String DOCKER_DEBUG_ENABLE = "debugEnable";
     public static final String DOCKER_DEBUG_PORT = "debugPort";
     public static final String DOCKER_BASE_IMAGE = "baseImage";

@@ -43,7 +43,7 @@ import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printSuccess;
 class DockerAnnotationProcessor {
 
     private static final String BALX = ".balx";
-    private static final String DEFAULT_BASE_IMAGE = "ballerina/b7a:latest";
+    private static final String DEFAULT_BASE_IMAGE = "ballerina/ballerina:latest";
     private static final int DEFAULT_DEBUG_PORT = 5005;
 
     /**
@@ -89,7 +89,7 @@ class DockerAnnotationProcessor {
         boolean imageBuild = dockerAnnotationInfo.getAttributeValue(DockerGenConstants
                 .DOCKER_IMAGE_BUILD) == null || dockerAnnotationInfo.getAttributeValue(DockerGenConstants
                 .DOCKER_IMAGE_BUILD).getBooleanValue();
-        dockerModel.setImageBuild(imageBuild);
+        dockerModel.setBuildImage(imageBuild);
 
         boolean push = dockerAnnotationInfo.getAttributeValue(DockerGenConstants
                 .DOCKER_PUSH) != null && dockerAnnotationInfo.getAttributeValue(DockerGenConstants
@@ -137,7 +137,7 @@ class DockerAnnotationProcessor {
                     (balxFilePath) + BALX;
             DockerGenUtils.copyFile(balxFilePath, balxDestination);
             //check image build is enabled.
-            if (dockerModel.isImageBuild()) {
+            if (dockerModel.isBuildImage()) {
                 printInfo("Creating docker image ...");
                 dockerArtifactHandler.buildImage(dockerModel.getName(), outputDir);
                 Files.delete(Paths.get(balxDestination));

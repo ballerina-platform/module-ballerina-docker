@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen.handlers;
+package org.ballerinax.docker.handlers;
 
 import io.fabric8.docker.api.model.AuthConfig;
 import io.fabric8.docker.api.model.AuthConfigBuilder;
@@ -27,15 +27,15 @@ import io.fabric8.docker.client.DockerClient;
 import io.fabric8.docker.client.utils.RegistryUtils;
 import io.fabric8.docker.dsl.EventListener;
 import io.fabric8.docker.dsl.OutputHandle;
-import org.ballerinalang.artifactgen.models.DockerModel;
+import org.ballerinax.docker.models.DockerModel;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printDebug;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printError;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printSuccess;
+import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
+import static org.ballerinax.docker.utils.DockerGenUtils.printError;
+import static org.ballerinax.docker.utils.DockerGenUtils.printSuccess;
 
 /**
  * Generates Docker artifacts from annotations.

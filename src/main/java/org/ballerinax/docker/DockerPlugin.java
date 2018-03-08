@@ -16,16 +16,17 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen;
+package org.ballerinax.docker;
 
-import org.ballerinalang.artifactgen.utils.DockerGenUtils;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
+import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.ballerinax.docker.utils.DockerGenUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -34,14 +35,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printDebug;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printError;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printInfo;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printWarn;
-
 /**
  * Compiler plugin to generate docker artifacts.
  */
+@SupportedAnnotationPackages(
+        value = "ballerinax.docker"
+)
 public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -49,7 +48,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void codeGenerated(Path binaryPath) {
-        printInfo("Generating deployment artifacts …");
+        DockerGenUtils.printInfo("Generating deployment artifacts docker …");
         String filePath = binaryPath.toAbsolutePath().toString();
         String userDir = new File(filePath).getParentFile().getAbsolutePath();
         try {
@@ -69,11 +68,11 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                                     DockerGenConstants.DOCKER_ANNOTATION);
                     if (dockerAnnotation != null) {
                         if (dockerCount < 1) {
-                            printDebug("Processing docker{} annotation for: " + serviceInfo.getName());
+                            DockerGenUtils.printDebug("Processing docker{} annotation for: " + serviceInfo.getName());
                             dockerCount += 1;
                             dockerAnnotatedService = serviceInfo;
                         } else {
-                            printWarn("multiple docker{} annotations detected. Ignoring annotation in " +
+                            DockerGenUtils.printWarn("multiple docker{} annotations detected. Ignoring annotation in " +
                                     "service: " + serviceInfo.getName());
                         }
                     }
@@ -81,14 +80,14 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 if (dockerAnnotatedService != null) {
                     String targetPath = userDir + File.separator + "target" + File.separator +
                             DockerGenUtils.extractBalxName(filePath) + File.separator + "docker" + File.separator;
-                    printDebug("Output Directory " + targetPath);
+                    DockerGenUtils.printDebug("Output Directory " + targetPath);
                     DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
                     dockerAnnotationProcessor.processDockerAnnotationForService(dockerAnnotatedService,
                             filePath, targetPath);
                 }
             }
         } catch (IOException e) {
-            printError("error while reading balx file" + e.getMessage());
+            DockerGenUtils.printError("error while reading balx file" + e.getMessage());
         }
     }
 }

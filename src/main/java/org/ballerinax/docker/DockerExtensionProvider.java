@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen;
+package org.ballerinax.docker;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.repository.PackageRepository;
@@ -24,18 +24,17 @@ import org.ballerinalang.repository.fs.ClasspathPackageRepository;
 import org.ballerinalang.spi.ExtensionPackageRepositoryProvider;
 
 /**
- * This represents the standard Ballerina built-in system package repository provider.
- * 
- * @since 0.95
+ * This represents the Ballerina Docker extension package repository provider.
+ *
  */
 @JavaSPIService("org.ballerinalang.spi.ExtensionPackageRepositoryProvider")
-public class DockerPackageRepositoryProvider implements ExtensionPackageRepositoryProvider {
+public class DockerExtensionProvider implements ExtensionPackageRepositoryProvider {
 
-    private static final String JAR_SYSTEM_LIB_LOCATION = "/META-INF/natives/";
+    private static final String SYSTEM_ORG_NAME = "/natives/";
 
     @Override
     public PackageRepository loadRepository() {
-        return new ClasspathPackageRepository(this.getClass(), JAR_SYSTEM_LIB_LOCATION);
+        return new ClasspathPackageRepository(this.getClass(), SYSTEM_ORG_NAME);
     }
 
 }

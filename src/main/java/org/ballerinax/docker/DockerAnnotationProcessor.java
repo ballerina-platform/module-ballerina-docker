@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen;
+package org.ballerinax.docker;
 
-import org.ballerinalang.artifactgen.handlers.DockerArtifactHandler;
-import org.ballerinalang.artifactgen.models.DockerModel;
-import org.ballerinalang.artifactgen.utils.DockerGenUtils;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinax.docker.handlers.DockerArtifactHandler;
+import org.ballerinax.docker.models.DockerModel;
+import org.ballerinax.docker.utils.DockerGenUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,12 +30,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.extractPorts;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printDebug;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printError;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printInfo;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printInstruction;
-import static org.ballerinalang.artifactgen.utils.DockerGenUtils.printSuccess;
+import static org.ballerinax.docker.utils.DockerGenUtils.extractPorts;
+import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
+import static org.ballerinax.docker.utils.DockerGenUtils.printError;
+import static org.ballerinax.docker.utils.DockerGenUtils.printInfo;
+import static org.ballerinax.docker.utils.DockerGenUtils.printInstruction;
+import static org.ballerinax.docker.utils.DockerGenUtils.printSuccess;
 
 /**
  * Process Docker Annotations.

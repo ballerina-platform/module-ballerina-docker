@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen;
+package org.ballerinax.docker;
 
 /**
  * Constants used in docker annotation processor.

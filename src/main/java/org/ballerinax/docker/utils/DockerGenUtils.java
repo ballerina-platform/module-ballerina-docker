@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen.utils;
+package org.ballerinax.docker.utils;
 
-import org.ballerinalang.artifactgen.DockerGenConstants;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinax.docker.DockerGenConstants;
 
 import java.io.File;
 import java.io.FileInputStream;

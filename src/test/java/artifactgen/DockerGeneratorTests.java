@@ -18,9 +18,9 @@
 
 package org.ballerinalang.artifactgen;
 
-import org.ballerinalang.artifactgen.handlers.DockerArtifactHandler;
-import org.ballerinalang.artifactgen.models.DockerModel;
-import org.ballerinalang.artifactgen.utils.DockerGenUtils;
+import org.ballerinax.docker.handlers.DockerArtifactHandler;
+import org.ballerinax.docker.models.DockerModel;
+import org.ballerinax.docker.utils.DockerGenUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen.exceptions;
+package org.ballerinax.docker.exceptions;
 
 /**
  * Custom exception for kubernetes artifact generation errors.

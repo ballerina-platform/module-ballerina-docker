@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen.models;
+package org.ballerinax.docker.models;
 
 import java.util.List;
 

@@ -1,9 +1,10 @@
-import ballerina.docker;
+import ballerinax.docker;
 import ballerina.net.http;
 
 @docker:configuration {
-    debugEnable:true,
-    name:"helloworld-debug"
+    registry:"docker.abc.com",
+    name:"helloworld",
+    tag:"v1.0"
 }
 @http:configuration {
     basePath:"/helloWorld"
@@ -15,3 +16,4 @@ service<http> helloWorld {
         _ = conn.respond(res);
     }
 }
+

@@ -1,4 +1,4 @@
-package ballerina.docker;
+package ballerinax.docker;
 
 @Description {value:"Docker configuration"}
 @Field {value:"name: Name of the docker image"}

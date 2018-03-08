@@ -1,10 +1,13 @@
-import ballerina.docker;
+import ballerinax.docker;
 import ballerina.net.http;
 
 @docker:configuration {
-    registry:"docker.abc.com",
-    name:"helloworld",
-    tag:"v1.0"
+    push:true,
+    registry:"index.docker.io/<username>",
+    name:"helloworld-push",
+    tag:"v2.0.0",
+    username:"<username>",
+    password:"<password>"
 }
 @http:configuration {
     basePath:"/helloWorld"

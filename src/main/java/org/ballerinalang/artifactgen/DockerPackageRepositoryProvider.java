@@ -21,15 +21,15 @@ package org.ballerinalang.artifactgen;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.fs.ClasspathPackageRepository;
-import org.ballerinalang.spi.SystemPackageRepositoryProvider;
+import org.ballerinalang.spi.ExtensionPackageRepositoryProvider;
 
 /**
  * This represents the standard Ballerina built-in system package repository provider.
  * 
  * @since 0.95
  */
-@JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
-public class StandardSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
+@JavaSPIService("org.ballerinalang.spi.ExtensionPackageRepositoryProvider")
+public class DockerPackageRepositoryProvider implements ExtensionPackageRepositoryProvider {
 
     private static final String JAR_SYSTEM_LIB_LOCATION = "/META-INF/natives/";
 

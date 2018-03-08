@@ -8,14 +8,14 @@
     anuruddhal/helloworld-push:v2.0.0
     
     $> tree
-    ├── docker-push-sample.balx
+    ├── docker_push_sample.balx
     └── target
         └── docker
             └── Dockerfile
     ```
 ### How to run:
 
-1. Open docker-push-sample.bal file and change the username and password attributes.
+1. Open docker_push_sample.bal file and change the username and password attributes.
 ```bash
 @docker:configuration {
     push:true,
@@ -27,9 +27,9 @@
 }
 ```
 
-2. Compile the  docker-push-sample.bal file. 
+2. Compile the  docker_push_sample.bal file. 
 ```bash
-$> ballerina build hello-world-docker.bal
+$> ballerina build docker_push_sample.bal
 
 success: Successfully built 70a5e621b84d
 
@@ -48,8 +48,8 @@ docker run -d -p 9090:9090 index.docker.io/anuruddhal/helloworld-push:v2.0.0
 $> tree
 .
 ├── README.md
-├── docker-push-sample.bal
-├── docker-push-sample.balx
+├── docker_push_sample.bal
+├── docker_push_sample.balx
 └── target
     └── docker
         └── Dockerfile

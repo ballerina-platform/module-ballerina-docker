@@ -9,28 +9,28 @@ change image name, tag and registry.
     docker.abc.com/helloworld:v1.0
     
     $> tree
-    ├── hello-world-docker.balx
+    ├── hello_world_docker.balx
     └── target
         └── docker
             └── Dockerfile
     ```
 ### How to run:
 
-1. Compile the  hello-world-docker.bal file. Command to run docker image will be printed on success:
+1. Compile the  hello_world_docker.bal file. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build hello-world-docker.bal
+$> ballerina build hello_world_docker.bal
 
 Run following command to start docker container: 
 docker run -d -p 9090:9090 docker.abc.com/helloworld:v1.0
 ```
 
-2. hello-world-docker.balx, Dockerfile and docker image will be generated: 
+2. hello_world_docker.balx, Dockerfile and docker image will be generated: 
 ```bash
 $> tree
 .
 ├── README.md
-├── hello-world-docker.bal
-├── hello-world-docker.balx
+├── hello_world_docker.bal
+├── hello_world_docker.balx
 └── target
     └── docker
         └── Dockerfile

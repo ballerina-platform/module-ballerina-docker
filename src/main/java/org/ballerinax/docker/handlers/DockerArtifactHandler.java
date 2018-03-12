@@ -35,7 +35,6 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
-import static org.ballerinax.docker.utils.DockerGenUtils.printSuccess;
 
 /**
  * Generates Docker artifacts from annotations.
@@ -73,7 +72,6 @@ public class DockerArtifactHandler {
                 .usingListener(new EventListener() {
                     @Override
                     public void onSuccess(String message) {
-                        printSuccess(message);
                         buildDone.countDown();
                     }
 
@@ -122,13 +120,11 @@ public class DockerArtifactHandler {
                 .usingListener(new EventListener() {
                     @Override
                     public void onSuccess(String message) {
-                        printSuccess(message);
                         pushDone.countDown();
                     }
 
                     @Override
                     public void onError(String message) {
-                        printError(message);
                         pushDone.countDown();
                     }
 
@@ -187,7 +183,7 @@ public class DockerArtifactHandler {
         } else {
             stringBuffer.append("CMD ballerina run ").append(dockerModel.getBalxFileName());
         }
-        if (dockerModel.isDebugEnable()) {
+        if (dockerModel.isEnableDebug()) {
             stringBuffer.append(" --debug ").append(dockerModel.getDebugPort());
         }
         return stringBuffer.toString();

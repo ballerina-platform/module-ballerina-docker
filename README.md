@@ -18,7 +18,7 @@ Annotation based docker extension implementation for ballerina.
 |tag|Docker image tag|latest|
 |buildImage|Whether to build docker image|true|
 |baseImage|Base image to create the docker image|ballerina/b7a:latest|
-|debugEnable|Enable debug for ballerina|false|
+|enableDebug|Enable debug for ballerina|false|
 |debugPort|Remote debug port|5005|
 |push|Push to remote registry|false|
 |username|Username for docker registry|None|

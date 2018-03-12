@@ -19,15 +19,15 @@
 package org.ballerinax.docker.exceptions;
 
 /**
- * Custom exception for kubernetes artifact generation errors.
+ * Custom exception for docker plugin artifact generation errors.
  */
-public class ArtifactGenerationException extends Exception {
+public class DockerPluginException extends Exception {
 
-    public ArtifactGenerationException(String msg) {
+    public DockerPluginException(String msg) {
         super(msg);
     }
 
-    public ArtifactGenerationException(String msg, Throwable e) {
+    public DockerPluginException(String msg, Throwable e) {
         super(msg, e);
     }
 }

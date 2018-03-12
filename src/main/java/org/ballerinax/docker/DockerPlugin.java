@@ -20,20 +20,23 @@ package org.ballerinax.docker;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.ballerinax.docker.utils.DockerGenUtils;
+import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.ballerinax.docker.DockerAnnotationProcessor.dockerModel;
+import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 
 /**
  * Compiler plugin to generate docker artifacts.
@@ -42,52 +45,116 @@ import java.nio.file.Paths;
         value = "ballerinax.docker"
 )
 public class DockerPlugin extends AbstractCompilerPlugin {
+    private DiagnosticLog dlog;
+    static List<Integer> ports = new ArrayList<>();
+
     @Override
     public void init(DiagnosticLog diagnosticLog) {
+        this.dlog = diagnosticLog;
+    }
+
+    @Override
+    public void process(PackageNode packageNode) {
+        // extract port values from services.
+        List<? extends ServiceNode> serviceNodes = packageNode.getServices();
+        for (ServiceNode serviceNode : serviceNodes) {
+            List<? extends AnnotationAttachmentNode> annotationAttachmentNodes = serviceNode.getAnnotationAttachments();
+            for (AnnotationAttachmentNode annotationAttachmentNode : annotationAttachmentNodes) {
+                String packageID = ((BLangAnnotationAttachment) annotationAttachmentNode).
+                        annotationSymbol.pkgID.name.value;
+                if ("ballerina.net.http".equals(packageID)) {
+                    List<BLangAnnotAttachmentAttribute> bLangAnnotationAttachments = ((BLangAnnotationAttachment)
+                            annotationAttachmentNode).attributes;
+                    for (BLangAnnotAttachmentAttribute annotationAttribute : bLangAnnotationAttachments) {
+                        String annotationKey = annotationAttribute.name.value;
+                        if ("port".equals(annotationKey)) {
+                            Node annotationValue = annotationAttribute.getValue().getValue();
+                            ports.add(Integer.parseInt(annotationValue.toString()));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        for (AnnotationAttachmentNode attachmentNode : annotations) {
+            List<BLangAnnotAttachmentAttribute> bLangAnnotationAttachments = ((BLangAnnotationAttachment)
+                    attachmentNode).attributes;
+            for (BLangAnnotAttachmentAttribute annotationAttribute : bLangAnnotationAttachments) {
+                DockerConfiguration dockerConfiguration =
+                        DockerConfiguration.valueOf(annotationAttribute.name.value);
+                Node annotationValue = annotationAttribute.getValue().getValue();
+                if (annotationValue == null) {
+                    return;
+                }
+                switch (dockerConfiguration) {
+                    case name:
+                        dockerModel.setName(annotationValue.toString());
+                        break;
+                    case registry:
+                        dockerModel.setRegistry(annotationValue.toString());
+                        break;
+                    case tag:
+                        dockerModel.setTag(annotationValue.toString());
+                        break;
+                    case username:
+                        dockerModel.setUsername(annotationValue.toString());
+                        break;
+                    case password:
+                        dockerModel.setPassword(annotationValue.toString());
+                        break;
+                    case baseImage:
+                        dockerModel.setBaseImage(annotationValue.toString());
+                        break;
+                    case push:
+                        dockerModel.setPush(Boolean.valueOf(annotationValue.toString()));
+                        break;
+                    case buildImage:
+                        dockerModel.setBuildImage(Boolean.valueOf(annotationValue.toString()));
+                        break;
+                    case enableDebug:
+                        dockerModel.setEnableDebug(Boolean.valueOf(annotationValue.toString()));
+                        break;
+                    case debugPort:
+                        dockerModel.setDebugPort(Integer.parseInt(annotationValue.toString()));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            dockerModel.setService(true);
+            dockerModel.setPorts(ports);
+            printDebug(dockerModel.toString());
+        }
     }
 
     @Override
     public void codeGenerated(Path binaryPath) {
-        DockerGenUtils.printInfo("Generating deployment artifacts docker …");
         String filePath = binaryPath.toAbsolutePath().toString();
         String userDir = new File(filePath).getParentFile().getAbsolutePath();
+        String targetPath = userDir + File.separator + "docker" + File.separator;
+        printDebug("Output Directory " + targetPath);
+        DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
         try {
-            byte[] bFile = Files.readAllBytes(Paths.get(filePath));
-            ProgramFileReader reader = new ProgramFileReader();
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bFile);
-            ProgramFile programFile = reader.readProgram(byteArrayInputStream);
-            PackageInfo packageInfos[] = programFile.getPackageInfoEntries();
-
-            for (PackageInfo packageInfo : packageInfos) {
-                ServiceInfo serviceInfos[] = packageInfo.getServiceInfoEntries();
-                int dockerCount = 0;
-                ServiceInfo dockerAnnotatedService = null;
-                for (ServiceInfo serviceInfo : serviceInfos) {
-                    AnnAttachmentInfo dockerAnnotation = serviceInfo.getAnnotationAttachmentInfo
-                            (DockerGenConstants.DOCKER_ANNOTATION_PACKAGE,
-                                    DockerGenConstants.DOCKER_ANNOTATION);
-                    if (dockerAnnotation != null) {
-                        if (dockerCount < 1) {
-                            DockerGenUtils.printDebug("Processing docker{} annotation for: " + serviceInfo.getName());
-                            dockerCount += 1;
-                            dockerAnnotatedService = serviceInfo;
-                        } else {
-                            DockerGenUtils.printWarn("multiple docker{} annotations detected. Ignoring annotation in " +
-                                    "service: " + serviceInfo.getName());
-                        }
-                    }
-                }
-                if (dockerAnnotatedService != null) {
-                    String targetPath = userDir + File.separator + "target" + File.separator +
-                            DockerGenUtils.extractBalxName(filePath) + File.separator + "docker" + File.separator;
-                    DockerGenUtils.printDebug("Output Directory " + targetPath);
-                    DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
-                    dockerAnnotationProcessor.processDockerAnnotationForService(dockerAnnotatedService,
-                            filePath, targetPath);
-                }
-            }
-        } catch (IOException e) {
-            DockerGenUtils.printError("error while reading balx file" + e.getMessage());
+            dockerAnnotationProcessor.processDockerModel(filePath, targetPath);
+        } catch (DockerPluginException e) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, null, e.getMessage());
         }
+    }
+
+    private enum DockerConfiguration {
+        name,
+        registry,
+        tag,
+        username,
+        password,
+        baseImage,
+        push,
+        buildImage,
+        enableDebug,
+        debugPort
     }
 }

@@ -9,7 +9,7 @@ package ballerinax.docker;
 @Field {value:"baseImage: Base image for docker image building"}
 @Field {value:"push: Push to remote registry"}
 @Field {value:"buildImage: Build docker image"}
-@Field {value:"debugEnable: Enable debug for ballerina program"}
+@Field {value:"enableDebug: Enable debug for ballerina program"}
 @Field {value:"debugPort: Remote debug port for ballerina program"}
 public annotation configuration attach service, function {
     string name;
@@ -20,6 +20,6 @@ public annotation configuration attach service, function {
     string baseImage;
     boolean push;
     boolean buildImage;
-    boolean debugEnable;
+    boolean enableDebug;
     int debugPort;
 }

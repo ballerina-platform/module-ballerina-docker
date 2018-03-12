@@ -2,7 +2,7 @@ import ballerinax.docker;
 import ballerina.net.http;
 
 @docker:configuration {
-    debugEnable:true,
+    enableDebug:true,
     name:"helloworld-debug"
 }
 @http:configuration {

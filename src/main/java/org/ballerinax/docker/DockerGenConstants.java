@@ -23,22 +23,7 @@ package org.ballerinax.docker;
  */
 public class DockerGenConstants {
     public static final String ENABLE_DEBUG_LOGS = "debugDocker";
-
-    // Annotation package constants
-    public static final String DOCKER_ANNOTATION_PACKAGE = "ballerinax.docker";
-    public static final String DOCKER_ANNOTATION = "configuration";
-
-    //Docker annotation constants
-    public static final String DOCKER_NAME = "name";
-    public static final String DOCKER_REGISTRY = "registry";
-    public static final String DOCKER_TAG = "tag";
-    public static final String DOCKER_USERNAME = "username";
-    public static final String DOCKER_PASSWORD = "password";
-    public static final String DOCKER_PUSH = "push";
-    public static final String DOCKER_TAG_LATEST = "latest";
-    public static final String DOCKER_IMAGE_BUILD = "buildImage";
-    public static final String DOCKER_DEBUG_ENABLE = "debugEnable";
-    public static final String DOCKER_DEBUG_PORT = "debugPort";
-    public static final String DOCKER_BASE_IMAGE = "baseImage";
-
+    public static final String BALX = ".balx";
+    public static final String REGISTRY_SEPARATOR = "/";
+    public static final String TAG_SEPARATOR = ":";
 }

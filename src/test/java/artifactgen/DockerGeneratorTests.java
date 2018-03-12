@@ -48,7 +48,7 @@ public class DockerGeneratorTests {
         dockerModel.setPorts(ports);
         dockerModel.setService(true);
         dockerModel.setBalxFileName("example.balx");
-        dockerModel.setDebugEnable(true);
+        dockerModel.setEnableDebug(true);
         dockerModel.setDebugPort(5005);
 
         String dockerfileContent = new DockerArtifactHandler(dockerModel).generate();

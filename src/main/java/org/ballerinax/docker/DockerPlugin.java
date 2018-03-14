@@ -29,6 +29,8 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -36,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinax.docker.DockerAnnotationProcessor.dockerModel;
+import static org.ballerinax.docker.DockerGenConstants.BALLERINA_NET_HTTP;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 
 /**
@@ -45,12 +48,18 @@ import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
         value = "ballerinax.docker"
 )
 public class DockerPlugin extends AbstractCompilerPlugin {
+    private static List<Integer> ports = new ArrayList<>();
+    private static boolean canProcess;
     private DiagnosticLog dlog;
-    static List<Integer> ports = new ArrayList<>();
+
+    private static synchronized void setCanProcess(boolean val) {
+        canProcess = val;
+    }
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dlog = diagnosticLog;
+        setCanProcess(false);
     }
 
     @Override
@@ -62,7 +71,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             for (AnnotationAttachmentNode annotationAttachmentNode : annotationAttachmentNodes) {
                 String packageID = ((BLangAnnotationAttachment) annotationAttachmentNode).
                         annotationSymbol.pkgID.name.value;
-                if ("ballerina.net.http".equals(packageID)) {
+                if (BALLERINA_NET_HTTP.equals(packageID)) {
                     List<BLangAnnotAttachmentAttribute> bLangAnnotationAttachments = ((BLangAnnotationAttachment)
                             annotationAttachmentNode).attributes;
                     for (BLangAnnotAttachmentAttribute annotationAttribute : bLangAnnotationAttachments) {
@@ -77,49 +86,46 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         }
     }
 
-
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        setCanProcess(true);
         for (AnnotationAttachmentNode attachmentNode : annotations) {
-            List<BLangAnnotAttachmentAttribute> bLangAnnotationAttachments = ((BLangAnnotationAttachment)
-                    attachmentNode).attributes;
-            for (BLangAnnotAttachmentAttribute annotationAttribute : bLangAnnotationAttachments) {
+            List<BLangRecordKeyValue> keyValues =
+                    ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
+            for (BLangRecordKeyValue keyValue : keyValues) {
                 DockerConfiguration dockerConfiguration =
-                        DockerConfiguration.valueOf(annotationAttribute.name.value);
-                Node annotationValue = annotationAttribute.getValue().getValue();
-                if (annotationValue == null) {
-                    return;
-                }
+                        DockerConfiguration.valueOf(keyValue.getKey().toString());
+                String annotationValue = keyValue.getValue().toString();
                 switch (dockerConfiguration) {
                     case name:
-                        dockerModel.setName(annotationValue.toString());
+                        dockerModel.setName(annotationValue);
                         break;
                     case registry:
-                        dockerModel.setRegistry(annotationValue.toString());
+                        dockerModel.setRegistry(annotationValue);
                         break;
                     case tag:
-                        dockerModel.setTag(annotationValue.toString());
+                        dockerModel.setTag(annotationValue);
                         break;
                     case username:
-                        dockerModel.setUsername(annotationValue.toString());
+                        dockerModel.setUsername(annotationValue);
                         break;
                     case password:
-                        dockerModel.setPassword(annotationValue.toString());
+                        dockerModel.setPassword(annotationValue);
                         break;
                     case baseImage:
-                        dockerModel.setBaseImage(annotationValue.toString());
+                        dockerModel.setBaseImage(annotationValue);
                         break;
                     case push:
-                        dockerModel.setPush(Boolean.valueOf(annotationValue.toString()));
+                        dockerModel.setPush(Boolean.valueOf(annotationValue));
                         break;
                     case buildImage:
-                        dockerModel.setBuildImage(Boolean.valueOf(annotationValue.toString()));
+                        dockerModel.setBuildImage(Boolean.valueOf(annotationValue));
                         break;
                     case enableDebug:
-                        dockerModel.setEnableDebug(Boolean.valueOf(annotationValue.toString()));
+                        dockerModel.setEnableDebug(Boolean.valueOf(annotationValue));
                         break;
                     case debugPort:
-                        dockerModel.setDebugPort(Integer.parseInt(annotationValue.toString()));
+                        dockerModel.setDebugPort(Integer.parseInt(annotationValue));
                         break;
                     default:
                         break;
@@ -133,15 +139,17 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void codeGenerated(Path binaryPath) {
-        String filePath = binaryPath.toAbsolutePath().toString();
-        String userDir = new File(filePath).getParentFile().getAbsolutePath();
-        String targetPath = userDir + File.separator + "docker" + File.separator;
-        printDebug("Output Directory " + targetPath);
-        DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
-        try {
-            dockerAnnotationProcessor.processDockerModel(filePath, targetPath);
-        } catch (DockerPluginException e) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, null, e.getMessage());
+        if (canProcess) {
+            String filePath = binaryPath.toAbsolutePath().toString();
+            String userDir = new File(filePath).getParentFile().getAbsolutePath();
+            String targetPath = userDir + File.separator + "docker" + File.separator;
+            printDebug("Output Directory " + targetPath);
+            DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
+            try {
+                dockerAnnotationProcessor.processDockerModel(filePath, targetPath);
+            } catch (DockerPluginException e) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, null, e.getMessage());
+            }
         }
     }
 

@@ -11,7 +11,7 @@ package ballerinax.docker;
 @Field {value:"buildImage: Build docker image"}
 @Field {value:"enableDebug: Enable debug for ballerina program"}
 @Field {value:"debugPort: Remote debug port for ballerina program"}
-public annotation configuration attach service, function {
+public struct DockerConfiguration {
     string name;
     string registry;
     string tag;
@@ -23,3 +23,6 @@ public annotation configuration attach service, function {
     boolean enableDebug;
     int debugPort;
 }
+
+@Description {value:"Configurations annotation for Docker"}
+public annotation <service> configuration DockerConfiguration;

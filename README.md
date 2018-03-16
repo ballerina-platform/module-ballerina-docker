@@ -17,7 +17,8 @@ Annotation based docker extension implementation for ballerina.
 |registry|Docker registry|None|
 |tag|Docker image tag|latest|
 |buildImage|Whether to build docker image|true|
-|baseImage|Base image to create the docker image|ballerina/b7a:latest|
+|dockerHost|Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)|unix:///var/run/docker.sock|
+|baseImage|Base image to create the docker image|ballerina/ballerina:latest|
 |enableDebug|Enable debug for ballerina|false|
 |debugPort|Remote debug port|5005|
 |push|Push to remote registry|false|

@@ -127,6 +127,9 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                     case debugPort:
                         dockerModel.setDebugPort(Integer.parseInt(annotationValue));
                         break;
+                    case dockerHost:
+                        dockerModel.setDockerHost(annotationValue);
+                        break;
                     default:
                         break;
                 }
@@ -163,6 +166,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         push,
         buildImage,
         enableDebug,
-        debugPort
+        debugPort,
+        dockerHost
     }
 }

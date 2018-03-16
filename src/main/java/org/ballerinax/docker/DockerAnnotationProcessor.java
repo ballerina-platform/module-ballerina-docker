@@ -94,7 +94,7 @@ class DockerAnnotationProcessor {
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
                 out.print("@docker \t\t - complete 1/3 \r");
-                dockerArtifactHandler.buildImage(dockerModel.getName(), outputDir);
+                dockerArtifactHandler.buildImage(dockerModel, outputDir);
                 Files.delete(Paths.get(balxDestination));
                 out.print("@docker \t\t - complete 2/3 \r");
                 //push only if image build is enabled.

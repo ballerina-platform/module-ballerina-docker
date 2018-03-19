@@ -15,7 +15,7 @@
 # -----------------------------------------------------------------------
 
 FROM openjdk:jre-alpine
-MAINTAINER ballerina Maintainers "dev@ballerina.io"
+LABEL maintainer="dev@ballerina.io"
 
 # Ballerina runtime distribution filename.
 ARG BALLERINA_DIST

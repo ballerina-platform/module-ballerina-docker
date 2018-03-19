@@ -27,6 +27,7 @@ import io.fabric8.docker.client.DockerClient;
 import io.fabric8.docker.client.utils.RegistryUtils;
 import io.fabric8.docker.dsl.EventListener;
 import io.fabric8.docker.dsl.OutputHandle;
+import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerModel;
 
 import java.io.IOException;
@@ -34,14 +35,12 @@ import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
-import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
 /**
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
 
-    private static final String LOCAL_DOCKER_DAEMON_SOCKET = "unix:///var/run/docker.sock";
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
@@ -59,11 +58,12 @@ public class DockerArtifactHandler {
      * @throws IOException          When error with docker build process
      */
     public void buildImage(DockerModel dockerModel, String dockerDir) throws
-            InterruptedException, IOException {
+            InterruptedException, IOException, DockerPluginException {
         Config dockerClientConfig = new ConfigBuilder()
                 .withDockerUrl(dockerModel.getDockerHost())
                 .build();
         DockerClient client = new io.fabric8.docker.client.DefaultDockerClient(dockerClientConfig);
+        final DockerError dockerError = new DockerError();
         OutputHandle buildHandle = client.image()
                 .build()
                 .withRepositoryName(dockerModel.getName())
@@ -76,14 +76,14 @@ public class DockerArtifactHandler {
                     }
 
                     @Override
-                    public void onError(String messsage) {
-                        printError(messsage);
+                    public void onError(String message) {
+                        dockerError.setErrorMsg("error building docker image: " + message);
                         buildDone.countDown();
                     }
 
                     @Override
                     public void onError(Throwable t) {
-                        printError(t.getMessage());
+                        dockerError.setErrorMsg("error building docker image: " + t.getMessage());
                         buildDone.countDown();
                     }
 
@@ -96,6 +96,13 @@ public class DockerArtifactHandler {
         buildDone.await();
         buildHandle.close();
         client.close();
+        handleError(dockerError);
+    }
+
+    private void handleError(DockerError dockerError) throws DockerPluginException {
+        if (dockerError.isError()) {
+            throw new DockerPluginException(dockerError.getErrorMsg());
+        }
     }
 
     /**
@@ -105,7 +112,7 @@ public class DockerArtifactHandler {
      * @throws InterruptedException When error with docker build process
      * @throws IOException          When error with docker build process
      */
-    public void pushImage(DockerModel dockerModel) throws InterruptedException, IOException {
+    public void pushImage(DockerModel dockerModel) throws InterruptedException, IOException, DockerPluginException {
 
         AuthConfig authConfig = new AuthConfigBuilder().withUsername(dockerModel.getUsername()).withPassword
                 (dockerModel.getPassword())
@@ -116,6 +123,7 @@ public class DockerArtifactHandler {
                 .build();
 
         DockerClient client = new DefaultDockerClient(config);
+        final DockerError dockerError = new DockerError();
         OutputHandle handle = client.image().withName(dockerModel.getName()).push()
                 .usingListener(new EventListener() {
                     @Override
@@ -126,12 +134,13 @@ public class DockerArtifactHandler {
                     @Override
                     public void onError(String message) {
                         pushDone.countDown();
+                        dockerError.setErrorMsg("error pushing docker image: " + message);
                     }
 
                     @Override
                     public void onError(Throwable t) {
-                        printError(t.getMessage());
                         pushDone.countDown();
+                        dockerError.setErrorMsg("error pushing docker image: " + t.getMessage());
                     }
 
                     @Override
@@ -144,6 +153,7 @@ public class DockerArtifactHandler {
         pushDone.await();
         handle.close();
         client.close();
+        handleError(dockerError);
     }
 
     /**
@@ -171,7 +181,7 @@ public class DockerArtifactHandler {
                 "# -----------------------------------------------------------------------\n" +
                 "\n" +
                 "FROM " + dockerModel.getBaseImage() + "\n" +
-                "MAINTAINER ballerina Maintainers \"dev@ballerina.io\"\n" +
+                "LABEL maintainer=\"dev@ballerina.io\"\n" +
                 "\n" +
                 "COPY " + dockerModel.getBalxFileName() + " /home/ballerina \n\n";
 
@@ -187,5 +197,30 @@ public class DockerArtifactHandler {
             stringBuffer.append(" --debug ").append(dockerModel.getDebugPort());
         }
         return stringBuffer.toString();
+    }
+
+    /**
+     * Class to hold docker errors.
+     */
+    private static class DockerError {
+        private boolean error;
+        private String errorMsg;
+
+        DockerError() {
+            this.error = false;
+        }
+
+        boolean isError() {
+            return error;
+        }
+
+        String getErrorMsg() {
+            return errorMsg;
+        }
+
+        void setErrorMsg(String errorMsg) {
+            this.error = true;
+            this.errorMsg = errorMsg;
+        }
     }
 }

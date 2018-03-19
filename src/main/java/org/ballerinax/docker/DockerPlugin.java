@@ -40,6 +40,7 @@ import java.util.List;
 import static org.ballerinax.docker.DockerAnnotationProcessor.dockerModel;
 import static org.ballerinax.docker.DockerGenConstants.BALLERINA_NET_HTTP;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
+import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
 /**
  * Compiler plugin to generate docker artifacts.
@@ -146,11 +147,11 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             String filePath = binaryPath.toAbsolutePath().toString();
             String userDir = new File(filePath).getParentFile().getAbsolutePath();
             String targetPath = userDir + File.separator + "docker" + File.separator;
-            printDebug("Output Directory " + targetPath);
             DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
             try {
                 dockerAnnotationProcessor.processDockerModel(filePath, targetPath);
             } catch (DockerPluginException e) {
+                printError(e.getMessage());
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, null, e.getMessage());
             }
         }

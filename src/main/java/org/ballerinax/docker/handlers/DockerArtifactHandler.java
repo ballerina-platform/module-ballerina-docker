@@ -47,7 +47,7 @@ public class DockerArtifactHandler {
 
     public DockerArtifactHandler(DockerModel dockerModel) {
         this.dockerModel = dockerModel;
-        if (dockerModel.getDockerCertPath() == null) {
+        if (dockerModel.getDockerCertPath() != null) {
             System.setProperty("docker.cert.path", dockerModel.getDockerCertPath());
         }
     }

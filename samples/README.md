@@ -5,6 +5,13 @@
 - [Docker](https://docs.docker.com/install/) is installed and configured.
 - [Ballerina Docker Extension](README.md) is configured.
 - [Base docker image](../base/README.md) is built or pulled. 
+- Mini-kube users should configure following annotations in every sample with valid values: 
+```bash
+@docker:configuration {
+    dockerHost:"tcp://192.168.99.100:2376", 
+    dockerCertPath:"/Users/anuruddha/.minikube/certs"
+}
+```
 
 ### Try docker annotation examples:
 

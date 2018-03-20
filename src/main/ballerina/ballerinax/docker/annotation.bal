@@ -12,6 +12,7 @@ package ballerinax.docker;
 @Field {value:"enableDebug: Enable debug for ballerina program"}
 @Field {value:"debugPort: Remote debug port for ballerina program"}
 @Field {value:"dockerHost: Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)"}
+@Field {value:"dockerCertPath: Docker cert path."}
 public struct DockerConfiguration {
     string name;
     string registry;
@@ -24,6 +25,7 @@ public struct DockerConfiguration {
     boolean enableDebug;
     int debugPort;
     string dockerHost;
+    string dockerCertPath;
 }
 
 @Description {value:"Configurations annotation for Docker"}

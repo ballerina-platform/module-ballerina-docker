@@ -131,6 +131,9 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                     case dockerHost:
                         dockerModel.setDockerHost(annotationValue);
                         break;
+                    case dockerCertPath:
+                        dockerModel.setDockerCertPath(annotationValue);
+                        break;
                     default:
                         break;
                 }
@@ -168,6 +171,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         buildImage,
         enableDebug,
         debugPort,
-        dockerHost
+        dockerHost,
+        dockerCertPath
     }
 }

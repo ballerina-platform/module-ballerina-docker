@@ -18,6 +18,7 @@ Annotation based docker extension implementation for ballerina.
 |tag|Docker image tag|latest|
 |buildImage|Whether to build docker image|true|
 |dockerHost|Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)|unix:///var/run/docker.sock|
+|dockerCertPath|Docker cert path|null|
 |baseImage|Base image to create the docker image|ballerina/ballerina:latest|
 |enableDebug|Enable debug for ballerina|false|
 |debugPort|Remote debug port|5005|

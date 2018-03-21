@@ -4,11 +4,11 @@ import ballerinax.docker;
 endpoint http:ServiceEndpoint helloWorldEP {
     port:9090
 };
-@docker:configuration {
+@docker:DockerConfig {
     enableDebug:true,
     name:"helloworld-debug"
 }
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/helloWorld"
 }
 service<http:Service> helloWorld bind helloWorldEP {

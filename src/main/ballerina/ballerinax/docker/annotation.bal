@@ -29,4 +29,4 @@ public struct DockerConfiguration {
 }
 
 @Description {value:"Configurations annotation for Docker"}
-public annotation <service> configuration DockerConfiguration;
+public annotation <service> DockerConfig DockerConfiguration;

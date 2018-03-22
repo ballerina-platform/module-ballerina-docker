@@ -53,7 +53,7 @@ endpoint<http:Service> backendEP {
     port:9090
 }
 
-@docker:DockerConfig {
+@docker::Config {
     registry:"docker.abc.com",
     name:"helloworld",
     tag:"v1.0"

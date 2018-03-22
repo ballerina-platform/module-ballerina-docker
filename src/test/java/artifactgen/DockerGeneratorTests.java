@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Docker generator tests.
@@ -41,7 +41,7 @@ public class DockerGeneratorTests {
     @Test
     public void testDockerGenerate() throws IOException {
         DockerModel dockerModel = new DockerModel();
-        List<Integer> ports = new ArrayList<>();
+        Set<Integer> ports = new HashSet<>();
         ports.add(9090);
         ports.add(9091);
         ports.add(9092);

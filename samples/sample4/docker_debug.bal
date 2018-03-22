@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerinax.docker;
+import ballerina/net.http;
+import ballerinax/docker;
 
 endpoint http:ServiceEndpoint helloWorldEP {
     port:9090

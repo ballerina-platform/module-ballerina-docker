@@ -64,12 +64,7 @@ class DockerAnnotationProcessor {
         dockerModel.setName(imageName);
         dockerModel.setBalxFileName(DockerGenUtils.extractBalxName(balxFilePath) + BALX);
 
-        //TODO: Fix ports with endpoints.
         List<Integer> ports = dockerModel.getPorts();
-        if (ports.size() == 0) {
-            ports.add(9090);
-        }
-
         if (dockerModel.isEnableDebug()) {
             ports.add(dockerModel.getDebugPort());
         }
@@ -114,6 +109,7 @@ class DockerAnnotationProcessor {
     private void printDockerInstructions(DockerModel dockerModel) {
         String ansiReset = "\u001B[0m";
         String ansiCyan = "\u001B[36m";
+        out.println();
         out.println(ansiCyan + "\nRun following command to start docker container:" + ansiReset);
         StringBuilder command = new StringBuilder("docker run -d ");
         dockerModel.getPorts().forEach((Integer port) -> command.append("-p ").append(port).append(":").append(port)

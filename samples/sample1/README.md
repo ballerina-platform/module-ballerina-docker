@@ -19,6 +19,7 @@
 1. Compile the  hello_world_docker.bal file. Command to run docker image will be printed on success:
 ```bash
 $> ballerina build hello_world_docker.bal
+@docker 		 - complete 3/3
 
 Run following command to start docker container: 
 docker run -d -p 9090:9090 hello_world_docker:latest

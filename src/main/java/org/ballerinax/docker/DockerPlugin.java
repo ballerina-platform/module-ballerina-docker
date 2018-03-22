@@ -21,14 +21,15 @@ package org.ballerinax.docker;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.utils.DockerGenUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 
@@ -38,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinax.docker.DockerAnnotationProcessor.dockerModel;
-import static org.ballerinax.docker.DockerGenConstants.BALLERINA_NET_HTTP;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
@@ -66,24 +66,15 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(PackageNode packageNode) {
         // extract port values from services.
-        List<? extends ServiceNode> serviceNodes = packageNode.getServices();
-        for (ServiceNode serviceNode : serviceNodes) {
-            List<? extends AnnotationAttachmentNode> annotationAttachmentNodes = serviceNode.getAnnotationAttachments();
-            for (AnnotationAttachmentNode annotationAttachmentNode : annotationAttachmentNodes) {
-                String packageID = ((BLangAnnotationAttachment) annotationAttachmentNode).
-                        annotationSymbol.pkgID.name.value;
-                if (BALLERINA_NET_HTTP.equals(packageID)) {
-                    List<BLangAnnotAttachmentAttribute> bLangAnnotationAttachments = ((BLangAnnotationAttachment)
-                            annotationAttachmentNode).attributes;
-                    for (BLangAnnotAttachmentAttribute annotationAttribute : bLangAnnotationAttachments) {
-                        String annotationKey = annotationAttribute.name.value;
-                        if ("port".equals(annotationKey)) {
-                            Node annotationValue = annotationAttribute.getValue().getValue();
-                            ports.add(Integer.parseInt(annotationValue.toString()));
-                        }
-                    }
+        List<? extends EndpointNode> endpointNodes = packageNode.getGlobalEndpoints();
+        for (EndpointNode endpointNode : endpointNodes) {
+            List<BLangRecordKeyValue> keyValues = ((BLangRecordLiteral)
+                    ((BLangEndpoint) endpointNode).configurationExpr).getKeyValuePairs();
+            keyValues.forEach(keyValue -> {
+                if ("port".equals(keyValue.getKey().toString())) {
+                    ports.add(Integer.parseInt(keyValue.getValue().toString()));
                 }
-            }
+            });
         }
     }
 
@@ -156,6 +147,10 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             } catch (DockerPluginException e) {
                 printError(e.getMessage());
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, null, e.getMessage());
+                try {
+                    DockerGenUtils.deleteDirectory(targetPath);
+                } catch (DockerPluginException ignored) {
+                }
             }
         }
     }

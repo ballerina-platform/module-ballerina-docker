@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerinax.docker;
+import ballerina/net.http;
+import ballerinax/docker;
 
 @docker:Config{}
 endpoint http:ServiceEndpoint helloWorldEP {

@@ -18,10 +18,14 @@
 
 package org.ballerinax.docker;
 
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.handlers.DockerArtifactHandler;
+import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.models.DockerModel;
 import org.ballerinax.docker.utils.DockerGenUtils;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +35,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinax.docker.DockerGenConstants.BALX;
 import static org.ballerinax.docker.DockerGenConstants.REGISTRY_SEPARATOR;
@@ -42,7 +47,6 @@ import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
  */
 class DockerAnnotationProcessor {
 
-    static DockerModel dockerModel = new DockerModel();
     private PrintStream out = System.out;
 
     /**
@@ -51,7 +55,10 @@ class DockerAnnotationProcessor {
      * @param balxFilePath ballerina file name
      * @param outputDir    target output directory
      */
-    void processDockerModel(String balxFilePath, String outputDir) throws DockerPluginException {
+    void processDockerModel(DockerDataHolder dockerDataHolder, String balxFilePath, String outputDir) throws
+            DockerPluginException {
+        DockerModel dockerModel = dockerDataHolder.getDockerModel();
+        dockerModel.setPorts(dockerDataHolder.getPorts());
         // set docker image name
         if (dockerModel.getName() == null) {
             String defaultImageName = DockerGenUtils.extractBalxName(balxFilePath);
@@ -64,12 +71,7 @@ class DockerAnnotationProcessor {
         dockerModel.setName(imageName);
         dockerModel.setBalxFileName(DockerGenUtils.extractBalxName(balxFilePath) + BALX);
 
-        //TODO: Fix ports with endpoints.
-        List<Integer> ports = dockerModel.getPorts();
-        if (ports.size() == 0) {
-            ports.add(9090);
-        }
-
+        Set<Integer> ports = dockerModel.getPorts();
         if (dockerModel.isEnableDebug()) {
             ports.add(dockerModel.getDebugPort());
         }
@@ -77,6 +79,67 @@ class DockerAnnotationProcessor {
         printDebug(dockerModel.toString());
         createDockerArtifacts(dockerModel, balxFilePath, outputDir);
         printDockerInstructions(dockerModel);
+    }
+
+    /**
+     * Process annotations and create deployment model object.
+     *
+     * @param annotations annotation attachment node list.
+     * @return Deployment model object
+     */
+    DockerModel processDockerAnnotation(List<AnnotationAttachmentNode> annotations) {
+        DockerModel dockerModel = new DockerModel();
+        for (AnnotationAttachmentNode attachmentNode : annotations) {
+            List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
+                    ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
+            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
+                DockerConfiguration dockerConfiguration =
+                        DockerConfiguration.valueOf(keyValue.getKey().toString());
+                String annotationValue = keyValue.getValue().toString();
+                switch (dockerConfiguration) {
+                    case name:
+                        dockerModel.setName(annotationValue);
+                        break;
+                    case registry:
+                        dockerModel.setRegistry(annotationValue);
+                        break;
+                    case tag:
+                        dockerModel.setTag(annotationValue);
+                        break;
+                    case username:
+                        dockerModel.setUsername(annotationValue);
+                        break;
+                    case password:
+                        dockerModel.setPassword(annotationValue);
+                        break;
+                    case baseImage:
+                        dockerModel.setBaseImage(annotationValue);
+                        break;
+                    case push:
+                        dockerModel.setPush(Boolean.valueOf(annotationValue));
+                        break;
+                    case buildImage:
+                        dockerModel.setBuildImage(Boolean.valueOf(annotationValue));
+                        break;
+                    case enableDebug:
+                        dockerModel.setEnableDebug(Boolean.valueOf(annotationValue));
+                        break;
+                    case debugPort:
+                        dockerModel.setDebugPort(Integer.parseInt(annotationValue));
+                        break;
+                    case dockerHost:
+                        dockerModel.setDockerHost(annotationValue);
+                        break;
+                    case dockerCertPath:
+                        dockerModel.setDockerCertPath(annotationValue);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            dockerModel.setService(true);
+        }
+        return dockerModel;
     }
 
 
@@ -114,6 +177,7 @@ class DockerAnnotationProcessor {
     private void printDockerInstructions(DockerModel dockerModel) {
         String ansiReset = "\u001B[0m";
         String ansiCyan = "\u001B[36m";
+        out.println();
         out.println(ansiCyan + "\nRun following command to start docker container:" + ansiReset);
         StringBuilder command = new StringBuilder("docker run -d ");
         dockerModel.getPorts().forEach((Integer port) -> command.append("-p ").append(port).append(":").append(port)
@@ -144,4 +208,18 @@ class DockerAnnotationProcessor {
         }
     }
 
+    private enum DockerConfiguration {
+        name,
+        registry,
+        tag,
+        username,
+        password,
+        baseImage,
+        push,
+        buildImage,
+        enableDebug,
+        debugPort,
+        dockerHost,
+        dockerCertPath
+    }
 }

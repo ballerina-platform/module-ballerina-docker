@@ -19,13 +19,16 @@
 package org.ballerinax.docker.utils;
 
 import org.ballerinax.docker.DockerGenConstants;
+import org.ballerinax.docker.exceptions.DockerPluginException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 
 /**
  * Util methods used for artifact generation.
@@ -72,6 +75,16 @@ public class DockerGenUtils {
     }
 
     /**
+     * Checks if a String is empty ("") or null.
+     *
+     * @param str  the String to check, may be null
+     * @return true if the String is empty or null
+     */
+    public static boolean isEmpty(String str) {
+        return str == null || str.length() == 0;
+    }
+
+    /**
      * Write content to a File. Create the required directories if they don't not exists.
      *
      * @param context        context of the file
@@ -89,6 +102,28 @@ public class DockerGenUtils {
             return;
         }
         Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Deletes a given directory.
+     *
+     * @param path path to directory
+     * @throws DockerPluginException if an error occurs while deleting
+     */
+    public static void deleteDirectory(String path) throws DockerPluginException {
+        Path pathToBeDeleted = Paths.get(path);
+        if (!Files.exists(pathToBeDeleted)) {
+            return;
+        }
+        try {
+            Files.walk(pathToBeDeleted)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        } catch (IOException e) {
+            throw new DockerPluginException("Unable to delete directory: " + path, e);
+        }
+
     }
 
 }

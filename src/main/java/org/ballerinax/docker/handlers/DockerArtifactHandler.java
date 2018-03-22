@@ -32,8 +32,10 @@ import org.ballerinax.docker.models.DockerModel;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
+import static org.ballerinax.docker.utils.DockerGenUtils.isEmpty;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 
 /**
@@ -47,7 +49,7 @@ public class DockerArtifactHandler {
 
     public DockerArtifactHandler(DockerModel dockerModel) {
         this.dockerModel = dockerModel;
-        if (dockerModel.getDockerCertPath() != null) {
+        if (!isEmpty(dockerModel.getDockerCertPath())) {
             System.setProperty("docker.cert.path", dockerModel.getDockerCertPath());
         }
     }
@@ -117,6 +119,20 @@ public class DockerArtifactHandler {
      */
     public void pushImage(DockerModel dockerModel) throws InterruptedException, IOException, DockerPluginException {
 
+        if (isEmpty(dockerModel.getUsername())) {
+            // Read password as a environment variable
+            String dockerUsername = Optional.ofNullable(System.getenv("DOCKER_USERNAME")).orElseThrow(
+                    () -> new DockerPluginException("error pushing docker image: DOCKER_USERNAME is not set in the " +
+                            "environment"));
+            dockerModel.setUsername(dockerUsername);
+        }
+        if (isEmpty(dockerModel.getPassword())) {
+            // Read password as a environment variable
+            String dockerPassword = Optional.ofNullable(System.getenv("DOCKER_PASSWORD")).orElseThrow(
+                    () -> new DockerPluginException("error pushing docker image: DOCKER_PASSWORD is not set in the " +
+                            "environment"));
+            dockerModel.setPassword(dockerPassword);
+        }
         AuthConfig authConfig = new AuthConfigBuilder().withUsername(dockerModel.getUsername()).withPassword
                 (dockerModel.getPassword())
                 .build();

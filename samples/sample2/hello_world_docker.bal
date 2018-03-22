@@ -8,7 +8,7 @@ endpoint http:ServiceEndpoint helloWorldEP {
 @http:ServiceConfig {
       basePath:"/helloWorld"
 }
-@docker:DockerConfig {
+@docker:Config {
     registry:"docker.abc.com",
     name:"helloworld",
     tag:"v1.0"

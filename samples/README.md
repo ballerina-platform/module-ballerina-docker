@@ -7,7 +7,7 @@
 - [Base docker image](../base/README.md) is built or pulled. 
 - Mini-kube users should configure following annotations in every sample with valid values: 
 ```bash
-@docker:DockerConfig {
+@docker:Config {
     dockerHost:"tcp://192.168.99.100:2376", 
     dockerCertPath:"/Users/anuruddha/.minikube/certs"
 }

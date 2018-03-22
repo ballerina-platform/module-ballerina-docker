@@ -8,7 +8,7 @@ endpoint http:ServiceEndpoint helloWorldEP {
 @http:ServiceConfig {
     basePath:"/helloWorld"
 }
-@docker:DockerConfig{}
+@docker:Config{}
 service<http:Service> helloWorld bind helloWorldEP {
     sayHello (endpoint outboundEP, http:Request request) {
         http:Response response = {};

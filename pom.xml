@@ -26,7 +26,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>docker-extenstion</artifactId>
+    <artifactId>docker-extension</artifactId>
     <packaging>jar</packaging>
     <name>Ballerina Docker Extension</name>
     <url>http://ballerinalang.org</url>

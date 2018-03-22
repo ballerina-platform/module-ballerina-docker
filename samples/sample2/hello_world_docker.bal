@@ -5,10 +5,10 @@ endpoint http:ServiceEndpoint helloWorldEP {
     port:9090
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
       basePath:"/helloWorld"
 }
-@docker:configuration {
+@docker:Config {
     registry:"docker.abc.com",
     name:"helloworld",
     tag:"v1.0"

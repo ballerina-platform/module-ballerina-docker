@@ -17,7 +17,7 @@
 
 1. Open docker_push_sample.bal file and change the username and password attributes.
 ```bash
-@docker:configuration {
+@docker:DockerConfig {
     push:true,
     registry:"index.docker.io/<username>",
     name:"helloworld-push",

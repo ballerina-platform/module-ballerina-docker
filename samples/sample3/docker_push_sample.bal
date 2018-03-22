@@ -4,16 +4,16 @@ import ballerinax.docker;
 endpoint http:ServiceEndpoint helloWorldEP {
     port:9090
 };
-@docker:configuration {
+@docker:Config {
     push:true,
-    registry:"index.docker.io/anuruddhal",
+    registry:"index.docker.io/<username>",
     name:"helloworld-push",
     tag:"v2.0.0",
-    username:"anuruddhal",
-    password:"1qaz2wsx@"
+    username:"<username>",
+    password:"<password>"
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
       basePath:"/helloWorld"
 }
 service<http:Service> helloWorld bind helloWorldEP {

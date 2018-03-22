@@ -5,10 +5,10 @@ endpoint http:ServiceEndpoint helloWorldEP {
     port:9090
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/helloWorld"
 }
-@docker:configuration{}
+@docker:Config{}
 service<http:Service> helloWorld bind helloWorldEP {
     sayHello (endpoint outboundEP, http:Request request) {
         http:Response response = {};

@@ -1,7 +1,7 @@
 ## Sample1: Docker Hello World
 
 - This sample runs simple ballerina hello world service in a docker container. 
-- The service is annotated with @docker:configuration{} without passing any parameters. 
+- The service is annotated with @docker:Config{} without passing any parameters. 
 - Default values for docker annotation attributes will be used to create docker artifacts.
 - Following files will be generated from this sample.
     ``` 

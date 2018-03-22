@@ -3,14 +3,14 @@
 Annotation based docker extension implementation for ballerina. 
 
 ## Features:
-- Dockerfile generation based on @docker:configuration annotations. 
+- Dockerfile generation based on @docker:Config annotations. 
 - Docker image generation. 
 - Docker push support with docker registry.
 - Docker based ballerina debug support. 
 
 ## Supported Annotations:
 
-### @docker:configurations{}
+### @docker:Config{}
 |**Annotation Name**|**Description**|**Default value**|
 |--|--|--|
 |name|Name of the docker image|output balx file name|
@@ -53,12 +53,12 @@ endpoint<http:Service> backendEP {
     port:9090
 }
 
-@docker:configuration {
+@docker:DockerConfig {
     registry:"docker.abc.com",
     name:"helloworld",
     tag:"v1.0"
 }
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/helloWorld",
     endpoints:[backendEP]
 }

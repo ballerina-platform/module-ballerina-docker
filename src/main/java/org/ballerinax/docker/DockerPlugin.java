@@ -82,13 +82,21 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         setCanProcess(true);
-        dockerDataHolder.setDockerModel(dockerAnnotationProcessor.processDockerAnnotation(annotations));
+        try {
+            dockerDataHolder.setDockerModel(dockerAnnotationProcessor.processDockerAnnotation(annotations));
+        } catch (DockerPluginException e) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
+        }
     }
 
     @Override
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
         setCanProcess(true);
-        dockerDataHolder.setDockerModel(dockerAnnotationProcessor.processDockerAnnotation(annotations));
+        try {
+            dockerDataHolder.setDockerModel(dockerAnnotationProcessor.processDockerAnnotation(annotations));
+        } catch (DockerPluginException e) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), e.getMessage());
+        }
     }
 
     @Override

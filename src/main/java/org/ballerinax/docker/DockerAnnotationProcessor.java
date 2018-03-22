@@ -41,6 +41,7 @@ import static org.ballerinax.docker.DockerGenConstants.BALX;
 import static org.ballerinax.docker.DockerGenConstants.REGISTRY_SEPARATOR;
 import static org.ballerinax.docker.DockerGenConstants.TAG_SEPARATOR;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
+import static org.ballerinax.docker.utils.DockerGenUtils.resolveValue;
 
 /**
  * Process Docker Annotations.
@@ -87,7 +88,7 @@ class DockerAnnotationProcessor {
      * @param annotations annotation attachment node list.
      * @return Deployment model object
      */
-    DockerModel processDockerAnnotation(List<AnnotationAttachmentNode> annotations) {
+    DockerModel processDockerAnnotation(List<AnnotationAttachmentNode> annotations) throws DockerPluginException {
         DockerModel dockerModel = new DockerModel();
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
@@ -95,7 +96,7 @@ class DockerAnnotationProcessor {
             for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
                 DockerConfiguration dockerConfiguration =
                         DockerConfiguration.valueOf(keyValue.getKey().toString());
-                String annotationValue = keyValue.getValue().toString();
+                String annotationValue = resolveValue(keyValue.getValue().toString());
                 switch (dockerConfiguration) {
                     case name:
                         dockerModel.setName(annotationValue);

@@ -6,9 +6,11 @@ endpoint http:ServiceEndpoint helloWorldEP {
 };
 @docker:Config {
     push:true,
-    registry:"index.docker.io/<username>",
+    registry:"index.docker.io/$env{DOCKER_USERNAME}",
     name:"helloworld-push",
-    tag:"v2.0.0"
+    tag:"v2.0.0",
+    username:"$env{DOCKER_USERNAME}",
+    password:"$env{DOCKER_PASSWORD}"
 }
 
 @http:ServiceConfig {

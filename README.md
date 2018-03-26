@@ -26,6 +26,13 @@ Annotation based docker extension implementation for ballerina.
 |username|Username for docker registry|None|
 |password|Password for docker registry|None|
 
+### @docker:CopyFiles{}
+|**Annotation Name**|**Description**|**Default value**|
+|--|--|--|
+|source|source path of the file (in your machine)|None|
+|target|target path (inside container)|None|
+|isBallerinaConf|flag whether file is a ballerina config file|false|
+
 
 ## How to run
 

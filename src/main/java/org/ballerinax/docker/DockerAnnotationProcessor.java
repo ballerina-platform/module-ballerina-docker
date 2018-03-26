@@ -21,10 +21,13 @@ package org.ballerinax.docker;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.handlers.DockerArtifactHandler;
+import org.ballerinax.docker.models.CopyFileModel;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.models.DockerModel;
 import org.ballerinax.docker.utils.DockerGenUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.File;
@@ -34,6 +37,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +64,7 @@ class DockerAnnotationProcessor {
             DockerPluginException {
         DockerModel dockerModel = dockerDataHolder.getDockerModel();
         dockerModel.setPorts(dockerDataHolder.getPorts());
+        dockerModel.setFiles(dockerDataHolder.getFiles());
         // set docker image name
         if (dockerModel.getName() == null) {
             String defaultImageName = DockerGenUtils.extractBalxName(balxFilePath);
@@ -83,66 +88,113 @@ class DockerAnnotationProcessor {
     }
 
     /**
-     * Process annotations and create deployment model object.
+     * Process annotations and generate docker model.
      *
-     * @param annotations annotation attachment node list.
-     * @return Deployment model object
+     * @param attachmentNode docker annotation node.
+     * @return DockerModel object
+     * @throws DockerPluginException if an error occurred while creating docker model
      */
-    DockerModel processDockerAnnotation(List<AnnotationAttachmentNode> annotations) throws DockerPluginException {
+    DockerModel processConfigAnnotation(AnnotationAttachmentNode attachmentNode) throws DockerPluginException {
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
+                ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
         DockerModel dockerModel = new DockerModel();
-        for (AnnotationAttachmentNode attachmentNode : annotations) {
-            List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
-                    ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
-            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
-                DockerConfiguration dockerConfiguration =
-                        DockerConfiguration.valueOf(keyValue.getKey().toString());
-                String annotationValue = resolveValue(keyValue.getValue().toString());
-                switch (dockerConfiguration) {
-                    case name:
-                        dockerModel.setName(annotationValue);
-                        break;
-                    case registry:
-                        dockerModel.setRegistry(annotationValue);
-                        break;
-                    case tag:
-                        dockerModel.setTag(annotationValue);
-                        break;
-                    case username:
-                        dockerModel.setUsername(annotationValue);
-                        break;
-                    case password:
-                        dockerModel.setPassword(annotationValue);
-                        break;
-                    case baseImage:
-                        dockerModel.setBaseImage(annotationValue);
-                        break;
-                    case push:
-                        dockerModel.setPush(Boolean.valueOf(annotationValue));
-                        break;
-                    case buildImage:
-                        dockerModel.setBuildImage(Boolean.valueOf(annotationValue));
-                        break;
-                    case enableDebug:
-                        dockerModel.setEnableDebug(Boolean.valueOf(annotationValue));
-                        break;
-                    case debugPort:
-                        dockerModel.setDebugPort(Integer.parseInt(annotationValue));
-                        break;
-                    case dockerHost:
-                        dockerModel.setDockerHost(annotationValue);
-                        break;
-                    case dockerCertPath:
-                        dockerModel.setDockerCertPath(annotationValue);
-                        break;
-                    default:
-                        break;
-                }
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
+            DockerConfiguration dockerConfiguration =
+                    DockerConfiguration.valueOf(keyValue.getKey().toString());
+            String annotationValue = resolveValue(keyValue.getValue().toString());
+            switch (dockerConfiguration) {
+                case name:
+                    dockerModel.setName(annotationValue);
+                    break;
+                case registry:
+                    dockerModel.setRegistry(annotationValue);
+                    break;
+                case tag:
+                    dockerModel.setTag(annotationValue);
+                    break;
+                case username:
+                    dockerModel.setUsername(annotationValue);
+                    break;
+                case password:
+                    dockerModel.setPassword(annotationValue);
+                    break;
+                case baseImage:
+                    dockerModel.setBaseImage(annotationValue);
+                    break;
+                case push:
+                    dockerModel.setPush(Boolean.valueOf(annotationValue));
+                    break;
+                case buildImage:
+                    dockerModel.setBuildImage(Boolean.valueOf(annotationValue));
+                    break;
+                case enableDebug:
+                    dockerModel.setEnableDebug(Boolean.valueOf(annotationValue));
+                    break;
+                case debugPort:
+                    dockerModel.setDebugPort(Integer.parseInt(annotationValue));
+                    break;
+                case dockerHost:
+                    dockerModel.setDockerHost(annotationValue);
+                    break;
+                case dockerCertPath:
+                    dockerModel.setDockerCertPath(annotationValue);
+                    break;
+                default:
+                    break;
             }
-            dockerModel.setService(true);
         }
+        dockerModel.setService(true);
         return dockerModel;
     }
 
+    /**
+     * Process annotations and generate CopyFile model.
+     *
+     * @param attachmentNode docker annotation node.
+     * @return CopyFileModel object set
+     * @throws DockerPluginException if an error occurred while creating model
+     */
+    Set<CopyFileModel> processCopyFileAnnotation(AnnotationAttachmentNode attachmentNode) throws DockerPluginException {
+        Set<CopyFileModel> copyFileModels = new HashSet<>();
+        // control variable to detect if there are multiple conf files.
+        boolean confFileDefined = false;
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
+                ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
+            List<BLangExpression> configAnnotation = ((BLangArrayLiteral) keyValue.valueExpr).exprs;
+            for (BLangExpression bLangExpression : configAnnotation) {
+                CopyFileModel fileModel = new CopyFileModel();
+                List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
+                        ((BLangRecordLiteral) bLangExpression).getKeyValuePairs();
+                for (BLangRecordLiteral.BLangRecordKeyValue annotation : annotationValues) {
+                    CopyFileConfiguration copyFileConfiguration =
+                            CopyFileConfiguration.valueOf(annotation.getKey().toString());
+                    String annotationValue = resolveValue(annotation.getValue().toString());
+                    switch (copyFileConfiguration) {
+                        case source:
+                            fileModel.setSource(annotationValue);
+                            break;
+                        case target:
+                            fileModel.setTarget(annotationValue);
+                            break;
+                        case isBallerinaConf:
+                            boolean value = Boolean.parseBoolean(annotationValue);
+                            if (confFileDefined && value) {
+                                throw new DockerPluginException("@docker:CopyFiles{} annotation has more than one " +
+                                        "conf files defined.");
+                            }
+                            fileModel.setBallerinaConf(value);
+                            confFileDefined = Boolean.parseBoolean(annotationValue);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                copyFileModels.add(fileModel);
+            }
+        }
+        return copyFileModels;
+    }
 
     private void createDockerArtifacts(DockerModel dockerModel, String balxFilePath, String outputDir) throws
             DockerPluginException {
@@ -154,6 +206,13 @@ class DockerAnnotationProcessor {
             String balxDestination = outputDir + File.separator + DockerGenUtils.extractBalxName
                     (balxFilePath) + BALX;
             copyFile(balxFilePath, balxDestination);
+            for (CopyFileModel copyFileModel : dockerModel.getFiles()) {
+                // Copy external files to docker folder
+                String target = outputDir + File.separator + String.valueOf(Paths.get(copyFileModel.getSource())
+                        .getFileName());
+                copyFile(copyFileModel.getSource(), target);
+
+            }
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
                 out.print("@docker \t\t - complete 1/3 \r");
@@ -168,7 +227,7 @@ class DockerAnnotationProcessor {
                 out.print("@docker \t\t - complete 3/3 \r");
             }
         } catch (IOException e) {
-            throw new DockerPluginException("Unable to write Dockerfile content to " + outputDir);
+            throw new DockerPluginException("Unable to write content to " + outputDir);
         } catch (InterruptedException e) {
             throw new DockerPluginException("Unable to create docker images " + e.getMessage());
         }
@@ -222,5 +281,11 @@ class DockerAnnotationProcessor {
         debugPort,
         dockerHost,
         dockerCertPath
+    }
+
+    private enum CopyFileConfiguration {
+        source,
+        target,
+        isBallerinaConf
     }
 }

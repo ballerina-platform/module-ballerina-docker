@@ -48,7 +48,6 @@ import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 public class DockerPlugin extends AbstractCompilerPlugin {
     private static boolean canProcess;
     private static DockerDataHolder dockerDataHolder = new DockerDataHolder();
-    ;
     private DockerAnnotationProcessor dockerAnnotationProcessor;
     private DiagnosticLog dlog;
 
@@ -59,7 +58,6 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dlog = diagnosticLog;
-        dockerAnnotationProcessor = new DockerAnnotationProcessor();
         dockerAnnotationProcessor = new DockerAnnotationProcessor();
         setCanProcess(false);
     }
@@ -83,7 +81,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         setCanProcess(true);
         try {
-            dockerDataHolder.setDockerModel(dockerAnnotationProcessor.processDockerAnnotation(annotations));
+            processDockerAnnotation(annotations);
         } catch (DockerPluginException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
         }
@@ -93,7 +91,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
         setCanProcess(true);
         try {
-            dockerDataHolder.setDockerModel(dockerAnnotationProcessor.processDockerAnnotation(annotations));
+            processDockerAnnotation(annotations);
         } catch (DockerPluginException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), e.getMessage());
         }
@@ -107,6 +105,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             String targetPath = userDir + File.separator + "docker" + File.separator;
             DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
             try {
+                DockerGenUtils.deleteDirectory(targetPath);
                 dockerAnnotationProcessor.processDockerModel(dockerDataHolder, filePath, targetPath);
             } catch (DockerPluginException e) {
                 printError(e.getMessage());
@@ -119,5 +118,27 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         }
     }
 
-
+    /**
+     * Process annotations and create model objects.
+     *
+     * @param annotations annotation attachment node list.
+     * @throws DockerPluginException if an error occurs while creating model objects
+     */
+    private void processDockerAnnotation(List<AnnotationAttachmentNode> annotations) throws DockerPluginException {
+        for (AnnotationAttachmentNode attachmentNode : annotations) {
+            String annotationKey = attachmentNode.getAnnotationName().getValue();
+            switch (annotationKey) {
+                case "Config":
+                    dockerDataHolder.setDockerModel(
+                            dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
+                    break;
+                case "CopyFiles":
+                    dockerDataHolder.addExternalFile(
+                            dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }

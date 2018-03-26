@@ -31,6 +31,7 @@ import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerModel;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinax.docker.utils.DockerGenUtils.isEmpty;
@@ -172,6 +173,15 @@ public class DockerArtifactHandler {
                 "COPY " + dockerModel.getBalxFileName() + " /home/ballerina \n\n";
 
         StringBuilder stringBuffer = new StringBuilder(dockerBase);
+        dockerModel.getFiles().forEach(file -> {
+            // Extract the source filename relative to docker folder.
+            String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
+            stringBuffer.append("COPY ")
+                    .append(sourceFileName)
+                    .append(" ")
+                    .append(file.getTarget())
+                    .append("\n");
+        });
         if (dockerModel.isService()) {
             stringBuffer.append("EXPOSE ");
             dockerModel.getPorts().forEach(port -> stringBuffer.append(" ").append(port));
@@ -179,6 +189,11 @@ public class DockerArtifactHandler {
         } else {
             stringBuffer.append("CMD ballerina run ").append(dockerModel.getBalxFileName());
         }
+        dockerModel.getFiles().forEach(file -> {
+            if (file.isBallerinaConf()) {
+                stringBuffer.append(" --config ").append(file.getTarget());
+            }
+        });
         if (dockerModel.isEnableDebug()) {
             stringBuffer.append(" --debug ").append(dockerModel.getDebugPort());
         }

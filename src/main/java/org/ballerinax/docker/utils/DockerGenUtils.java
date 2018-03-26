@@ -148,5 +148,4 @@ public class DockerGenUtils {
         }
         return variable;
     }
-
 }

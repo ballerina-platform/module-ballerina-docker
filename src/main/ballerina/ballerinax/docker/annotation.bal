@@ -30,3 +30,20 @@ public struct DockerConfiguration {
 
 @Description {value:"Configurations annotation for Docker"}
 public annotation <service,endpoint> Config DockerConfiguration;
+
+@Description {value:"External files for docker images"}
+@Field {value:"source: source path of the file (in your machine)"}
+@Field {value:"target: target path (inside container)"}
+@Field {value:"isBallerinaConf: flag whether file is a ballerina config file"}
+public struct FileConfig {
+    string source;
+    string target;
+    boolean isBallerinaConf;
+}
+
+public struct FileConfigs{
+    FileConfig[] files;
+}
+
+@Description {value:"External files annotation for Docker Images"}
+public annotation <service,endpoint> CopyFiles FileConfigs;

@@ -18,6 +18,7 @@
 
 package org.ballerinax.docker.models;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -39,6 +40,7 @@ public class DockerModel {
     private boolean isService;
     private String balxFileName;
     private String dockerCertPath;
+    private Set<CopyFileModel> files;
 
     public DockerModel() {
         // Initialize with default values except for image name
@@ -50,6 +52,7 @@ public class DockerModel {
         this.enableDebug = false;
         this.debugPort = 5005;
         this.dockerHost = "unix:///var/run/docker.sock";
+        files = new HashSet<>();
     }
 
     public String getName() {
@@ -164,6 +167,22 @@ public class DockerModel {
         this.dockerHost = dockerHost;
     }
 
+    public Set<CopyFileModel> getFiles() {
+        return files;
+    }
+
+    public void setFiles(Set<CopyFileModel> files) {
+        this.files = files;
+    }
+
+    public String getDockerCertPath() {
+        return dockerCertPath;
+    }
+
+    public void setDockerCertPath(String dockerCertPath) {
+        this.dockerCertPath = dockerCertPath;
+    }
+
     @Override
     public String toString() {
         return "DockerModel{" +
@@ -178,16 +197,11 @@ public class DockerModel {
                 ", ports=" + ports +
                 ", enableDebug=" + enableDebug +
                 ", debugPort=" + debugPort +
-                ", balxFileName='" + balxFileName + '\'' +
+                ", dockerHost='" + dockerHost + '\'' +
                 ", isService=" + isService +
+                ", balxFileName='" + balxFileName + '\'' +
+                ", dockerCertPath='" + dockerCertPath + '\'' +
+                ", files=" + files +
                 '}';
-    }
-
-    public String getDockerCertPath() {
-        return dockerCertPath;
-    }
-
-    public void setDockerCertPath(String dockerCertPath) {
-        this.dockerCertPath = dockerCertPath;
     }
 }

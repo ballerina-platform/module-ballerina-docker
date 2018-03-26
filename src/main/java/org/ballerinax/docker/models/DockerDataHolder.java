@@ -9,10 +9,12 @@ import java.util.Set;
 public class DockerDataHolder {
     private Set<Integer> ports;
     private DockerModel dockerModel;
+    private Set<CopyFileModel> files;
 
     public DockerDataHolder() {
         dockerModel = new DockerModel();
         ports = new HashSet<>();
+        files = new HashSet<>();
     }
 
     public Set<Integer> getPorts() {
@@ -29,5 +31,13 @@ public class DockerDataHolder {
 
     public void setDockerModel(DockerModel dockerModel) {
         this.dockerModel = dockerModel;
+    }
+
+    public Set<CopyFileModel> getFiles() {
+        return files;
+    }
+
+    public void addExternalFile(Set<CopyFileModel> files) {
+        this.files.addAll(files);
     }
 }

@@ -65,8 +65,10 @@ CONTAINER ID        IMAGE                            COMMAND                  CR
 
 6. Access the hello world service with curl command:
 ```bash
-$> curl http://localhost:9090/helloWorld/config
-   Configs: title = "TOML Example"
+$> curl http://localhost:9090/helloWorld/config/john
+   {userId: john@ballerina.com, groups: apim,esb}
+$> curl http://localhost:9090/helloWorld/config/jane
+   {userId: jane3@ballerina.com, groups: esb}
 $> curl http://localhost:9090/helloWorld/data
    Data: Lorem ipsum dolor sit amet.
 ```

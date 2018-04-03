@@ -1,5 +1,5 @@
 import ballerina/config;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 import ballerinax/docker;
 

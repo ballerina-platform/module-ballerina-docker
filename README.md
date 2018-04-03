@@ -53,8 +53,8 @@ target/
 
 ### Annotation Usage Sample:
 ```ballerina
-import ballerina.net.http;
-import ballerinax.docker;
+import ballerina/http;
+import ballerinax/docker;
 
 endpoint<http:Service> backendEP {
     port:9090

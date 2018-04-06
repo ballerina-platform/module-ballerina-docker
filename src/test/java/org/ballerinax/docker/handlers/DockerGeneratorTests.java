@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.artifactgen;
+package org.ballerinax.docker.handlers;
 
-import org.ballerinax.docker.handlers.DockerArtifactHandler;
+import org.ballerinax.docker.DockerArtifactHandler;
 import org.ballerinax.docker.models.DockerModel;
 import org.ballerinax.docker.utils.DockerGenUtils;
 import org.junit.Assert;

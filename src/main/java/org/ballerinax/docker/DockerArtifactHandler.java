@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinax.docker.handlers;
+package org.ballerinax.docker;
 
 import io.fabric8.docker.api.model.AuthConfig;
 import io.fabric8.docker.api.model.AuthConfigBuilder;

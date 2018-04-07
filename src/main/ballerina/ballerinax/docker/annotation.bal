@@ -13,7 +13,7 @@ package ballerinax.docker;
 @Field {value:"debugPort: Remote debug port for ballerina program"}
 @Field {value:"dockerHost: Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)"}
 @Field {value:"dockerCertPath: Docker cert path."}
-public struct DockerConfiguration {
+public type DockerConfiguration {
     string name;
     string registry;
     string tag;
@@ -26,7 +26,7 @@ public struct DockerConfiguration {
     int debugPort;
     string dockerHost;
     string dockerCertPath;
-}
+};
 
 @Description {value:"Configurations annotation for Docker"}
 public annotation <service,endpoint> Config DockerConfiguration;
@@ -35,15 +35,15 @@ public annotation <service,endpoint> Config DockerConfiguration;
 @Field {value:"source: source path of the file (in your machine)"}
 @Field {value:"target: target path (inside container)"}
 @Field {value:"isBallerinaConf: flag whether file is a ballerina config file"}
-public struct FileConfig {
+public type FileConfig {
     string source;
     string target;
     boolean isBallerinaConf;
-}
+};
 
-public struct FileConfigs{
+public type FileConfigs{
     FileConfig[] files;
-}
+};
 
 @Description {value:"External files annotation for Docker Images"}
 public annotation <service,endpoint> CopyFiles FileConfigs;

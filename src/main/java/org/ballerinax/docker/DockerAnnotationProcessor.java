@@ -20,7 +20,6 @@ package org.ballerinax.docker;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinax.docker.exceptions.DockerPluginException;
-import org.ballerinax.docker.handlers.DockerArtifactHandler;
 import org.ballerinax.docker.models.CopyFileModel;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.models.DockerModel;

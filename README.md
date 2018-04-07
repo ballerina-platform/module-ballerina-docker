@@ -7,6 +7,7 @@ Annotation based docker extension implementation for ballerina.
 - Docker image generation. 
 - Docker push support with docker registry.
 - Docker based ballerina debug support. 
+- Copy file support. 
 
 ## Supported Annotations:
 
@@ -39,15 +40,13 @@ Annotation based docker extension implementation for ballerina.
 1. Download and install JDK 8 or later
 2. Get a clone or download the source from this repository (https://github.com/ballerinax/docker)
 3. Run the Maven command ``mvn clean  install`` from within the docker directory.
-4. Copy ``target/docker-extenstion-0.962.0.jar`` file to ``<BALLERINA_HOME>/bre/lib`` directory.
+4. Copy ``target/docker-extenstion-0.9***.jar`` file to ``<BALLERINA_HOME>/bre/lib`` directory.
 5. Run ``ballerina build <.bal filename>`` to generate artifacts.
 
-The docker artifacts will be created in a folder called target with following structure.
+The docker artifacts will be created in a folder called docker with following structure.
 ```bash
-target/
-├── outputfilename
-│   	└── docker
-│	      	└── Dockerfile
+|── docker
+|    └── Dockerfile
 └── outputfilename.balx
 ```
 
@@ -60,7 +59,7 @@ endpoint<http:Service> backendEP {
     port:9090
 }
 
-@docker::Config {
+@docker:Config {
     registry:"docker.abc.com",
     name:"helloworld",
     tag:"v1.0"
@@ -71,7 +70,7 @@ endpoint<http:Service> backendEP {
 }
 service<http:Service> helloWorld {
     resource sayHello (http:ServerConnector conn, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         response.setStringPayload("Hello, World from service helloWorld ! ");
         _ = conn -> respond(response);
     }

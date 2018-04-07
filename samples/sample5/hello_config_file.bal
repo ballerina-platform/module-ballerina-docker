@@ -23,7 +23,7 @@ service<http:Service> helloWorld bind helloWorldEP {
         path:"/config/{user}"
     }
     getConfig (endpoint outboundEP, http:Request request,string user) {
-        http:Response response = {};
+        http:Response response = new;
         string userId = getConfigValue(user, "userid");
         string groups = getConfigValue(user, "groups");
         string payload = "{userId: "+userId+", groups: "+groups+"}";
@@ -35,7 +35,7 @@ service<http:Service> helloWorld bind helloWorldEP {
         path:"/data"
     }
     getData (endpoint outboundEP, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         string payload = readFile("./data/data.txt", "r", "UTF-8");
         response.setStringPayload("Data: "+ payload +"\n");
         _ = outboundEP -> respond(response);
@@ -47,14 +47,14 @@ function getConfigValue (string instanceId, string property) returns (string) {
         string value => {
             return value == null ? "Invalid user" : value;
         }
-        any|null => return "Invalid user";
+        () => return "Invalid user";
     }
 }
 
 function readFile (string filePath, string permission, string encoding) returns (string) {
     io:ByteChannel channel = io:openFile(filePath, permission);
     var characterChannelResult = io:createCharacterChannel(channel, encoding);
-    io:CharacterChannel sourceChannel={};
+    io:CharacterChannel sourceChannel = new;
     match characterChannelResult {  
         (io:CharacterChannel) res => {
             sourceChannel = res;

@@ -47,7 +47,6 @@ import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 )
 public class DockerPlugin extends AbstractCompilerPlugin {
     private static boolean canProcess;
-    private static DockerDataHolder dockerDataHolder = new DockerDataHolder();
     private DockerAnnotationProcessor dockerAnnotationProcessor;
     private DiagnosticLog dlog;
 
@@ -71,7 +70,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                     ((BLangEndpoint) endpointNode).configurationExpr).getKeyValuePairs();
             keyValues.forEach(keyValue -> {
                 if ("port".equals(keyValue.getKey().toString())) {
-                    dockerDataHolder.addPort(Integer.parseInt(keyValue.getValue().toString()));
+                    DockerDataHolder.getInstance().addPort(Integer.parseInt(keyValue.getValue().toString()));
                 }
             });
         }
@@ -82,6 +81,9 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         setCanProcess(true);
         try {
             processDockerAnnotation(annotations);
+            List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig =
+                    ((BLangRecordLiteral) serviceNode.getAnonymousEndpointBind()).getKeyValuePairs();
+            DockerDataHolder.getInstance().addPort(extractPort(endpointConfig));
         } catch (DockerPluginException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
         }
@@ -106,7 +108,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
             try {
                 DockerGenUtils.deleteDirectory(targetPath);
-                dockerAnnotationProcessor.processDockerModel(dockerDataHolder, filePath, targetPath);
+                dockerAnnotationProcessor.processDockerModel(DockerDataHolder.getInstance(), filePath, targetPath);
             } catch (DockerPluginException e) {
                 printError(e.getMessage());
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, null, e.getMessage());
@@ -129,16 +131,27 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             String annotationKey = attachmentNode.getAnnotationName().getValue();
             switch (annotationKey) {
                 case "Config":
-                    dockerDataHolder.setDockerModel(
+                    DockerDataHolder.getInstance().setDockerModel(
                             dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                     break;
                 case "CopyFiles":
-                    dockerDataHolder.addExternalFile(
+                    DockerDataHolder.getInstance().addExternalFile(
                             dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                     break;
                 default:
                     break;
             }
         }
+    }
+
+    private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) throws
+            DockerPluginException {
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : endpointConfig) {
+            String key = keyValue.getKey().toString();
+            if ("port".equals(key)) {
+                return Integer.parseInt(keyValue.getValue().toString());
+            }
+        }
+        throw new DockerPluginException("Unable to extract port from anonymous endpoint");
     }
 }

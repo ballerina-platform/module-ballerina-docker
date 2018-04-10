@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
@@ -81,9 +82,12 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         setCanProcess(true);
         try {
             processDockerAnnotation(annotations);
-            List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig =
-                    ((BLangRecordLiteral) serviceNode.getAnonymousEndpointBind()).getKeyValuePairs();
-            DockerDataHolder.getInstance().addPort(extractPort(endpointConfig));
+            RecordLiteralNode endpointConfig = serviceNode.getAnonymousEndpointBind();
+            if (endpointConfig != null) {
+                List<BLangRecordLiteral.BLangRecordKeyValue> config =
+                        ((BLangRecordLiteral) endpointConfig).getKeyValuePairs();
+                DockerDataHolder.getInstance().addPort(extractPort(config));
+            }
         } catch (DockerPluginException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
         }

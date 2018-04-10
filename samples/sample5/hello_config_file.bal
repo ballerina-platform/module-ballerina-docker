@@ -10,7 +10,7 @@ import ballerinax/docker;
             {source:"./conf/data.txt", target:"/home/ballerina/data/data.txt"}
           ]
 }
-endpoint http:ServiceEndpoint helloWorldEP {
+endpoint http:Listener helloWorldEP {
     port:9090
 };
 

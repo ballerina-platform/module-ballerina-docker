@@ -40,7 +40,7 @@ do
 
 	if [[ number -eq 3 ]]; then
 		ballerina build docker_push_sample.bal
-		dockerId=$(docker run -d -p 9090:9090 index.docker.io/anuruddhal/helloworld-push:v2.0.0)
+		dockerId=$(docker run -d -p 9090:9090 index.docker.io/$DOCKER_USERNAME/helloworld-push:v2.0.0)
 		sleep 2
 		curl http://localhost:9090/HelloWorld/sayHello
 		docker kill $dockerId

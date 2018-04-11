@@ -57,24 +57,23 @@ The docker artifacts will be created in a folder called docker with following st
 import ballerina/http;
 import ballerinax/docker;
 
-endpoint<http:Service> backendEP {
+endpoint http:Listener helloWorldEP {
     port:9090
-}
+};
 
+@http:ServiceConfig {
+      basePath:"/helloWorld"
+}
 @docker:Config {
     registry:"docker.abc.com",
     name:"helloworld",
     tag:"v1.0"
 }
-@http:ServiceConfig {
-    basePath:"/helloWorld",
-    endpoints:[backendEP]
-}
-service<http:Service> helloWorld {
-    resource sayHello (http:ServerConnector conn, http:Request request) {
+service<http:Service> helloWorld bind helloWorldEP {
+    sayHello (endpoint outboundEP, http:Request request) {
         http:Response response = new;
-        response.setStringPayload("Hello, World from service helloWorld ! ");
-        _ = conn -> respond(response);
+        response.setStringPayload("Hello, World from service helloWorld ! \n");
+        _ = outboundEP -> respond(response);
     }
 }
 ```

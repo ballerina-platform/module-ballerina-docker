@@ -19,6 +19,7 @@
 package org.ballerinax.docker.handlers;
 
 import org.ballerinax.docker.DockerArtifactHandler;
+import org.ballerinax.docker.models.CopyFileModel;
 import org.ballerinax.docker.models.DockerModel;
 import org.ballerinax.docker.utils.DockerGenUtils;
 import org.junit.Assert;
@@ -50,6 +51,23 @@ public class DockerGeneratorTests {
         dockerModel.setBalxFileName("example.balx");
         dockerModel.setEnableDebug(true);
         dockerModel.setDebugPort(5005);
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        File confFile = new File(classLoader.getResource("conf/ballerina.conf").getFile());
+        Set<CopyFileModel> files = new HashSet<>();
+        CopyFileModel confFileModel = new CopyFileModel();
+        confFileModel.setSource(confFile.getAbsolutePath());
+        confFileModel.setTarget("/home/ballerina/conf/");
+        confFileModel.setBallerinaConf(true);
+        files.add(confFileModel);
+
+        File dataFile = new File(classLoader.getResource("conf/data.txt").getFile());
+        CopyFileModel dataFileModel = new CopyFileModel();
+        dataFileModel.setSource(dataFile.getAbsolutePath());
+        dataFileModel.setTarget("/home/ballerina/data/");
+        dataFileModel.setBallerinaConf(false);
+        files.add(dataFileModel);
+        dockerModel.setFiles(files);
 
         String dockerfileContent = new DockerArtifactHandler(dockerModel).generate();
         File dockerfile = new File("target/docker");

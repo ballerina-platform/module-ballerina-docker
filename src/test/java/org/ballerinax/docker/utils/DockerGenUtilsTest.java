@@ -98,7 +98,7 @@ public class DockerGenUtilsTest {
             Assert.assertEquals(e.getMessage(), "error resolving value: DOCKER_PASSWORD is not set in the " +
                     "environment.");
         }
-        Assert.assertEquals(DockerGenUtils.resolveValue("demo"),"demo");
+        Assert.assertEquals(DockerGenUtils.resolveValue("demo"), "demo");
 
     }
 

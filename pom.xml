@@ -166,6 +166,13 @@
     </distributionManagement>
 
 
+    <scm>
+        <url>https://github.com/ballerinax/docker.git</url>
+        <developerConnection>scm:git:https://github.com/ballerinax/docker.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerinax/docker.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <build>
         <resources>
             <resource>

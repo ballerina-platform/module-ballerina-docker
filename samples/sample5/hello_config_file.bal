@@ -43,7 +43,8 @@ service<http:Service> helloWorld bind helloWorldEP {
 }
 
 function getConfigValue (string instanceId, string property) returns (string) {
-    return config:getAsString(instanceId + "." + property, default = "Invalid User");
+    string key = untaint instanceId + "." + untaint property;
+    return config:getAsString(key, default = "Invalid User");
 }
 
 function readFile (string filePath, string permission, string encoding) returns (string) {

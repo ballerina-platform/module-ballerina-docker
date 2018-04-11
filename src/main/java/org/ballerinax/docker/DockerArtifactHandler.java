@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinax.docker.utils.DockerGenUtils.isEmpty;
+import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 
 /**
@@ -48,7 +48,7 @@ public class DockerArtifactHandler {
 
     public DockerArtifactHandler(DockerModel dockerModel) {
         this.dockerModel = dockerModel;
-        if (!isEmpty(dockerModel.getDockerCertPath())) {
+        if (!isBlank(dockerModel.getDockerCertPath())) {
             System.setProperty("docker.cert.path", dockerModel.getDockerCertPath());
         }
     }

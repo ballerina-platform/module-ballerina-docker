@@ -47,8 +47,11 @@ public class DockerGenUtils {
      * @return output file name of balx
      */
     public static String extractBalxName(String balxFilePath) {
-        return balxFilePath.substring(balxFilePath.lastIndexOf(File.separator) + 1, balxFilePath.lastIndexOf("" +
-                ".balx"));
+        if (balxFilePath.contains(".balx")) {
+            return balxFilePath.substring(balxFilePath.lastIndexOf(File.separator) + 1, balxFilePath.lastIndexOf("" +
+                    ".balx"));
+        }
+        return null;
     }
 
     /**

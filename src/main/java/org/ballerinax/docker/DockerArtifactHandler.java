@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinax.docker.utils.DockerGenUtils.isEmpty;
+import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 
 /**
@@ -48,7 +48,7 @@ public class DockerArtifactHandler {
 
     public DockerArtifactHandler(DockerModel dockerModel) {
         this.dockerModel = dockerModel;
-        if (!isEmpty(dockerModel.getDockerCertPath())) {
+        if (!isBlank(dockerModel.getDockerCertPath())) {
             System.setProperty("docker.cert.path", dockerModel.getDockerCertPath());
         }
     }
@@ -81,13 +81,13 @@ public class DockerArtifactHandler {
 
                     @Override
                     public void onError(String message) {
-                        dockerError.setErrorMsg("error building docker image: " + message);
+                        dockerError.setErrorMsg("Unable to build docker image: " + message);
                         buildDone.countDown();
                     }
 
                     @Override
                     public void onError(Throwable t) {
-                        dockerError.setErrorMsg("error building docker image: " + t.getMessage());
+                        dockerError.setErrorMsg("Unable to build docker image: " + t.getMessage());
                         buildDone.countDown();
                     }
 
@@ -137,13 +137,13 @@ public class DockerArtifactHandler {
                     @Override
                     public void onError(String message) {
                         pushDone.countDown();
-                        dockerError.setErrorMsg("error pushing docker image: " + message);
+                        dockerError.setErrorMsg("Unable to push docker image: " + message);
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         pushDone.countDown();
-                        dockerError.setErrorMsg("error pushing docker image: " + t.getMessage());
+                        dockerError.setErrorMsg("Unable to push docker image: " + t.getMessage());
                     }
 
                     @Override

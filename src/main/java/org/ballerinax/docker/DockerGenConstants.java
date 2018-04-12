@@ -26,4 +26,5 @@ public class DockerGenConstants {
     public static final String BALX = ".balx";
     public static final String REGISTRY_SEPARATOR = "/";
     public static final String TAG_SEPARATOR = ":";
+    public static final String LISTENER = "Listener";
 }

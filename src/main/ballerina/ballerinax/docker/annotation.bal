@@ -47,3 +47,10 @@ public type FileConfigs{
 
 @Description {value:"External files annotation for Docker Images"}
 public annotation <service,endpoint> CopyFiles FileConfigs;
+
+@Description {value:"Expose ports for docker"}
+public type ExposeConfig{
+};
+
+@Description {value:"Expose annotation for Docker ports"}
+public annotation <endpoint> Expose ExposeConfig;

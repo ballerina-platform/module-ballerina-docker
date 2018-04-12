@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -30,14 +29,13 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.utils.DockerGenUtils;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.ballerinax.docker.DockerGenConstants.LISTENER;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
 /**
@@ -63,25 +61,24 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(PackageNode packageNode) {
-        // extract port values from services.
-        List<? extends EndpointNode> endpointNodes = packageNode.getGlobalEndpoints();
-        for (EndpointNode endpointNode : endpointNodes) {
-            List<BLangRecordKeyValue> keyValues = ((BLangRecordLiteral)
-                    ((BLangEndpoint) endpointNode).configurationExpr).getKeyValuePairs();
-            keyValues.forEach(keyValue -> {
-                if ("port".equals(keyValue.getKey().toString())) {
-                    DockerDataHolder.getInstance().addPort(Integer.parseInt(keyValue.getValue().toString()));
-                }
-            });
-        }
-    }
-
-    @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         setCanProcess(true);
         try {
-            processDockerAnnotation(annotations);
+            for (AnnotationAttachmentNode attachmentNode : annotations) {
+                String annotationKey = attachmentNode.getAnnotationName().getValue();
+                switch (annotationKey) {
+                    case "Config":
+                        DockerDataHolder.getInstance().setDockerModel(
+                                dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
+                        break;
+                    case "CopyFiles":
+                        DockerDataHolder.getInstance().addExternalFile(
+                                dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
+                        break;
+                    default:
+                        break;
+                }
+            }
             RecordLiteralNode endpointConfig = serviceNode.getAnonymousEndpointBind();
             if (endpointConfig != null) {
                 List<BLangRecordLiteral.BLangRecordKeyValue> config =
@@ -96,8 +93,33 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
         setCanProcess(true);
+        if (!LISTENER.equals(endpointNode.getEndPointType().getTypeName().getValue())) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), "@docker " +
+                    "annotations are only supported by Listener endpoints.");
+            //TODO: Remove return when dlog fixed.
+            return;
+        }
         try {
-            processDockerAnnotation(annotations);
+            for (AnnotationAttachmentNode attachmentNode : annotations) {
+                String annotationKey = attachmentNode.getAnnotationName().getValue();
+                switch (annotationKey) {
+                    case "Config":
+                        DockerDataHolder.getInstance().setDockerModel(
+                                dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
+                        break;
+                    case "CopyFiles":
+                        DockerDataHolder.getInstance().addExternalFile(
+                                dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
+                        break;
+                    case "Expose":
+                        List<BLangRecordLiteral.BLangRecordKeyValue> config =
+                                ((BLangRecordLiteral) endpointNode.getConfigurationExpression()).getKeyValuePairs();
+                        DockerDataHolder.getInstance().addPort(extractPort(config));
+                        break;
+                    default:
+                        break;
+                }
+            }
         } catch (DockerPluginException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), e.getMessage());
         }
@@ -124,29 +146,6 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         }
     }
 
-    /**
-     * Process annotations and create model objects.
-     *
-     * @param annotations annotation attachment node list.
-     * @throws DockerPluginException if an error occurs while creating model objects
-     */
-    private void processDockerAnnotation(List<AnnotationAttachmentNode> annotations) throws DockerPluginException {
-        for (AnnotationAttachmentNode attachmentNode : annotations) {
-            String annotationKey = attachmentNode.getAnnotationName().getValue();
-            switch (annotationKey) {
-                case "Config":
-                    DockerDataHolder.getInstance().setDockerModel(
-                            dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
-                    break;
-                case "CopyFiles":
-                    DockerDataHolder.getInstance().addExternalFile(
-                            dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 
     private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) throws
             DockerPluginException {

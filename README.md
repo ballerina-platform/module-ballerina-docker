@@ -14,6 +14,8 @@ Annotation based docker extension implementation for ballerina.
 ## Supported Annotations:
 
 ### @docker:Config{}
+- Supported with ballerina services or endpoints.
+
 |**Annotation Name**|**Description**|**Default value**|
 |--|--|--|
 |name|Name of the docker image|output balx file name|
@@ -30,12 +32,16 @@ Annotation based docker extension implementation for ballerina.
 |password|Password for docker registry|None|
 
 ### @docker:CopyFiles{}
+- Supported with ballerina services or endpoints.
+
 |**Annotation Name**|**Description**|**Default value**|
 |--|--|--|
 |source|source path of the file (in your machine)|None|
 |target|target path (inside container)|None|
 |isBallerinaConf|flag whether file is a ballerina config file|false|
 
+@docker:Expose{}
+- Supported with ballerina endpoints.
 
 ## How to run
 
@@ -57,6 +63,7 @@ The docker artifacts will be created in a folder called docker with following st
 import ballerina/http;
 import ballerinax/docker;
 
+@docker:Expose{}
 endpoint http:Listener helloWorldEP {
     port:9090
 };

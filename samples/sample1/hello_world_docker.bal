@@ -4,7 +4,6 @@ import ballerinax/docker;
 @http:ServiceConfig {
     basePath:"/helloWorld"
 }
-
 @docker:Config{}
 service<http:Service> helloWorld bind {port:9091}{
     sayHello (endpoint outboundEP, http:Request request) {

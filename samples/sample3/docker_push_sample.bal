@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerinax/docker;
 
+@docker:Expose{}
 endpoint http:Listener helloWorldEP {
     port:9090
 };

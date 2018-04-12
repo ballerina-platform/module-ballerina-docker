@@ -40,7 +40,7 @@ Annotation based docker extension implementation for ballerina.
 |target|target path (inside container)|None|
 |isBallerinaConf|flag whether file is a ballerina config file|false|
 
-@docker:Expose{}
+### @docker:Expose{}
 - Supported with ballerina endpoints.
 
 ## How to run

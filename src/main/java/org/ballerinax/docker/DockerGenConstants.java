@@ -27,4 +27,5 @@ public class DockerGenConstants {
     public static final String REGISTRY_SEPARATOR = "/";
     public static final String TAG_SEPARATOR = ":";
     public static final String LISTENER = "Listener";
+    public static final int DEFAULT_LISTENER_PORT = 9090;
 }

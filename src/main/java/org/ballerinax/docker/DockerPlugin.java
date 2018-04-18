@@ -35,6 +35,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.ballerinax.docker.DockerGenConstants.DEFAULT_LISTENER_PORT;
 import static org.ballerinax.docker.DockerGenConstants.LISTENER;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
@@ -147,14 +148,13 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     }
 
 
-    private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) throws
-            DockerPluginException {
+    private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) {
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : endpointConfig) {
             String key = keyValue.getKey().toString();
             if ("port".equals(key)) {
                 return Integer.parseInt(keyValue.getValue().toString());
             }
         }
-        throw new DockerPluginException("Unable to extract port from anonymous endpoint");
+        return DEFAULT_LISTENER_PORT;
     }
 }

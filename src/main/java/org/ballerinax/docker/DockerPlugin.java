@@ -35,7 +35,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.ballerinax.docker.DockerGenConstants.DEFAULT_LISTENER_PORT;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
 import static org.ballerinax.docker.DockerGenConstants.LISTENER;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
@@ -155,6 +155,6 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 return Integer.parseInt(keyValue.getValue().toString());
             }
         }
-        return DEFAULT_LISTENER_PORT;
+        return HTTP_DEFAULT_PORT;
     }
 }

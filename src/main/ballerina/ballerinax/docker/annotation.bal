@@ -1,18 +1,19 @@
 package ballerinax.docker;
 
-@Description {value:"Docker configuration"}
-@Field {value:"name: Name of the docker image"}
-@Field {value:"registry: Docker registry"}
-@Field {value:"tag: Docker image tag"}
-@Field {value:"username: Username for docker registry"}
-@Field {value:"password: Password for docker registry"}
-@Field {value:"baseImage: Base image for docker image building"}
-@Field {value:"push: Push to remote registry"}
-@Field {value:"buildImage: Build docker image"}
-@Field {value:"enableDebug: Enable debug for ballerina program"}
-@Field {value:"debugPort: Remote debug port for ballerina program"}
-@Field {value:"dockerHost: Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)"}
-@Field {value:"dockerCertPath: Docker cert path."}
+documentation {Docker annotation configuration
+    F{{name}} - Name of the docker image
+    F{{registry}} - Docker registry url
+    F{{tag}} - Docker registry url
+    F{{username}} - Docker registry username
+    F{{password}} - Docker registry password
+    F{{baseImage}} - Base image for Dockerfile
+    F{{push}} - Enable pushing docker image to registry
+    F{{buildImage}} - Enable docker image build
+    F{{enableDebug}} - Enable ballerina debug
+    F{{debugPort}} - Ballerina debug port
+    F{{dockerHost}} - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)
+    F{{dockerCertPath}} - Docker certificate path
+}
 public type DockerConfiguration {
     string name;
     string registry;
@@ -28,29 +29,43 @@ public type DockerConfiguration {
     string dockerCertPath;
 };
 
-@Description {value:"Configurations annotation for Docker"}
-public annotation <service,endpoint> Config DockerConfiguration;
+documentation {@docker:Config annotation to configure docker artifact generation
+    T{{service}} - Annotation can be attached to a ballerina service
+    T{{endpoint}} - Annotation can be attached to a ballerina endpoint
+}
+public annotation < service, endpoint > Config DockerConfiguration;
 
-@Description {value:"External files for docker images"}
-@Field {value:"source: source path of the file (in your machine)"}
-@Field {value:"target: target path (inside container)"}
-@Field {value:"isBallerinaConf: flag whether file is a ballerina config file"}
+documentation {External file type for docker
+    F{{source}} - source path of the file (in your machine)
+    F{{target}} - target path (inside container)
+    F{{isBallerinaConf}} - Flag to specify ballerina config file
+}
 public type FileConfig {
     string source;
     string target;
     boolean isBallerinaConf;
 };
 
-public type FileConfigs{
+documentation {External File configurations for docker
+    F{{files}} - Array of [FileConfig](docker.html#FileConfig)
+}
+public type FileConfigs {
     FileConfig[] files;
 };
 
-@Description {value:"External files annotation for Docker Images"}
-public annotation <service,endpoint> CopyFiles FileConfigs;
+documentation {@docker:CopyFile annotation to copy external files to docker image
+    T{{service}} - Annotation can be attached to a ballerina service
+    T{{endpoint}} - Annotation can be attached to a ballerina endpoint
+}
+public annotation < service, endpoint > CopyFiles FileConfigs;
 
-@Description {value:"Expose ports for docker"}
-public type ExposeConfig{
+documentation {Expose ports for docker
+}
+public type ExposeConfig {
 };
 
-@Description {value:"Expose annotation for Docker ports"}
-public annotation <endpoint> Expose ExposeConfig;
+
+documentation {@docker:Expose annotation to expose ballerina ports
+    T{{endpoint}} - Annotation can be attached to a ballerina endpoint
+}
+public annotation < endpoint > Expose ExposeConfig;

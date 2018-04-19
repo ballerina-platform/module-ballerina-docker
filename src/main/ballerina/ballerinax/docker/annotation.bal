@@ -30,8 +30,6 @@ public type DockerConfiguration {
 };
 
 documentation {@docker:Config annotation to configure docker artifact generation
-    T{{service}} - Annotation can be attached to a ballerina service
-    T{{endpoint}} - Annotation can be attached to a ballerina endpoint
 }
 public annotation < service, endpoint > Config DockerConfiguration;
 
@@ -54,8 +52,6 @@ public type FileConfigs {
 };
 
 documentation {@docker:CopyFile annotation to copy external files to docker image
-    T{{service}} - Annotation can be attached to a ballerina service
-    T{{endpoint}} - Annotation can be attached to a ballerina endpoint
 }
 public annotation < service, endpoint > CopyFiles FileConfigs;
 
@@ -66,6 +62,5 @@ public type ExposeConfig {
 
 
 documentation {@docker:Expose annotation to expose ballerina ports
-    T{{endpoint}} - Annotation can be attached to a ballerina endpoint
 }
 public annotation < endpoint > Expose ExposeConfig;

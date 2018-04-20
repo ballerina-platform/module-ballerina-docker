@@ -16,10 +16,10 @@
 package org.ballerinax.docker.utils;
 
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.testng.Assert;
 
 import java.io.File;
 import java.io.IOException;

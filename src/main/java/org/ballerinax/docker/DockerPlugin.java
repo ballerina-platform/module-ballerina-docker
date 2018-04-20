@@ -37,6 +37,7 @@ import java.util.List;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
 import static org.ballerinax.docker.DockerGenConstants.LISTENER;
+import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
 /**
@@ -94,7 +95,8 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
         setCanProcess(true);
-        if (!LISTENER.equals(endpointNode.getEndPointType().getTypeName().getValue())) {
+        String endpointType = endpointNode.getEndPointType().getTypeName().getValue();
+        if (isBlank(endpointType) || !endpointType.endsWith(LISTENER)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), "@docker " +
                     "annotations are only supported by Listener endpoints.");
             //TODO: Remove return when dlog fixed.

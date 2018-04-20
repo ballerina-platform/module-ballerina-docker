@@ -60,5 +60,5 @@ CONTAINER ID        IMAGE                            COMMAND                  CR
 6. Access the hello world service with curl command:
 ```bash
 $> curl http://localhost:9090/helloWorld/sayHello
-Hello, World from service helloWorld !
+Hello, World!
 ```

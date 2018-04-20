@@ -3,7 +3,13 @@ import ballerinax/docker;
 
 @docker:Expose{}
 endpoint http:Listener helloWorldEP {
-    port:9090
+    port:9090,
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {
@@ -17,7 +23,7 @@ endpoint http:Listener helloWorldEP {
 service<http:Service> helloWorld bind helloWorldEP {
     sayHello (endpoint outboundEP, http:Request request) {
         http:Response response = new;
-        response.setStringPayload("Hello, World from service helloWorld ! \n");
+        response.setStringPayload("Hello, World! \n");
         _ = outboundEP -> respond(response);
     }
 }

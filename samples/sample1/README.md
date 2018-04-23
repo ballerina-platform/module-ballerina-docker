@@ -32,9 +32,8 @@ $> tree
 ├── README.md
 ├── hello_world_docker.bal
 ├── hello_world_docker.balx
-└── target
-    └── docker
-        └── Dockerfile
+└── docker
+    └── Dockerfile
 ```
 
 3. Verify the docker image is created:

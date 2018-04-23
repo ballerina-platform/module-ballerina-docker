@@ -9,9 +9,8 @@
     
     $> tree
     ├── docker_push_sample.balx
-    └── target
-        └── docker
-            └── Dockerfile
+    └── docker
+        └── Dockerfile
     ```
 ### How to run:
 

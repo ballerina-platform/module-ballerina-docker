@@ -29,4 +29,5 @@ public class DockerGenConstants {
     public static final String LISTENER = "Listener";
     public static final String PORT = "port";
     public static final String ARTIFACT_DIRECTORY = "docker";
+    public static final String DEFAULT_DOCKER_HOST = "unix:///var/run/docker.sock";
 }

@@ -48,24 +48,18 @@ import static org.ballerinax.docker.utils.DockerGenUtils.printError;
         value = "ballerinax.docker"
 )
 public class DockerPlugin extends AbstractCompilerPlugin {
-    private static boolean canProcess;
     private DockerAnnotationProcessor dockerAnnotationProcessor;
     private DiagnosticLog dlog;
-
-    private static synchronized void setCanProcess(boolean val) {
-        canProcess = val;
-    }
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dlog = diagnosticLog;
         dockerAnnotationProcessor = new DockerAnnotationProcessor();
-        setCanProcess(false);
     }
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        setCanProcess(true);
+        DockerDataHolder.getInstance().setCanProcess(true);
         try {
             for (AnnotationAttachmentNode attachmentNode : annotations) {
                 DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()
@@ -96,7 +90,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
-        setCanProcess(true);
+        DockerDataHolder.getInstance().setCanProcess(true);
         String endpointType = endpointNode.getEndPointType().getTypeName().getValue();
         if (isBlank(endpointType) || !endpointType.endsWith(LISTENER)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), "@docker " +
@@ -133,7 +127,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void codeGenerated(Path binaryPath) {
-        if (canProcess) {
+        if (DockerDataHolder.getInstance().isCanProcess()) {
             String filePath = binaryPath.toAbsolutePath().toString();
             String userDir = new File(filePath).getParentFile().getAbsolutePath();
             String targetPath = userDir + File.separator + ARTIFACT_DIRECTORY + File.separator;

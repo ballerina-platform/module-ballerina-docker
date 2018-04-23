@@ -8,6 +8,7 @@ import java.util.Set;
  */
 public class DockerDataHolder {
     private static DockerDataHolder instance;
+    private boolean canProcess;
     private Set<Integer> ports;
     private DockerModel dockerModel;
     private Set<CopyFileModel> files;
@@ -49,5 +50,13 @@ public class DockerDataHolder {
 
     public void addExternalFile(Set<CopyFileModel> files) {
         this.files.addAll(files);
+    }
+
+    public boolean isCanProcess() {
+        return canProcess;
+    }
+
+    public void setCanProcess(boolean canProcess) {
+        this.canProcess = canProcess;
     }
 }

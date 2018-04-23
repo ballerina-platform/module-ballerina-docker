@@ -19,9 +19,11 @@
 package org.ballerinax.docker.models;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
-import static org.ballerinax.docker.DockerGenConstants.DEFAULT_DOCKER_HOST;
+import static org.ballerinax.docker.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
+import static org.ballerinax.docker.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
 
 /**
  * Docker annotations model class.
@@ -53,7 +55,13 @@ public class DockerModel {
         this.baseImage = "ballerina/ballerina:" + baseImageVersion;
         this.enableDebug = false;
         this.debugPort = 5005;
-        this.dockerHost = DEFAULT_DOCKER_HOST;
+
+        String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (operatingSystem.contains("win")) {
+            this.dockerHost = WINDOWS_DEFAULT_DOCKER_HOST;
+        } else {
+            this.dockerHost = UNIX_DEFAULT_DOCKER_HOST;
+        }
         files = new HashSet<>();
     }
 

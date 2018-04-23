@@ -38,13 +38,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import static org.ballerinax.docker.DockerGenConstants.BALX;
-import static org.ballerinax.docker.DockerGenConstants.DEFAULT_DOCKER_HOST;
+import static org.ballerinax.docker.DockerGenConstants.DOCKER_CERT_PATH;
+import static org.ballerinax.docker.DockerGenConstants.DOCKER_HOST;
 import static org.ballerinax.docker.DockerGenConstants.REGISTRY_SEPARATOR;
 import static org.ballerinax.docker.DockerGenConstants.TAG_SEPARATOR;
+import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerGenUtils.resolveValue;
 
@@ -144,11 +145,13 @@ class DockerAnnotationProcessor {
                     break;
             }
         }
-        String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-        if (operatingSystem.contains("win") && DEFAULT_DOCKER_HOST.equals(dockerModel.getDockerHost())) {
-            // Windows users must specify docker host
-            throw new DockerPluginException("Windows users must specify dockerHost parameter in @docker:Config{} " +
-                    "annotation.");
+        String dockerHost = System.getenv(DOCKER_HOST);
+        if (!isBlank(dockerHost)) {
+            dockerModel.setDockerHost(dockerHost);
+        }
+        String dockerCertPath = System.getenv(DOCKER_CERT_PATH);
+        if (!isBlank(dockerCertPath)) {
+            dockerModel.setDockerCertPath(dockerCertPath);
         }
         dockerModel.setService(true);
         return dockerModel;

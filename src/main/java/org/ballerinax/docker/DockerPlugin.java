@@ -35,7 +35,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
 import static org.ballerinax.docker.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.DockerGenConstants.LISTENER;
 import static org.ballerinax.docker.DockerGenConstants.PORT;
@@ -154,14 +153,14 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     }
 
 
-    private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) {
+    private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) throws DockerPluginException {
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : endpointConfig) {
             String key = keyValue.getKey().toString();
             if (PORT.equals(key)) {
                 return Integer.parseInt(keyValue.getValue().toString());
             }
         }
-        return HTTP_DEFAULT_PORT;
+        throw new DockerPluginException("Unable to extract port from endpoint");
     }
 
     private enum DockerAnnotation {

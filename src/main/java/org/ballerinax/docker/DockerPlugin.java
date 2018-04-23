@@ -36,7 +36,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
+import static org.ballerinax.docker.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.DockerGenConstants.LISTENER;
+import static org.ballerinax.docker.DockerGenConstants.PORT;
 import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
@@ -67,13 +69,14 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         setCanProcess(true);
         try {
             for (AnnotationAttachmentNode attachmentNode : annotations) {
-                String annotationKey = attachmentNode.getAnnotationName().getValue();
-                switch (annotationKey) {
-                    case "Config":
+                DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()
+                        .getValue());
+                switch (dockerAnnotation) {
+                    case Config:
                         DockerDataHolder.getInstance().setDockerModel(
                                 dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                         break;
-                    case "CopyFiles":
+                    case CopyFiles:
                         DockerDataHolder.getInstance().addExternalFile(
                                 dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                         break;
@@ -104,17 +107,18 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         }
         try {
             for (AnnotationAttachmentNode attachmentNode : annotations) {
-                String annotationKey = attachmentNode.getAnnotationName().getValue();
-                switch (annotationKey) {
-                    case "Config":
+                DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()
+                        .getValue());
+                switch (dockerAnnotation) {
+                    case Config:
                         DockerDataHolder.getInstance().setDockerModel(
                                 dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                         break;
-                    case "CopyFiles":
+                    case CopyFiles:
                         DockerDataHolder.getInstance().addExternalFile(
                                 dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                         break;
-                    case "Expose":
+                    case Expose:
                         List<BLangRecordLiteral.BLangRecordKeyValue> config =
                                 ((BLangRecordLiteral) endpointNode.getConfigurationExpression()).getKeyValuePairs();
                         DockerDataHolder.getInstance().addPort(extractPort(config));
@@ -133,7 +137,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         if (canProcess) {
             String filePath = binaryPath.toAbsolutePath().toString();
             String userDir = new File(filePath).getParentFile().getAbsolutePath();
-            String targetPath = userDir + File.separator + "docker" + File.separator;
+            String targetPath = userDir + File.separator + ARTIFACT_DIRECTORY + File.separator;
             DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
             try {
                 DockerGenUtils.deleteDirectory(targetPath);
@@ -153,10 +157,16 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) {
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : endpointConfig) {
             String key = keyValue.getKey().toString();
-            if ("port".equals(key)) {
+            if (PORT.equals(key)) {
                 return Integer.parseInt(keyValue.getValue().toString());
             }
         }
         return HTTP_DEFAULT_PORT;
+    }
+
+    private enum DockerAnnotation {
+        Config,
+        CopyFiles,
+        Expose
     }
 }

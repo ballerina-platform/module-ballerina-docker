@@ -18,6 +18,8 @@
 
 package org.ballerinax.docker;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.docker.api.model.AuthConfig;
 import io.fabric8.docker.api.model.AuthConfigBuilder;
 import io.fabric8.docker.client.Config;
@@ -31,6 +33,7 @@ import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerModel;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
@@ -53,6 +56,21 @@ public class DockerArtifactHandler {
         }
     }
 
+    private static void disableFailOnUnknownProperties() {
+        // Disable fail on unknown properties using reflection to avoid docker client issue.
+        // (https://github.com/fabric8io/docker-client/issues/106).
+        final Field jsonMapperField;
+        try {
+            jsonMapperField = Config.class.getDeclaredField("JSON_MAPPER");
+            assert jsonMapperField != null;
+            jsonMapperField.setAccessible(true);
+            final ObjectMapper objectMapper = (ObjectMapper) jsonMapperField.get(null);
+            assert objectMapper != null;
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        } catch (NoSuchFieldException | IllegalAccessException ignored) {
+        }
+    }
+
     /**
      * Create docker image.
      *
@@ -63,6 +81,7 @@ public class DockerArtifactHandler {
      */
     public void buildImage(DockerModel dockerModel, String dockerDir) throws
             InterruptedException, IOException, DockerPluginException {
+        disableFailOnUnknownProperties();
         Config dockerClientConfig = new ConfigBuilder()
                 .withDockerUrl(dockerModel.getDockerHost())
                 .build();
@@ -117,6 +136,7 @@ public class DockerArtifactHandler {
      * @throws IOException          When error with docker build process
      */
     public void pushImage(DockerModel dockerModel) throws InterruptedException, IOException, DockerPluginException {
+        disableFailOnUnknownProperties();
         AuthConfig authConfig = new AuthConfigBuilder().withUsername(dockerModel.getUsername()).withPassword
                 (dockerModel.getPassword())
                 .build();

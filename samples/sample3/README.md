@@ -45,9 +45,8 @@ $> tree
 ├── README.md
 ├── docker_push_sample.bal
 ├── docker_push_sample.balx
-└── target
-    └── docker
-        └── Dockerfile
+└── docker
+    └── Dockerfile
 ```
 
 5. Verify the docker image is created:

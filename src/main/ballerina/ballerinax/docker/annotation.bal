@@ -17,7 +17,7 @@
 documentation {Docker annotation configuration
     F{{name}} - Name of the docker image
     F{{registry}} - Docker registry url
-    F{{tag}} - Docker registry url
+    F{{tag}} - Docker image tag
     F{{username}} - Docker registry username
     F{{password}} - Docker registry password
     F{{baseImage}} - Base image for Dockerfile

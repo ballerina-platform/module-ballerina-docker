@@ -13,7 +13,8 @@
 }  
 ```
 - If DOCKER_HOST and DOCKER_CERT_PATH are exported as environment variables, priority will be given to environment variables.
-
+- Docker for windows users should enable remote access to the API.
+ ![alt tag](./images/docker_for_windows.png)
 ### Try docker annotation examples:
 
 1. [Example1: Docker Hello World](sample1/)

@@ -245,15 +245,13 @@ class DockerAnnotationProcessor {
 
 
     private void printDockerInstructions(DockerModel dockerModel) {
-        String ansiReset = "\u001B[0m";
-        String ansiCyan = "\u001B[36m";
         out.println();
-        out.println(ansiCyan + "\nRun following command to start docker container:" + ansiReset);
+        out.println("\nRun following command to start docker container:");
         StringBuilder command = new StringBuilder("docker run -d ");
         dockerModel.getPorts().forEach((Integer port) -> command.append("-p ").append(port).append(":").append(port)
                 .append(" "));
         command.append(dockerModel.getName());
-        out.println(ansiCyan + command.toString() + ansiReset);
+        out.println(command.toString());
     }
 
     /**

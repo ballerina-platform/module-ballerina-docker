@@ -35,8 +35,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
+import static org.ballerinax.docker.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.DockerGenConstants.LISTENER;
+import static org.ballerinax.docker.DockerGenConstants.PORT;
 import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
@@ -47,33 +48,28 @@ import static org.ballerinax.docker.utils.DockerGenUtils.printError;
         value = "ballerinax.docker"
 )
 public class DockerPlugin extends AbstractCompilerPlugin {
-    private static boolean canProcess;
     private DockerAnnotationProcessor dockerAnnotationProcessor;
     private DiagnosticLog dlog;
-
-    private static synchronized void setCanProcess(boolean val) {
-        canProcess = val;
-    }
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dlog = diagnosticLog;
         dockerAnnotationProcessor = new DockerAnnotationProcessor();
-        setCanProcess(false);
     }
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        setCanProcess(true);
+        DockerDataHolder.getInstance().setCanProcess(true);
         try {
             for (AnnotationAttachmentNode attachmentNode : annotations) {
-                String annotationKey = attachmentNode.getAnnotationName().getValue();
-                switch (annotationKey) {
-                    case "Config":
+                DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()
+                        .getValue());
+                switch (dockerAnnotation) {
+                    case Config:
                         DockerDataHolder.getInstance().setDockerModel(
                                 dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                         break;
-                    case "CopyFiles":
+                    case CopyFiles:
                         DockerDataHolder.getInstance().addExternalFile(
                                 dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                         break;
@@ -94,7 +90,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
-        setCanProcess(true);
+        DockerDataHolder.getInstance().setCanProcess(true);
         String endpointType = endpointNode.getEndPointType().getTypeName().getValue();
         if (isBlank(endpointType) || !endpointType.endsWith(LISTENER)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), "@docker " +
@@ -104,17 +100,18 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         }
         try {
             for (AnnotationAttachmentNode attachmentNode : annotations) {
-                String annotationKey = attachmentNode.getAnnotationName().getValue();
-                switch (annotationKey) {
-                    case "Config":
+                DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()
+                        .getValue());
+                switch (dockerAnnotation) {
+                    case Config:
                         DockerDataHolder.getInstance().setDockerModel(
                                 dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                         break;
-                    case "CopyFiles":
+                    case CopyFiles:
                         DockerDataHolder.getInstance().addExternalFile(
                                 dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                         break;
-                    case "Expose":
+                    case Expose:
                         List<BLangRecordLiteral.BLangRecordKeyValue> config =
                                 ((BLangRecordLiteral) endpointNode.getConfigurationExpression()).getKeyValuePairs();
                         DockerDataHolder.getInstance().addPort(extractPort(config));
@@ -130,10 +127,10 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void codeGenerated(Path binaryPath) {
-        if (canProcess) {
+        if (DockerDataHolder.getInstance().isCanProcess()) {
             String filePath = binaryPath.toAbsolutePath().toString();
             String userDir = new File(filePath).getParentFile().getAbsolutePath();
-            String targetPath = userDir + File.separator + "docker" + File.separator;
+            String targetPath = userDir + File.separator + ARTIFACT_DIRECTORY + File.separator;
             DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
             try {
                 DockerGenUtils.deleteDirectory(targetPath);
@@ -150,13 +147,19 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     }
 
 
-    private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) {
+    private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) throws DockerPluginException {
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : endpointConfig) {
             String key = keyValue.getKey().toString();
-            if ("port".equals(key)) {
+            if (PORT.equals(key)) {
                 return Integer.parseInt(keyValue.getValue().toString());
             }
         }
-        return HTTP_DEFAULT_PORT;
+        throw new DockerPluginException("Unable to extract port from endpoint");
+    }
+
+    private enum DockerAnnotation {
+        Config,
+        CopyFiles,
+        Expose
     }
 }

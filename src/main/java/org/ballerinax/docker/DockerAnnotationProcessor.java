@@ -41,8 +41,11 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ballerinax.docker.DockerGenConstants.BALX;
+import static org.ballerinax.docker.DockerGenConstants.DOCKER_CERT_PATH;
+import static org.ballerinax.docker.DockerGenConstants.DOCKER_HOST;
 import static org.ballerinax.docker.DockerGenConstants.REGISTRY_SEPARATOR;
 import static org.ballerinax.docker.DockerGenConstants.TAG_SEPARATOR;
+import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerGenUtils.resolveValue;
 
@@ -142,6 +145,14 @@ class DockerAnnotationProcessor {
                     break;
             }
         }
+        String dockerHost = System.getenv(DOCKER_HOST);
+        if (!isBlank(dockerHost)) {
+            dockerModel.setDockerHost(dockerHost);
+        }
+        String dockerCertPath = System.getenv(DOCKER_CERT_PATH);
+        if (!isBlank(dockerCertPath)) {
+            dockerModel.setDockerCertPath(dockerCertPath);
+        }
         dockerModel.setService(true);
         return dockerModel;
     }
@@ -234,15 +245,13 @@ class DockerAnnotationProcessor {
 
 
     private void printDockerInstructions(DockerModel dockerModel) {
-        String ansiReset = "\u001B[0m";
-        String ansiCyan = "\u001B[36m";
         out.println();
-        out.println(ansiCyan + "\nRun following command to start docker container:" + ansiReset);
+        out.println("\nRun following command to start docker container:");
         StringBuilder command = new StringBuilder("docker run -d ");
         dockerModel.getPorts().forEach((Integer port) -> command.append("-p ").append(port).append(":").append(port)
                 .append(" "));
         command.append(dockerModel.getName());
-        out.println(ansiCyan + command.toString() + ansiReset);
+        out.println(command.toString());
     }
 
     /**

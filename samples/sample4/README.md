@@ -9,9 +9,8 @@
     
     $> tree
     ├── hello-world-docker.balx
-    └── target
-        └── docker
-            └── Dockerfile
+    └── docker
+        └── Dockerfile
     ```
 ### How to run:
 

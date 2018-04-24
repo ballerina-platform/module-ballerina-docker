@@ -6,13 +6,15 @@
 - [Ballerina Docker Extension](README.md) is configured.
 - [Base docker image](../base/README.md) is built or pulled. 
 - Mini-kube users should configure following annotations in every sample with valid values: 
-```bash
+```ballerina
 @docker:Config {
     dockerHost:"tcp://192.168.99.100:2376", 
     dockerCertPath:"/Users/anuruddha/.minikube/certs"
-}
+}  
 ```
-
+- If DOCKER_HOST and DOCKER_CERT_PATH are exported as environment variables, priority will be given to environment variables.
+- Docker for windows users should enable remote access to the API.
+ ![alt tag](./images/docker_for_windows.png)
 ### Try docker annotation examples:
 
 1. [Example1: Docker Hello World](sample1/)

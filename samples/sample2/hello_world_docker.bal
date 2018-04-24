@@ -23,7 +23,7 @@ endpoint http:Listener helloWorldEP {
 service<http:Service> helloWorld bind helloWorldEP {
     sayHello (endpoint outboundEP, http:Request request) {
         http:Response response = new;
-        response.setStringPayload("Hello, World! \n");
+        response.setTextPayload("Hello, World! \n");
         _ = outboundEP -> respond(response);
     }
 }

@@ -60,9 +60,7 @@ public class DockerGenUtils {
      * @param msg message to be printed
      */
     public static void printError(String msg) {
-        String ansiReset = "\u001B[0m";
-        String ansiRed = "\u001B[31m";
-        error.println(ansiRed + "error [docker plugin]: " + msg + ansiReset);
+        error.println("error [docker plugin]: " + msg);
     }
 
     /**
@@ -71,10 +69,8 @@ public class DockerGenUtils {
      * @param msg message to be printed
      */
     public static void printDebug(String msg) {
-        String ansiReset = "\u001B[0m";
-        String ansiBlue = "\u001B[34m";
         if (debugEnabled) {
-            out.println(ansiBlue + "debug: " + msg + ansiReset);
+            out.println("debug [docker plugin]: " + msg);
         }
     }
 

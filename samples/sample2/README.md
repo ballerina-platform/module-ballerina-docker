@@ -10,9 +10,8 @@ change image name, tag and registry.
     
     $> tree
     ├── hello_world_docker.balx
-    └── target
-        └── docker
-            └── Dockerfile
+    └── docker
+        └── Dockerfile
     ```
 ### How to run:
 

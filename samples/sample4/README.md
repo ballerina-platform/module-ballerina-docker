@@ -30,9 +30,8 @@ $> tree
 ├── README.md
 ├── docker_debug.bal
 ├── docker_debug.balx
-└── target
-    └── docker
-        └── Dockerfile
+└── docker
+    └── Dockerfile
 ```
 
 3. Verify the docker image is created:

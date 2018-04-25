@@ -205,7 +205,7 @@ public class DockerArtifactHandler {
         if (dockerModel.isService() && dockerModel.getPorts().size() > 0) {
             stringBuffer.append("EXPOSE ");
             dockerModel.getPorts().forEach(port -> stringBuffer.append(" ").append(port));
-            stringBuffer.append("\n\nCMD ballerina run -s ").append(dockerModel.getBalxFileName());
+            stringBuffer.append("\n\nCMD ballerina run ").append(dockerModel.getBalxFileName());
         } else {
             stringBuffer.append("CMD ballerina run ").append(dockerModel.getBalxFileName());
         }

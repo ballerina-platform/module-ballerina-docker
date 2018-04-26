@@ -151,7 +151,12 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : endpointConfig) {
             String key = keyValue.getKey().toString();
             if (PORT.equals(key)) {
-                return Integer.parseInt(keyValue.getValue().toString());
+                try {
+                    return Integer.parseInt(keyValue.getValue().toString());
+                } catch (NumberFormatException e) {
+                    throw new DockerPluginException("Listener endpoint port must be an integer to use " +
+                            "@docker annotations.");
+                }
             }
         }
         throw new DockerPluginException("Unable to extract port from endpoint");

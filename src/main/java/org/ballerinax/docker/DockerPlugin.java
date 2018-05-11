@@ -38,6 +38,7 @@ import java.util.List;
 import static org.ballerinax.docker.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.DockerGenConstants.LISTENER;
 import static org.ballerinax.docker.DockerGenConstants.PORT;
+import static org.ballerinax.docker.utils.DockerGenUtils.extractBalxName;
 import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
@@ -130,8 +131,12 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         if (DockerDataHolder.getInstance().isCanProcess()) {
             String filePath = binaryPath.toAbsolutePath().toString();
             String userDir = new File(filePath).getParentFile().getAbsolutePath();
-            String targetPath = userDir + File.separator + ARTIFACT_DIRECTORY + File.separator;
             DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
+            String targetPath = userDir + File.separator + ARTIFACT_DIRECTORY + File.separator;
+            if (userDir.endsWith("target")) {
+                //Compiling package therefore append balx file name to docker artifact dir path
+                targetPath = userDir + File.separator + extractBalxName(filePath);
+            }
             try {
                 DockerGenUtils.deleteDirectory(targetPath);
                 dockerAnnotationProcessor.processDockerModel(DockerDataHolder.getInstance(), filePath, targetPath);

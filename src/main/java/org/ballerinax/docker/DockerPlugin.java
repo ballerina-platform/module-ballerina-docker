@@ -46,7 +46,8 @@ import static org.ballerinax.docker.utils.DockerGenUtils.printError;
  * Compiler plugin to generate docker artifacts.
  */
 @SupportedAnnotationPackages(
-        value = "ballerinax.docker"
+        //TODO: Verify adding version is correct
+        value = "ballerinax/docker:0.0.0"
 )
 public class DockerPlugin extends AbstractCompilerPlugin {
     private DockerAnnotationProcessor dockerAnnotationProcessor;

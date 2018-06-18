@@ -7,25 +7,15 @@ import java.util.Set;
  * Docker data holder class.
  */
 public class DockerDataHolder {
-    private static DockerDataHolder instance;
     private boolean canProcess;
     private Set<Integer> ports;
     private DockerModel dockerModel;
     private Set<CopyFileModel> files;
 
-    private DockerDataHolder() {
+    public DockerDataHolder() {
         dockerModel = new DockerModel();
         ports = new HashSet<>();
         files = new HashSet<>();
-    }
-
-    public static DockerDataHolder getInstance() {
-        synchronized (DockerDataHolder.class) {
-            if (instance == null) {
-                instance = new DockerDataHolder();
-            }
-        }
-        return instance;
     }
 
     public Set<Integer> getPorts() {

@@ -252,6 +252,7 @@ class DockerAnnotationProcessor {
                 .append(" "));
         command.append(dockerModel.getName());
         out.println(command.toString());
+        out.println();
     }
 
     /**

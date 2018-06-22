@@ -28,7 +28,7 @@ documentation {Docker annotation configuration
     F{{dockerHost}} - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)
     F{{dockerCertPath}} - Docker certificate path
 }
-public type DockerConfiguration {
+public type DockerConfiguration record {
     string name;
     string registry;
     string tag;
@@ -52,7 +52,7 @@ documentation {External file type for docker
     F{{target}} - target path (inside container)
     F{{isBallerinaConf}} - Flag to specify ballerina config file
 }
-public type FileConfig {
+public type FileConfig record {
     string source;
     string target;
     boolean isBallerinaConf;
@@ -61,7 +61,7 @@ public type FileConfig {
 documentation {External File configurations for docker
     F{{files}} - Array of [FileConfig](docker.html#FileConfig)
 }
-public type FileConfigs {
+public type FileConfigs record {
     FileConfig[] files;
 };
 
@@ -71,7 +71,7 @@ public annotation < service, endpoint > CopyFiles FileConfigs;
 
 documentation {Expose ports for docker
 }
-public type ExposeConfig {
+public type ExposeConfig record {
 };
 
 

@@ -209,7 +209,7 @@ class DockerAnnotationProcessor {
     private void createDockerArtifacts(DockerModel dockerModel, String balxFilePath, String outputDir) throws
             DockerPluginException {
         DockerArtifactHandler dockerArtifactHandler = new DockerArtifactHandler(dockerModel);
-        out.print("@docker \t\t - complete 1/3 \r");
+        out.print("\t@docker \t\t - complete 1/3 \r");
         String dockerContent = dockerArtifactHandler.generate();
         try {
             DockerGenUtils.writeToFile(dockerContent, outputDir + File.separator + "Dockerfile");
@@ -225,16 +225,16 @@ class DockerAnnotationProcessor {
             }
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
-                out.print("@docker \t\t - complete 1/3 \r");
+                out.print("\t@docker \t\t - complete 1/3 \r");
                 dockerArtifactHandler.buildImage(dockerModel, outputDir);
                 Files.delete(Paths.get(balxDestination));
-                out.print("@docker \t\t - complete 2/3 \r");
+                out.print("\t@docker \t\t - complete 2/3 \r");
                 //push only if image build is enabled.
                 if (dockerModel.isPush()) {
                     dockerArtifactHandler.pushImage(dockerModel);
-                    out.print("@docker \t\t - complete 3/3 \r");
+                    out.print("\t@docker \t\t - complete 3/3 \r");
                 }
-                out.print("@docker \t\t - complete 3/3 \r");
+                out.print("\t@docker \t\t - complete 3/3 \r");
             }
         } catch (IOException e) {
             throw new DockerPluginException("Unable to write content to " + outputDir);
@@ -246,12 +246,12 @@ class DockerAnnotationProcessor {
 
     private void printDockerInstructions(DockerModel dockerModel) {
         out.println();
-        out.println("\nRun following command to start docker container:");
+        out.println("\n\tRun following command to start docker container:");
         StringBuilder command = new StringBuilder("docker run -d ");
         dockerModel.getPorts().forEach((Integer port) -> command.append("-p ").append(port).append(":").append(port)
                 .append(" "));
         command.append(dockerModel.getName());
-        out.println(command.toString());
+        out.println("\t" + command.toString());
         out.println();
     }
 

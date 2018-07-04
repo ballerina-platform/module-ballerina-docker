@@ -156,7 +156,6 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         targetPath);
             } catch (DockerPluginException e) {
                 printError(e.getMessage());
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, null, e.getMessage());
                 try {
                     DockerGenUtils.deleteDirectory(targetPath);
                 } catch (DockerPluginException ignored) {

@@ -5,24 +5,24 @@ import ballerinax/docker;
 
 @docker:Config {}
 @docker:CopyFiles {
-    files:[
-        {source:"./conf/ballerina.conf", target:"/home/ballerina/conf/ballerina.conf", isBallerinaConf:true},
-        {source:"./conf/data.txt", target:"/home/ballerina/data/data.txt"}
+    files: [
+        { source: "./conf/ballerina.conf", target: "/home/ballerina/conf/ballerina.conf", isBallerinaConf: true },
+        { source: "./conf/data.txt", target: "/home/ballerina/data/data.txt" }
     ]
 }
 
 @docker:Expose {}
 endpoint http:Listener helloWorldEP {
-    port:9090
+    port: 9090
 };
 
 @http:ServiceConfig {
-    basePath:"/helloWorld"
+    basePath: "/helloWorld"
 }
 service<http:Service> helloWorld bind helloWorldEP {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/config/{user}"
+        methods: ["GET"],
+        path: "/config/{user}"
     }
     getConfig(endpoint outboundEP, http:Request request, string user) {
         http:Response response = new;
@@ -33,13 +33,13 @@ service<http:Service> helloWorld bind helloWorldEP {
         _ = outboundEP->respond(response);
     }
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/data"
+        methods: ["GET"],
+        path: "/data"
     }
     getData(endpoint outboundEP, http:Request request) {
         http:Response response = new;
         string payload = readFile("./data/data.txt");
-        response.setTextPayload("{'data': '" + payload + "'}\n");
+        response.setTextPayload("{'data': '" + untaint payload + "'}\n");
         _ = outboundEP->respond(response);
     }
 }

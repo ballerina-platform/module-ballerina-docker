@@ -32,6 +32,7 @@ import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerContext;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.utils.DockerGenUtils;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
@@ -40,10 +41,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.ballerinax.docker.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.DockerGenConstants.LISTENER;
 import static org.ballerinax.docker.DockerGenConstants.PORT;
 import static org.ballerinax.docker.utils.DockerGenUtils.extractBalxName;
-import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerGenUtils.printError;
 
 /**
@@ -104,8 +103,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
         DockerDataHolder dataHolder = DockerContext.getInstance().getDataHolder();
         dataHolder.setCanProcess(true);
-        String endpointType = endpointNode.getEndPointType().getTypeName().getValue();
-        if (isBlank(endpointType) || !endpointType.endsWith(LISTENER)) {
+        if (!(((BLangEndpoint) endpointNode).symbol).registrable) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), "@docker " +
                     "annotations are only supported by Listener endpoints.");
             //TODO: Remove return when dlog fixed.

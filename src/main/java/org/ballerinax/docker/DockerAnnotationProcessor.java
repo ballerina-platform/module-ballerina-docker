@@ -239,14 +239,14 @@ class DockerAnnotationProcessor {
         } catch (IOException e) {
             throw new DockerPluginException("Unable to write content to " + outputDir);
         } catch (InterruptedException e) {
-            throw new DockerPluginException("Unable to create docker images " + e.getMessage());
+            throw new DockerPluginException("Unable to create Docker images " + e.getMessage());
         }
     }
 
 
     private void printDockerInstructions(DockerModel dockerModel) {
         out.println();
-        out.println("\n\tRun following command to start docker container:");
+        out.println("\n\tRun the following command to start a Docker container:");
         StringBuilder command = new StringBuilder("docker run -d ");
         dockerModel.getPorts().forEach((Integer port) -> command.append("-p ").append(port).append(":").append(port)
                 .append(" "));

@@ -73,12 +73,12 @@
                 <artifactId>docker-extension</artifactId>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
-                <version>${ballerina.lang.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinax.docker</groupId>
                 <artifactId>docker-extension</artifactId>
-                <version>${ballerina.lang.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>

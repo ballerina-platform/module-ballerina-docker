@@ -3,7 +3,7 @@
 Annotation based docker extension implementation for ballerina. 
 
 [![Build Status](https://wso2.org/jenkins/job/ballerinax/job/docker/badge/icon)](https://wso2.org/jenkins/job/ballerinax/job/docker/)
-[![Build Status](https://travis-ci.org/ballerinax/docker.svg?branch=master)](https://travis-ci.org/ballerinax/docker)
+[![Build Status](https://img.shields.io/travis/ballerinax/docker.svg?logo=travis)](https://travis-ci.org/ballerinax/docker)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
 ## Features:
 - Dockerfile generation based on @docker:Config annotations. 

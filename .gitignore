@@ -37,3 +37,4 @@ dependency-reduced-pom.xml
 #Ballerina
 *.balx
 samples/*/docker
+velocity.log*

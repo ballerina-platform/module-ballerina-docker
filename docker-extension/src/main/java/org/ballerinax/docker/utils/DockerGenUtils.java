@@ -41,7 +41,7 @@ public class DockerGenUtils {
     private static final PrintStream out = System.out;
 
     /**
-     * Extract the ballerina file name from a given file path
+     * Extract the ballerina file name from a given file path.
      *
      * @param balxFilePath balx file path.
      * @return output file name of balx

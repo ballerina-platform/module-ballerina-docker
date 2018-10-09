@@ -115,9 +115,9 @@ public class DockerGenUtils {
     }
 
     /**
-     * Deletes a given directory.
+     * Recursively deletes a given directory or a file.
      *
-     * @param path path to directory
+     * @param path path to directory or file
      * @throws DockerPluginException if an error occurs while deleting
      */
     public static void deleteDirectory(String path) throws DockerPluginException {

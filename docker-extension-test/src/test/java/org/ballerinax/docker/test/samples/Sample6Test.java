@@ -80,5 +80,8 @@ public class Sample6Test implements SampleTest {
         DockerGenUtils.deleteDirectory(burgerTargetPath);
         DockerTestUtils.deleteDockerImage(burgerDockerImage);
         DockerTestUtils.deleteDockerImage(pizzaDockerImage);
+        DockerGenUtils.deleteDirectory(sourceDirPath + File.separator + ".ballerina");
+        DockerGenUtils.deleteDirectory(sourceDirPath + File.separator + ".gitignore");
+        DockerGenUtils.deleteDirectory(sourceDirPath + File.separator + "Ballerina.toml");
     }
 }

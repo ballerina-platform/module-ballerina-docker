@@ -205,9 +205,9 @@ public class DockerArtifactHandler {
         if (dockerModel.isService() && dockerModel.getPorts().size() > 0) {
             stringBuffer.append("EXPOSE ");
             dockerModel.getPorts().forEach(port -> stringBuffer.append(" ").append(port));
-            stringBuffer.append("\n\nCMD ballerina run ").append(dockerModel.getBalxFileName());
+            stringBuffer.append("\n\nCMD ballerina run ");
         } else {
-            stringBuffer.append("CMD ballerina run ").append(dockerModel.getBalxFileName());
+            stringBuffer.append("CMD ballerina run ");
         }
         dockerModel.getFiles().forEach(file -> {
             if (file.isBallerinaConf()) {
@@ -217,6 +217,7 @@ public class DockerArtifactHandler {
         if (dockerModel.isEnableDebug()) {
             stringBuffer.append(" --debug ").append(dockerModel.getDebugPort());
         }
+        stringBuffer.append(" ").append(dockerModel.getBalxFileName());
         stringBuffer.append("\n");
         return stringBuffer.toString();
     }

@@ -22,4 +22,4 @@
 1. [Example3: Push docker image to docker registry](sample3/)
 1. [Example4: Remote debug ballerina service with docker](sample4/)
 1. [Example5: Copy files to Docker image](sample5/)
-1. [Example6: Multiple packages with docker annotation](sample6/)
+1. [Example6: Multiple modules with docker annotation](sample6/)

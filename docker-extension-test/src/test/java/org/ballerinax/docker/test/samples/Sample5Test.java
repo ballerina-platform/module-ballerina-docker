@@ -55,6 +55,8 @@ public class Sample5Test implements SampleTest {
     @Test
     public void validateDockerImage() {
         ImageInspect imageInspect = getDockerImage(dockerImage);
+        Assert.assertEquals("CMD [\"/bin/sh\" \"-c\" \"ballerina run  --config /home/ballerina/conf/ballerina.conf " +
+                "hello_config_file.balx\"]", imageInspect.getContainerConfig().getCmd().get(3));
         Assert.assertEquals(1, imageInspect.getContainerConfig().getExposedPorts().size());
         Assert.assertEquals("9090/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
     }

@@ -1,6 +1,6 @@
-## Sample:6: Multiple packages with docker annotation
+## Sample:6: Multiple modules with docker annotation
 
-- This sample runs ballerina project with multiple packages.
+- This sample runs ballerina project with multiple modules.
 
 - Following artifacts will be generated from this sample.
     ``` 

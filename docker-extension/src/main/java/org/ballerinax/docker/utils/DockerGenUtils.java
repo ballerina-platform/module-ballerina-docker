@@ -41,7 +41,7 @@ public class DockerGenUtils {
     private static final PrintStream out = System.out;
 
     /**
-     * Extract the ballerina file name from a given file path
+     * Extract the ballerina file name from a given file path.
      *
      * @param balxFilePath balx file path.
      * @return output file name of balx
@@ -115,9 +115,9 @@ public class DockerGenUtils {
     }
 
     /**
-     * Deletes a given directory.
+     * Recursively deletes a given directory or a file.
      *
-     * @param path path to directory
+     * @param path path to directory or file
      * @throws DockerPluginException if an error occurs while deleting
      */
     public static void deleteDirectory(String path) throws DockerPluginException {

@@ -64,10 +64,12 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(PackageNode packageNode) {
-        if (!(packageNode instanceof BLangTestablePackage)) {
-            String pkgID = ((BLangPackage) packageNode).packageID.toString();
-            DockerContext.getInstance().addDataHolder(pkgID);
+        if (packageNode instanceof BLangTestablePackage) {
+            return;
         }
+    
+        String pkgID = ((BLangPackage) packageNode).packageID.toString();
+        DockerContext.getInstance().addDataHolder(pkgID);
     }
 
     @Override

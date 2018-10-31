@@ -34,6 +34,7 @@ import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.utils.DockerGenUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.File;
@@ -63,8 +64,10 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(PackageNode packageNode) {
-        String pkgID = ((BLangPackage) packageNode).packageID.toString();
-        DockerContext.getInstance().addDataHolder(pkgID);
+        if (!(packageNode instanceof BLangTestablePackage)) {
+            String pkgID = ((BLangPackage) packageNode).packageID.toString();
+            DockerContext.getInstance().addDataHolder(pkgID);
+        }
     }
 
     @Override

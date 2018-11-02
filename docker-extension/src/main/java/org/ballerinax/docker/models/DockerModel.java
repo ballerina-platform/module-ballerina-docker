@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import static org.ballerinax.docker.DockerGenConstants.BALLERINA_BASE_IMAGE;
 import static org.ballerinax.docker.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
 import static org.ballerinax.docker.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
 
@@ -52,7 +53,7 @@ public class DockerModel {
         this.push = false;
         this.buildImage = true;
         String baseImageVersion = getClass().getPackage().getImplementationVersion();
-        this.baseImage = "ballerina/ballerina-runtime:" + baseImageVersion;
+        this.baseImage = BALLERINA_BASE_IMAGE + ":" + baseImageVersion;
         this.enableDebug = false;
         this.debugPort = 5005;
 

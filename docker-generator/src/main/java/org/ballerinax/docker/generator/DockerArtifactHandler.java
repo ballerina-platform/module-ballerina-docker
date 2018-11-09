@@ -18,17 +18,11 @@
 
 package org.ballerinax.docker.generator;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.docker.api.model.AuthConfig;
-import io.fabric8.docker.api.model.AuthConfigBuilder;
-import io.fabric8.docker.client.Config;
-import io.fabric8.docker.client.ConfigBuilder;
-import io.fabric8.docker.client.DefaultDockerClient;
-import io.fabric8.docker.client.DockerClient;
-import io.fabric8.docker.client.utils.RegistryUtils;
-import io.fabric8.docker.dsl.EventListener;
-import io.fabric8.docker.dsl.OutputHandle;
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerException;
+import com.spotify.docker.client.shaded.com.fasterxml.jackson.databind.DeserializationFeature;
+import com.spotify.docker.client.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
@@ -119,48 +113,40 @@ public class DockerArtifactHandler {
     /**
      * Create docker image.
      *
+     * @param dockerModel dockerModel object
      * @param dockerDir   dockerfile directory
      * @throws InterruptedException When error with docker build process
      * @throws IOException          When error with docker build process
      */
     private void buildImage(String dockerDir) throws InterruptedException, IOException, DockerGenException {
         disableFailOnUnknownProperties();
-        Config dockerClientConfig = new ConfigBuilder()
-                .withDockerUrl(dockerModel.getDockerHost())
+        
+        DockerClient client = DefaultDockerClient.builder()
+                .uri(dockerModel.getDockerHost())
                 .build();
-        DockerClient client = new io.fabric8.docker.client.DefaultDockerClient(dockerClientConfig);
+        
         final DockerError dockerError = new DockerError();
-        OutputHandle buildHandle = client.image()
-                .build()
-                .withRepositoryName(dockerModel.getName())
-                .withNoCache()
-                .alwaysRemovingIntermediate()
-                .usingListener(new EventListener() {
-                    @Override
-                    public void onSuccess(String message) {
-                        buildDone.countDown();
-                    }
-
-                    @Override
-                    public void onError(String message) {
-                        dockerError.setErrorMsg("Unable to build Docker image: " + message);
-                        buildDone.countDown();
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        dockerError.setErrorMsg("Unable to build Docker image: " + t.getMessage());
-                        buildDone.countDown();
-                    }
-
-                    @Override
-                    public void onEvent(String event) {
-                        DockerGenUtils.printDebug(event);
-                    }
-                })
-                .fromFolder(dockerDir);
+    
+        try {
+            client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
+                String errorMessage = message.error();
+                String builtImageId = message.buildImageId();
+                
+                // when there is an error.
+                if (null != errorMessage) {
+                    dockerError.setErrorMsg("Unable to build Docker image: " + message);
+                    buildDone.countDown();
+                }
+                
+                // when an image is built successfully.
+                if (null != builtImageId) {
+                    buildDone.countDown();
+                }
+            }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
+        } catch (DockerException e) {
+            dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
+        }
         buildDone.await();
-        buildHandle.close();
         client.close();
         handleError(dockerError);
     }
@@ -210,7 +196,7 @@ public class DockerArtifactHandler {
 
                     @Override
                     public void onEvent(String event) {
-                        DockerGenUtils.printDebug(event);
+                        printDebug(event);
                     }
                 })
                 .toRegistry();

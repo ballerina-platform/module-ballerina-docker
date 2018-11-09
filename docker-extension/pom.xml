@@ -231,6 +231,7 @@
                                     <include>com.fasterxml.jackson.core:jackson-core</include>
                                     <include>com.fasterxml.jackson.core:jackson-annotations</include>
                                     <include>org.ballerinax.docker:docker-generator</include>
+                                    <include>com:spotify:docker-client</include>
                                 </includes>
                                 <excludes>
                                     <exclude>org.slf4j:slf4j-api</exclude>

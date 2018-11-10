@@ -18,6 +18,8 @@
 
 package org.ballerinax.docker.generator;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerException;
@@ -120,24 +122,22 @@ public class DockerArtifactHandler {
      */
     private void buildImage(String dockerDir) throws InterruptedException, IOException, DockerGenException {
         disableFailOnUnknownProperties();
-        
-        DockerClient client = DefaultDockerClient.builder()
-                .uri(dockerModel.getDockerHost())
-                .build();
-        
         final DockerError dockerError = new DockerError();
-    
+        DockerClient client = null;
         try {
+            
+            client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build();
+        
             client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
                 String errorMessage = message.error();
                 String builtImageId = message.buildImageId();
-                
+            
                 // when there is an error.
                 if (null != errorMessage) {
                     dockerError.setErrorMsg("Unable to build Docker image: " + message);
                     buildDone.countDown();
                 }
-                
+            
                 // when an image is built successfully.
                 if (null != builtImageId) {
                     buildDone.countDown();
@@ -145,9 +145,12 @@ public class DockerArtifactHandler {
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
+        } finally {
+            if (null != client) {
+                client.close();
+            }
         }
         buildDone.await();
-        client.close();
         handleError(dockerError);
     }
 

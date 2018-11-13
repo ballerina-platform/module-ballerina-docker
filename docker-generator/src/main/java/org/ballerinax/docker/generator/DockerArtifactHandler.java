@@ -20,14 +20,8 @@ package org.ballerinax.docker.generator;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.DockerException;
-import com.spotify.docker.client.shaded.com.fasterxml.jackson.databind.DeserializationFeature;
-import com.spotify.docker.client.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import org.ballerinax.docker.generator.exceptions.DockerGenException;
-import org.ballerinax.docker.generator.models.CopyFileModel;
-import org.ballerinax.docker.generator.models.DockerModel;
-import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.RegistryAuth;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerModel;
 
@@ -49,8 +43,8 @@ import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
-
-//    private final CountDownLatch pushDone = new CountDownLatch(1);
+    private PrintStream out = System.out;
+    private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
 
@@ -114,6 +108,7 @@ public class DockerArtifactHandler {
 //        }
     }
 
+    
     /**
      * Create docker image.
      *
@@ -122,8 +117,8 @@ public class DockerArtifactHandler {
      * @throws InterruptedException When error with docker build process
      * @throws IOException          When error with docker build process
      */
-    private void buildImage(String dockerDir) throws InterruptedException, IOException, DockerGenException {
-        disableFailOnUnknownProperties();
+    public void buildImage(DockerModel dockerModel, String dockerDir) throws
+            InterruptedException, IOException, DockerPluginException {
         final DockerError dockerError = new DockerError();
         DockerClient client = null;
         try {
@@ -165,51 +160,55 @@ public class DockerArtifactHandler {
     /**
      * Push docker image.
      *
+     * @param dockerModel DockerModel
      * @throws InterruptedException When error with docker build process
-     * @throws IOException          When error with docker build process
      */
-    private void pushImage() throws InterruptedException, IOException, DockerGenException {
-        disableFailOnUnknownProperties();
-//        AuthConfig authConfig = new AuthConfigBuilder().withUsername(dockerModel.getUsername()).withPassword
-//                (dockerModel.getPassword())
-//                .build();
-//        Config config = new ConfigBuilder()
-//                .withDockerUrl(dockerModel.getDockerHost())
-//                .addToAuthConfigs(RegistryUtils.extractRegistry(dockerModel.getName()), authConfig)
-//                .build();
-//
-//        io.fabric8.docker.client.DockerClient client = new io.fabric8.docker.client.DefaultDockerClient(config);
-//        final DockerError dockerError = new DockerError();
-//        OutputHandle handle = client.image().withName(dockerModel.getName()).push()
-//                .usingListener(new EventListener() {
-//                    @Override
-//                    public void onSuccess(String message) {
-//                        pushDone.countDown();
-//                    }
-//
-//                    @Override
-//                    public void onError(String message) {
-//                        pushDone.countDown();
-//                        dockerError.setErrorMsg("Unable to push Docker image: " + message);
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable t) {
-//                        pushDone.countDown();
-//                        dockerError.setErrorMsg("Unable to push Docker image: " + t.getMessage());
-//                    }
-//
-//                    @Override
-//                    public void onEvent(String event) {
-//                        printDebug(event);
-//                    }
-//                })
-//                .toRegistry();
-//
-//        pushDone.await();
-//        handle.close();
-//        client.close();
-//        handleError(dockerError);
+    public void pushImage(DockerModel dockerModel) throws InterruptedException, DockerPluginException {
+        RegistryAuth auth = RegistryAuth.builder()
+                .username(dockerModel.getUsername())
+                .password(dockerModel.getPassword())
+                .build();
+    
+        DockerClient client = DefaultDockerClient.builder()
+                .uri(dockerModel.getDockerHost())
+                .registryAuth(auth)
+                .build();
+        
+        final DockerError dockerError = new DockerError();
+    
+        try {
+            client.push(dockerModel.getName(), message -> {
+                String progress = message.progress();
+                String buildImageId = message.buildImageId();
+                String digest = message.digest();
+                String error = message.error();
+                String id = message.id();
+                String status = message.status();
+                String stream = message.stream();
+                out.println(progress);
+                out.println(buildImageId);
+                out.println(digest);
+                out.println(error);
+                out.println(id);
+                out.println(status);
+                out.println(stream);
+                
+                if (null != buildImageId) {
+                    pushDone.countDown();
+                }
+                
+                if (null != error) {
+                    dockerError.setErrorMsg("Unable to push Docker image: " + message);
+                    pushDone.countDown();
+                }
+            });
+        } catch (DockerException e) {
+            dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
+            pushDone.countDown();
+        }
+        pushDone.await();
+        client.close();
+        handleError(dockerError);
     }
 
     /**

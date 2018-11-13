@@ -48,9 +48,6 @@
         <dependency>
             <groupId>org.ballerinax.docker</groupId>
             <artifactId>docker-generator</artifactId>
-            <groupId>com.spotify</groupId>
-            <artifactId>docker-client</artifactId>
-            <classifier>shaded</classifier>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -212,10 +209,10 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                             <artifactSet>
                                 <includes>
-                                    <include>commons-io:commons-io</include>
+                                    <include>org.apache.commons:commons-compress</include>
                                     <include>commons-codec:commons-codec</include>
                                     <include>javax.validation:validation-api</include>
                                     <include>com.squareup.okhttp3:okhttp</include>

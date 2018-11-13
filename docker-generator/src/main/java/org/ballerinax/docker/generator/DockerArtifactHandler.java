@@ -18,8 +18,6 @@
 
 package org.ballerinax.docker.generator;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerException;
@@ -29,6 +27,9 @@ import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
+import com.spotify.docker.client.exceptions.DockerException;
+import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.models.DockerModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,13 +43,14 @@ import java.util.concurrent.CountDownLatch;
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDirectory;
 
+import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 
 /**
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
 
-    private final CountDownLatch pushDone = new CountDownLatch(1);
+//    private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
 
@@ -98,18 +100,18 @@ public class DockerArtifactHandler {
     }
 
     private static void disableFailOnUnknownProperties() {
-        // Disable fail on unknown properties using reflection to avoid docker client issue.
-        // (https://github.com/fabric8io/docker-client/issues/106).
-        final Field jsonMapperField;
-        try {
-            jsonMapperField = Config.class.getDeclaredField("JSON_MAPPER");
-            assert jsonMapperField != null;
-            jsonMapperField.setAccessible(true);
-            final ObjectMapper objectMapper = (ObjectMapper) jsonMapperField.get(null);
-            assert objectMapper != null;
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        } catch (NoSuchFieldException | IllegalAccessException ignored) {
-        }
+//        // Disable fail on unknown properties using reflection to avoid docker client issue.
+//        // (https://github.com/fabric8io/docker-client/issues/106).
+//        final Field jsonMapperField;
+//        try {
+////            jsonMapperField = Config.class.getDeclaredField("JSON_MAPPER");
+////            assert jsonMapperField != null;
+////            jsonMapperField.setAccessible(true);
+////            final ObjectMapper objectMapper = (ObjectMapper) jsonMapperField.get(null);
+//            assert objectMapper != null;
+//            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        } catch (NoSuchFieldException | IllegalAccessException ignored) {
+//        }
     }
 
     /**
@@ -168,46 +170,46 @@ public class DockerArtifactHandler {
      */
     private void pushImage() throws InterruptedException, IOException, DockerGenException {
         disableFailOnUnknownProperties();
-        AuthConfig authConfig = new AuthConfigBuilder().withUsername(dockerModel.getUsername()).withPassword
-                (dockerModel.getPassword())
-                .build();
-        Config config = new ConfigBuilder()
-                .withDockerUrl(dockerModel.getDockerHost())
-                .addToAuthConfigs(RegistryUtils.extractRegistry(dockerModel.getName()), authConfig)
-                .build();
-
-        DockerClient client = new DefaultDockerClient(config);
-        final DockerError dockerError = new DockerError();
-        OutputHandle handle = client.image().withName(dockerModel.getName()).push()
-                .usingListener(new EventListener() {
-                    @Override
-                    public void onSuccess(String message) {
-                        pushDone.countDown();
-                    }
-
-                    @Override
-                    public void onError(String message) {
-                        pushDone.countDown();
-                        dockerError.setErrorMsg("Unable to push Docker image: " + message);
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        pushDone.countDown();
-                        dockerError.setErrorMsg("Unable to push Docker image: " + t.getMessage());
-                    }
-
-                    @Override
-                    public void onEvent(String event) {
-                        printDebug(event);
-                    }
-                })
-                .toRegistry();
-
-        pushDone.await();
-        handle.close();
-        client.close();
-        handleError(dockerError);
+//        AuthConfig authConfig = new AuthConfigBuilder().withUsername(dockerModel.getUsername()).withPassword
+//                (dockerModel.getPassword())
+//                .build();
+//        Config config = new ConfigBuilder()
+//                .withDockerUrl(dockerModel.getDockerHost())
+//                .addToAuthConfigs(RegistryUtils.extractRegistry(dockerModel.getName()), authConfig)
+//                .build();
+//
+//        io.fabric8.docker.client.DockerClient client = new io.fabric8.docker.client.DefaultDockerClient(config);
+//        final DockerError dockerError = new DockerError();
+//        OutputHandle handle = client.image().withName(dockerModel.getName()).push()
+//                .usingListener(new EventListener() {
+//                    @Override
+//                    public void onSuccess(String message) {
+//                        pushDone.countDown();
+//                    }
+//
+//                    @Override
+//                    public void onError(String message) {
+//                        pushDone.countDown();
+//                        dockerError.setErrorMsg("Unable to push Docker image: " + message);
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable t) {
+//                        pushDone.countDown();
+//                        dockerError.setErrorMsg("Unable to push Docker image: " + t.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onEvent(String event) {
+//                        printDebug(event);
+//                    }
+//                })
+//                .toRegistry();
+//
+//        pushDone.await();
+//        handle.close();
+//        client.close();
+//        handleError(dockerError);
     }
 
     /**

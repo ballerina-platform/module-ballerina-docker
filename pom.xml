@@ -122,11 +122,6 @@
                 <version>${ballerina.lang.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-client</artifactId>
-                <version>${docker.client.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-client</artifactId>
                 <version>${spotify.docker.client.version}</version>

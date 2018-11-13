@@ -48,6 +48,9 @@
         <dependency>
             <groupId>org.ballerinax.docker</groupId>
             <artifactId>docker-generator</artifactId>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-client</artifactId>
+            <classifier>shaded</classifier>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -212,7 +215,6 @@
                             <minimizeJar>true</minimizeJar>
                             <artifactSet>
                                 <includes>
-                                    <include>io.fabric8:docker*</include>
                                     <include>commons-io:commons-io</include>
                                     <include>commons-codec:commons-codec</include>
                                     <include>javax.validation:validation-api</include>

@@ -43,7 +43,6 @@ import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
-    private PrintStream out = System.out;
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
@@ -133,7 +132,7 @@ public class DockerArtifactHandler {
                 
                 // when there is an error.
                 if (null != error) {
-                    dockerError.setErrorMsg("Unable to build Docker image: " + message);
+                    dockerError.setErrorMsg("Unable to build Docker image: " + error);
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
@@ -176,7 +175,7 @@ public class DockerArtifactHandler {
                 
                 // When error occurs.
                 if (null != error) {
-                    dockerError.setErrorMsg("Unable to push Docker image: " + message);
+                    dockerError.setErrorMsg("Unable to push Docker image: " + error);
                     pushDone.countDown();
                 }
             }, auth);

@@ -120,32 +120,25 @@ public class DockerArtifactHandler {
     public void buildImage(DockerModel dockerModel, String dockerDir) throws
             InterruptedException, IOException, DockerPluginException {
         final DockerError dockerError = new DockerError();
-        DockerClient client = null;
-        try {
-            
-            client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build();
+        try (DockerClient client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build()) {
         
             client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
-                String errorMessage = message.error();
-                String builtImageId = message.buildImageId();
-            
-                // when there is an error.
-                if (null != errorMessage) {
-                    dockerError.setErrorMsg("Unable to build Docker image: " + message);
+                String buildImageId = message.buildImageId();
+                String error = message.error();
+    
+                // when an image is built successfully.
+                if (null != buildImageId) {
                     buildDone.countDown();
                 }
-            
-                // when an image is built successfully.
-                if (null != builtImageId) {
+                
+                // when there is an error.
+                if (null != error) {
+                    dockerError.setErrorMsg("Unable to build Docker image: " + message);
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
-        } finally {
-            if (null != client) {
-                client.close();
-            }
         }
         buildDone.await();
         handleError(dockerError);
@@ -156,7 +149,7 @@ public class DockerArtifactHandler {
             throw new DockerGenException(dockerError.getErrorMsg());
         }
     }
-
+    
     /**
      * Push docker image.
      *
@@ -164,53 +157,37 @@ public class DockerArtifactHandler {
      * @throws InterruptedException When error with docker build process
      */
     public void pushImage(DockerModel dockerModel) throws InterruptedException, DockerPluginException {
+        final DockerError dockerError = new DockerError();
+    
         RegistryAuth auth = RegistryAuth.builder()
                 .username(dockerModel.getUsername())
                 .password(dockerModel.getPassword())
                 .build();
-    
-        DockerClient client = DefaultDockerClient.builder()
-                .uri(dockerModel.getDockerHost())
-                .registryAuth(auth)
-                .build();
         
-        final DockerError dockerError = new DockerError();
-    
-        try {
+        try (DockerClient client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build()) {
             client.push(dockerModel.getName(), message -> {
-                String progress = message.progress();
-                String buildImageId = message.buildImageId();
                 String digest = message.digest();
                 String error = message.error();
-                String id = message.id();
-                String status = message.status();
-                String stream = message.stream();
-                out.println(progress);
-                out.println(buildImageId);
-                out.println(digest);
-                out.println(error);
-                out.println(id);
-                out.println(status);
-                out.println(stream);
                 
-                if (null != buildImageId) {
+                // When image is successfully built.
+                if (null != digest) {
                     pushDone.countDown();
                 }
                 
+                // When error occurs.
                 if (null != error) {
                     dockerError.setErrorMsg("Unable to push Docker image: " + message);
                     pushDone.countDown();
                 }
-            });
+            }, auth);
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
             pushDone.countDown();
         }
         pushDone.await();
-        client.close();
         handleError(dockerError);
     }
-
+    
     /**
      * Generate Dockerfile content.
      *

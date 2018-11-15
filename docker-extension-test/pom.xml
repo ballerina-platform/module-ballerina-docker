@@ -56,7 +56,6 @@
         <dependency>
             <groupId>com.spotify</groupId>
             <artifactId>docker-client</artifactId>
-            <classifier>shaded</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinax.docker</groupId>

@@ -18,7 +18,9 @@
 
 package org.ballerinax.docker.test.samples;
 
-import io.fabric8.docker.api.model.ImageInspect;
+import com.google.common.collect.ImmutableList;
+import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.ImageInfo;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.utils.DockerPluginUtils;
@@ -29,6 +31,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
@@ -51,15 +54,17 @@ public class Sample4Test implements SampleTest {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         Assert.assertTrue(dockerFile.exists());
     }
-
+    
     @Test
-    public void validateDockerImage() {
-        ImageInspect imageInspect = getDockerImage(dockerImage);
-        Assert.assertEquals(2, imageInspect.getContainerConfig().getExposedPorts().size());
-        Assert.assertEquals("5005/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
-        Assert.assertEquals("9090/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[1]);
+    public void validateDockerImage() throws DockerException, InterruptedException {
+        ImageInfo imageInspect = getDockerImage(dockerImage);
+        Assert.assertNotNull(imageInspect.config().exposedPorts());
+        ImmutableList<String> exposedPorts = Objects.requireNonNull(imageInspect.config().exposedPorts()).asList();
+        Assert.assertEquals(1, exposedPorts.size());
+        Assert.assertEquals("5005/tcp", exposedPorts.toArray()[0]);
+        Assert.assertEquals("9090/tcp", exposedPorts.toArray()[1]);
     }
-
+    
     @AfterClass
     public void cleanUp() throws DockerPluginException {
         DockerPluginUtils.deleteDirectory(targetPath);

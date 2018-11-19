@@ -18,7 +18,9 @@
 
 package org.ballerinax.docker.test.samples;
 
-import io.fabric8.docker.api.model.ImageInspect;
+import com.google.common.collect.ImmutableList;
+import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.ImageInfo;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.utils.DockerPluginUtils;
@@ -29,6 +31,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
 
@@ -46,8 +49,7 @@ public class Sample6Test implements SampleTest {
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaProject(sourceDirPath), 0);
     }
-
-
+    
     @Test
     public void validateBurgerDockerfile() {
         File dockerFile = new File(burgerTargetPath + File.separator + "Dockerfile");
@@ -62,18 +64,22 @@ public class Sample6Test implements SampleTest {
 
     @Test
     public void validateBurgerDockerImage() {
-        ImageInspect imageInspect = getDockerImage(burgerDockerImage);
-        Assert.assertEquals(1, imageInspect.getContainerConfig().getExposedPorts().size());
-        Assert.assertEquals("9096/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
+        ImageInfo imageInspect = getDockerImage(burgerDockerImage);
+        Assert.assertNotNull(imageInspect.config().exposedPorts());
+        ImmutableList<String> exposedPorts = Objects.requireNonNull(imageInspect.config().exposedPorts()).asList();
+        Assert.assertEquals(1, exposedPorts.size());
+        Assert.assertEquals("9096/tcp", exposedPorts.toArray()[0]);
     }
 
     @Test
     public void validatePizzaDockerImage() {
-        ImageInspect imageInspect = getDockerImage(pizzaDockerImage);
-        Assert.assertEquals(1, imageInspect.getContainerConfig().getExposedPorts().size());
-        Assert.assertEquals("9099/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
+        ImageInfo imageInspect = getDockerImage(pizzaDockerImage);
+        Assert.assertNotNull(imageInspect.config().exposedPorts());
+        ImmutableList<String> exposedPorts = Objects.requireNonNull(imageInspect.config().exposedPorts()).asList();
+        Assert.assertEquals(1, exposedPorts.size());
+        Assert.assertEquals("9099/tcp", exposedPorts.toArray()[0]);
     }
-
+    
     @AfterClass
     public void cleanUp() throws DockerPluginException {
         DockerPluginUtils.deleteDirectory(pizzaTargetPath);

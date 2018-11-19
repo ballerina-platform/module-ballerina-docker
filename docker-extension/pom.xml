@@ -48,8 +48,6 @@
         <dependency>
             <groupId>org.ballerinax.docker</groupId>
             <artifactId>docker-generator</artifactId>
-            <version>0.983.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>

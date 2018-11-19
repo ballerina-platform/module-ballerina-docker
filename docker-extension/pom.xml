@@ -45,14 +45,16 @@
             <artifactId>ballerina-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>docker-client</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinax.docker</groupId>
+            <artifactId>docker-generator</artifactId>
+            <version>0.983.1-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -243,6 +245,7 @@
                                     <include>com.fasterxml.jackson.core:jackson-databind</include>
                                     <include>com.fasterxml.jackson.core:jackson-core</include>
                                     <include>com.fasterxml.jackson.core:jackson-annotations</include>
+                                    <include>org.ballerinax.docker:docker-generator</include>
                                 </includes>
                                 <excludes>
                                     <exclude>org.slf4j:slf4j-api</exclude>

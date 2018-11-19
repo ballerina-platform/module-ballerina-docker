@@ -32,6 +32,7 @@
     <url>http://ballerinalang.org</url>
 
     <modules>
+        <module>docker-generator</module>
         <module>docker-extension</module>
         <module>docker-extension-test</module>
     </modules>

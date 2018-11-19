@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Docker Utils Test Class.
  */
-public class DockerGenUtilsTest {
+public class DockerPluginUtilsTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -68,17 +68,17 @@ public class DockerGenUtilsTest {
     public void extractBalxNameTest() {
         String balxFilePath = "/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/hello_config_file.balx";
         String baxlFileName = "hello_config_file";
-        Assert.assertEquals(DockerGenUtils.extractBalxName(balxFilePath), baxlFileName);
+        Assert.assertEquals(DockerPluginUtils.extractBalxName(balxFilePath), baxlFileName);
         balxFilePath = "/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/";
-        Assert.assertNull(DockerGenUtils.extractBalxName(balxFilePath));
+        Assert.assertNull(DockerPluginUtils.extractBalxName(balxFilePath));
     }
 
     @Test
     public void isBlankTest() {
-        Assert.assertEquals(DockerGenUtils.isBlank(""), true);
-        Assert.assertEquals(DockerGenUtils.isBlank(" "), true);
-        Assert.assertEquals(DockerGenUtils.isBlank(null), true);
-        Assert.assertEquals(DockerGenUtils.isBlank("value"), false);
+        Assert.assertEquals(DockerPluginUtils.isBlank(""), true);
+        Assert.assertEquals(DockerPluginUtils.isBlank(" "), true);
+        Assert.assertEquals(DockerPluginUtils.isBlank(null), true);
+        Assert.assertEquals(DockerPluginUtils.isBlank("value"), false);
     }
 
     @Test
@@ -87,18 +87,18 @@ public class DockerGenUtilsTest {
         env.put("DOCKER_USERNAME", "anuruddhal");
         setEnv(env);
         try {
-            Assert.assertEquals(DockerGenUtils.resolveValue("$env{DOCKER_USERNAME}"), "anuruddhal");
+            Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_USERNAME}"), "anuruddhal");
         } catch (DockerPluginException e) {
             Assert.fail("Unable to resolve environment variable");
         }
         try {
-            DockerGenUtils.resolveValue("$env{DOCKER_PASSWORD}");
+            DockerPluginUtils.resolveValue("$env{DOCKER_PASSWORD}");
             Assert.fail("Env value should be resolved");
         } catch (DockerPluginException e) {
             Assert.assertEquals(e.getMessage(), "error resolving value: DOCKER_PASSWORD is not set in the " +
                     "environment.");
         }
-        Assert.assertEquals(DockerGenUtils.resolveValue("demo"), "demo");
+        Assert.assertEquals(DockerPluginUtils.resolveValue("demo"), "demo");
 
     }
 
@@ -106,7 +106,7 @@ public class DockerGenUtilsTest {
     public void deleteDirectoryTest() throws IOException, DockerPluginException {
         File createdFile = folder.newFile("myfile.txt");
         File createdFolder = folder.newFolder("subfolder");
-        DockerGenUtils.deleteDirectory(createdFile.getPath());
-        DockerGenUtils.deleteDirectory(createdFolder.getPath());
+        DockerPluginUtils.deleteDirectory(createdFile.getPath());
+        DockerPluginUtils.deleteDirectory(createdFolder.getPath());
     }
 }

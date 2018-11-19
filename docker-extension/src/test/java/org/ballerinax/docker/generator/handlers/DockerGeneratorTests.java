@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.ballerinax.docker.handlers;
+package org.ballerinax.docker.generator.handlers;
 
-import org.ballerinax.docker.DockerArtifactHandler;
-import org.ballerinax.docker.models.CopyFileModel;
-import org.ballerinax.docker.models.DockerModel;
-import org.ballerinax.docker.utils.DockerGenUtils;
+import org.ballerinax.docker.generator.DockerArtifactHandler;
+import org.ballerinax.docker.generator.models.CopyFileModel;
+import org.ballerinax.docker.generator.models.DockerModel;
+import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -73,7 +73,7 @@ public class DockerGeneratorTests {
         File dockerfile = new File("target/docker");
         dockerfile.mkdirs();
         dockerfile = new File("target/docker/Dockerfile");
-        DockerGenUtils.writeToFile(dockerfileContent, dockerfile.getPath());
+        DockerPluginUtils.writeToFile(dockerfileContent, dockerfile.getPath());
         log.info("Dockerfile Content:\n" + dockerfileContent);
         Assert.assertTrue(dockerfile.exists());
         dockerfile.deleteOnExit();

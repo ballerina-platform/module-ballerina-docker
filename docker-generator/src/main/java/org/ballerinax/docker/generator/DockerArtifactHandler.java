@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinax.docker;
+package org.ballerinax.docker.generator;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,16 +29,14 @@ import io.fabric8.docker.client.DockerClient;
 import io.fabric8.docker.client.utils.RegistryUtils;
 import io.fabric8.docker.dsl.EventListener;
 import io.fabric8.docker.dsl.OutputHandle;
-import org.ballerinax.docker.exceptions.DockerPluginException;
-import org.ballerinax.docker.models.DockerModel;
+import org.ballerinax.docker.generator.exceptions.DockerGenException;
+import org.ballerinax.docker.generator.models.DockerModel;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
-import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
 
 /**
  * Generates Docker artifacts from annotations.
@@ -51,7 +49,7 @@ public class DockerArtifactHandler {
 
     public DockerArtifactHandler(DockerModel dockerModel) {
         this.dockerModel = dockerModel;
-        if (!isBlank(dockerModel.getDockerCertPath())) {
+        if (!DockerGenUtils.isBlank(dockerModel.getDockerCertPath())) {
             System.setProperty("docker.cert.path", dockerModel.getDockerCertPath());
         }
     }
@@ -80,7 +78,7 @@ public class DockerArtifactHandler {
      * @throws IOException          When error with docker build process
      */
     public void buildImage(DockerModel dockerModel, String dockerDir) throws
-            InterruptedException, IOException, DockerPluginException {
+            InterruptedException, IOException, DockerGenException {
         disableFailOnUnknownProperties();
         Config dockerClientConfig = new ConfigBuilder()
                 .withDockerUrl(dockerModel.getDockerHost())
@@ -112,7 +110,7 @@ public class DockerArtifactHandler {
 
                     @Override
                     public void onEvent(String event) {
-                        printDebug(event);
+                        DockerGenUtils.printDebug(event);
                     }
                 })
                 .fromFolder(dockerDir);
@@ -122,9 +120,9 @@ public class DockerArtifactHandler {
         handleError(dockerError);
     }
 
-    private void handleError(DockerError dockerError) throws DockerPluginException {
+    private void handleError(DockerError dockerError) throws DockerGenException {
         if (dockerError.isError()) {
-            throw new DockerPluginException(dockerError.getErrorMsg());
+            throw new DockerGenException(dockerError.getErrorMsg());
         }
     }
 
@@ -135,7 +133,7 @@ public class DockerArtifactHandler {
      * @throws InterruptedException When error with docker build process
      * @throws IOException          When error with docker build process
      */
-    public void pushImage(DockerModel dockerModel) throws InterruptedException, IOException, DockerPluginException {
+    public void pushImage(DockerModel dockerModel) throws InterruptedException, IOException, DockerGenException {
         disableFailOnUnknownProperties();
         AuthConfig authConfig = new AuthConfigBuilder().withUsername(dockerModel.getUsername()).withPassword
                 (dockerModel.getPassword())
@@ -168,7 +166,7 @@ public class DockerArtifactHandler {
 
                     @Override
                     public void onEvent(String event) {
-                        printDebug(event);
+                        DockerGenUtils.printDebug(event);
                     }
                 })
                 .toRegistry();

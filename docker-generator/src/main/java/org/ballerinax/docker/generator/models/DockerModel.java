@@ -16,15 +16,14 @@
  * under the License.
  */
 
-package org.ballerinax.docker.models;
+package org.ballerinax.docker.generator.models;
+
+import org.ballerinax.docker.generator.DockerGenConstants;
 
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import static org.ballerinax.docker.DockerGenConstants.BALLERINA_BASE_IMAGE;
-import static org.ballerinax.docker.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
-import static org.ballerinax.docker.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
 
 /**
  * Docker annotations model class.
@@ -53,15 +52,15 @@ public class DockerModel {
         this.push = false;
         this.buildImage = true;
         String baseImageVersion = getClass().getPackage().getImplementationVersion();
-        this.baseImage = BALLERINA_BASE_IMAGE + ":" + baseImageVersion;
+        this.baseImage = DockerGenConstants.BALLERINA_BASE_IMAGE + ":" + baseImageVersion;
         this.enableDebug = false;
         this.debugPort = 5005;
 
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         if (operatingSystem.contains("win")) {
-            this.dockerHost = WINDOWS_DEFAULT_DOCKER_HOST;
+            this.dockerHost = DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
         } else {
-            this.dockerHost = UNIX_DEFAULT_DOCKER_HOST;
+            this.dockerHost = DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
         }
         files = new HashSet<>();
     }

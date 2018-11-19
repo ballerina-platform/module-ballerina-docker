@@ -21,7 +21,7 @@ package org.ballerinax.docker.test.samples;
 import io.fabric8.docker.api.model.ImageInspect;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
-import org.ballerinax.docker.utils.DockerGenUtils;
+import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -76,12 +76,12 @@ public class Sample6Test implements SampleTest {
 
     @AfterClass
     public void cleanUp() throws DockerPluginException {
-        DockerGenUtils.deleteDirectory(pizzaTargetPath);
-        DockerGenUtils.deleteDirectory(burgerTargetPath);
+        DockerPluginUtils.deleteDirectory(pizzaTargetPath);
+        DockerPluginUtils.deleteDirectory(burgerTargetPath);
         DockerTestUtils.deleteDockerImage(burgerDockerImage);
         DockerTestUtils.deleteDockerImage(pizzaDockerImage);
-        DockerGenUtils.deleteDirectory(sourceDirPath + File.separator + ".ballerina");
-        DockerGenUtils.deleteDirectory(sourceDirPath + File.separator + ".gitignore");
-        DockerGenUtils.deleteDirectory(sourceDirPath + File.separator + "Ballerina.toml");
+        DockerPluginUtils.deleteDirectory(sourceDirPath + File.separator + ".ballerina");
+        DockerPluginUtils.deleteDirectory(sourceDirPath + File.separator + ".gitignore");
+        DockerPluginUtils.deleteDirectory(sourceDirPath + File.separator + "Ballerina.toml");
     }
 }

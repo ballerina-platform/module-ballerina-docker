@@ -18,8 +18,8 @@
 
 package org.ballerinax.docker.utils;
 
-import org.ballerinax.docker.DockerGenConstants;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.generator.DockerGenConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.util.Optional;
 /**
  * Util methods used for artifact generation.
  */
-public class DockerGenUtils {
+public class DockerPluginUtils {
 
     private static final boolean debugEnabled = "true".equals(System.getProperty(DockerGenConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream error = System.err;

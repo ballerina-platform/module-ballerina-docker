@@ -31,7 +31,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerContext;
 import org.ballerinax.docker.models.DockerDataHolder;
-import org.ballerinax.docker.utils.DockerGenUtils;
+import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -41,10 +41,10 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.ballerinax.docker.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.DockerGenConstants.PORT;
-import static org.ballerinax.docker.utils.DockerGenUtils.extractBalxName;
-import static org.ballerinax.docker.utils.DockerGenUtils.printError;
+import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.PORT;
+import static org.ballerinax.docker.utils.DockerPluginUtils.extractBalxName;
+import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
 
 /**
  * Compiler plugin to generate docker artifacts.
@@ -154,13 +154,13 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 targetPath = userDir + File.separator + extractBalxName(filePath);
             }
             try {
-                DockerGenUtils.deleteDirectory(targetPath);
+                DockerPluginUtils.deleteDirectory(targetPath);
                 dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(), filePath,
                         targetPath);
             } catch (DockerPluginException e) {
                 printError(e.getMessage());
                 try {
-                    DockerGenUtils.deleteDirectory(targetPath);
+                    DockerPluginUtils.deleteDirectory(targetPath);
                 } catch (DockerPluginException ignored) {
                 }
             }

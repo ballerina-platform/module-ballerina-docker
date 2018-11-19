@@ -27,15 +27,10 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina Docker Extension</name>
-    <url>http://ballerinalang.org</url>
+    <name>BallerinaX - Docker Extension</name>
+    <url>https://ballerina.io</url>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>lib-creator</artifactId>
@@ -55,6 +50,16 @@
             <artifactId>docker-generator</artifactId>
             <version>0.983.1-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -263,7 +268,7 @@
                                     <exclude>org.ballerinalang:ballerina-mime</exclude>
                                     <exclude>org.ballerinalang:ballerina-logging</exclude>
                                     <exclude>org.ballerinalang:ballerina-http</exclude>
-                                    <exclude>junit:junit</exclude>
+                                    <exclude>org.testng:testng</exclude>
                                     <exclude>org.bsc.maven:maven-processor-plugin</exclude>
                                 </excludes>
                             </artifactSet>

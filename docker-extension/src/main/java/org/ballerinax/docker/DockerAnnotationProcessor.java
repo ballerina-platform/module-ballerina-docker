@@ -21,6 +21,7 @@ package org.ballerinax.docker;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.generator.DockerArtifactHandler;
+import org.ballerinax.docker.generator.DockerGenUtils;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
@@ -212,7 +213,7 @@ class DockerAnnotationProcessor {
         out.print("\t@docker \t\t - complete 1/3 \r");
         String dockerContent = dockerArtifactHandler.generate();
         try {
-            DockerPluginUtils.writeToFile(dockerContent, outputDir + File.separator + "Dockerfile");
+            DockerGenUtils.writeToFile(dockerContent, outputDir + File.separator + "Dockerfile");
             String balxDestination = outputDir + File.separator + DockerPluginUtils.extractBalxName
                     (balxFilePath) + BALX;
             copyFile(balxFilePath, balxDestination);

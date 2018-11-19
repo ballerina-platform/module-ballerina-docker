@@ -19,7 +19,12 @@
 package org.ballerinax.docker.generator;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Util methods used for artifact generation.
@@ -58,5 +63,25 @@ public class DockerGenUtils {
         } else {
             return true;
         }
+    }
+    
+    /**
+     * Write content to a File. Create the required directories if they don't not exists.
+     *
+     * @param context        context of the file
+     * @param targetFilePath target file path
+     * @throws IOException If an error occurs when writing to a file
+     */
+    public static void writeToFile(String context, String targetFilePath) throws IOException {
+        File newFile = new File(targetFilePath);
+        if (newFile.exists() && newFile.delete()) {
+            Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+            return;
+        }
+        if (newFile.getParentFile().mkdirs()) {
+            Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+            return;
+        }
+        Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -16,8 +16,12 @@
  * under the License.
  */
 
-package org.ballerinax.docker.generator;
+package org.ballerinax.docker.generator.utils;
 
+
+import org.apache.commons.io.FileUtils;
+import org.ballerinax.docker.generator.DockerGenConstants;
+import org.ballerinax.docker.generator.exceptions.DockerGenException;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,5 +87,47 @@ public class DockerGenUtils {
             return;
         }
         Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+    }
+    
+    /**
+     * Extract the ballerina file name from a given file path.
+     *
+     * @param balxFilePath balx file path.
+     * @return output file name of balx
+     */
+    public static String extractBalxName(String balxFilePath) {
+        if (balxFilePath.contains(".balx")) {
+            return balxFilePath.substring(balxFilePath.lastIndexOf(File.separator) + 1, balxFilePath.lastIndexOf(
+                    ".balx"));
+        }
+        return null;
+    }
+    
+    
+    /**
+     * Copy file or directory.
+     *
+     * @param source      source file/directory path
+     * @param destination destination file/directory path
+     */
+    public static void copyFileOrDirectory(String source, String destination) throws DockerGenException {
+        File src = new File(source);
+        File dst = new File(destination);
+        try {
+            // if source is file
+            if (Files.isRegularFile(Paths.get(source))) {
+                if (Files.isDirectory(dst.toPath())) {
+                    // if destination is directory
+                    FileUtils.copyFileToDirectory(src, dst);
+                } else {
+                    // if destination is file
+                    FileUtils.copyFile(src, dst);
+                }
+            } else if (Files.isDirectory(Paths.get(source))) {
+                FileUtils.copyDirectory(src, dst);
+            }
+        } catch (IOException e) {
+            throw new DockerGenException("Error while copying file", e);
+        }
     }
 }

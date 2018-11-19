@@ -19,9 +19,9 @@
 package org.ballerinax.docker.generator.test;
 
 import org.ballerinax.docker.generator.DockerArtifactHandler;
-import org.ballerinax.docker.generator.DockerGenUtils;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
+import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,7 +42,8 @@ public class DockerGeneratorTests {
     private final Logger log = LoggerFactory.getLogger(DockerGeneratorTests.class);
 
     @Test
-    public void testDockerGenerate() throws IOException {
+    public void testDockerGenerate() throws IOException, NoSuchMethodException, InvocationTargetException,
+            IllegalAccessException {
         DockerModel dockerModel = new DockerModel();
         Set<Integer> ports = new HashSet<>();
         ports.add(9090);
@@ -67,11 +70,14 @@ public class DockerGeneratorTests {
         dataFileModel.setTarget("/home/ballerina/data/");
         dataFileModel.setBallerinaConf(false);
         files.add(dataFileModel);
-        dockerModel.setFiles(files);
+        dockerModel.setCopyFiles(files);
 
-        String dockerfileContent = new DockerArtifactHandler(dockerModel).generate();
+        DockerArtifactHandler artifactHandler = new DockerArtifactHandler(dockerModel);
+        Method generateDockerfileMethod = DockerArtifactHandler.class.getDeclaredMethod("generateDockerfile");
+        generateDockerfileMethod.setAccessible(true);
+        String dockerfileContent = (String) generateDockerfileMethod.invoke(artifactHandler);
         File dockerfile = new File("target/docker");
-        dockerfile.mkdirs();
+        Assert.assertTrue(dockerfile.mkdirs());
         dockerfile = new File("target/docker/Dockerfile");
         DockerGenUtils.writeToFile(dockerfileContent, dockerfile.getPath());
         log.info("Dockerfile Content:\n" + dockerfileContent);

@@ -86,7 +86,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                                 dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                         break;
                     case CopyFiles:
-                        dataHolder.addExternalFile(
+                        dataHolder.addExternalFiles(
                                 dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                         break;
                     default:
@@ -124,7 +124,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                                 dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                         break;
                     case CopyFiles:
-                        dataHolder.addExternalFile(
+                        dataHolder.addExternalFiles(
                                 dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                         break;
                     case Expose:

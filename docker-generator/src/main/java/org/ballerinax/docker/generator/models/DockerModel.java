@@ -44,7 +44,8 @@ public class DockerModel {
     private boolean isService;
     private String balxFileName;
     private String dockerCertPath;
-    private Set<CopyFileModel> files;
+    private Set<CopyFileModel> externalFiles;
+    private String commandArg;
 
     public DockerModel() {
         // Initialize with default values except for image name
@@ -62,7 +63,8 @@ public class DockerModel {
         } else {
             this.dockerHost = DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
         }
-        files = new HashSet<>();
+        externalFiles = new HashSet<>();
+        commandArg = "";
     }
 
     public String getName() {
@@ -177,12 +179,15 @@ public class DockerModel {
         this.dockerHost = dockerHost;
     }
 
-    public Set<CopyFileModel> getFiles() {
-        return files;
+    public Set<CopyFileModel> getCopyFiles() {
+        return externalFiles;
     }
 
-    public void setFiles(Set<CopyFileModel> files) {
-        this.files = files;
+    public void setCopyFiles(Set<CopyFileModel> externalFiles) {
+        this.externalFiles = externalFiles;
+        externalFiles.stream()
+                .filter(CopyFileModel::isBallerinaConf)
+                .forEach(file -> addCommandArg(" --config " + file.getTarget()));
     }
 
     public String getDockerCertPath() {
@@ -192,26 +197,35 @@ public class DockerModel {
     public void setDockerCertPath(String dockerCertPath) {
         this.dockerCertPath = dockerCertPath;
     }
-
+    
+    public String getCommandArg() {
+        return commandArg;
+    }
+    
+    public void addCommandArg(String commandArg) {
+        this.commandArg += commandArg;
+    }
+    
     @Override
     public String toString() {
         return "DockerModel{" +
-                "name='" + name + '\'' +
-                ", registry='" + registry + '\'' +
-                ", tag='" + tag + '\'' +
-                ", push=" + push +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", buildImage=" + buildImage +
-                ", baseImage='" + baseImage + '\'' +
-                ", ports=" + ports +
-                ", enableDebug=" + enableDebug +
-                ", debugPort=" + debugPort +
-                ", dockerHost='" + dockerHost + '\'' +
-                ", isService=" + isService +
-                ", balxFileName='" + balxFileName + '\'' +
-                ", dockerCertPath='" + dockerCertPath + '\'' +
-                ", files=" + files +
-                '}';
+               "name='" + name + '\'' +
+               ", registry='" + registry + '\'' +
+               ", tag='" + tag + '\'' +
+               ", push=" + push +
+               ", username='" + username + '\'' +
+               ", password='" + password + '\'' +
+               ", buildImage" + "=" + buildImage +
+               ", baseImage='" + baseImage + '\'' +
+               ", ports=" + ports +
+               ", enableDebug=" + enableDebug +
+               ", debugPort=" + debugPort +
+               ", dockerHost='" + dockerHost + '\'' +
+               ", isService=" + isService +
+               ", balxFileName='" + balxFileName + '\'' +
+               ", dockerCertPath='" + dockerCertPath + '\'' +
+               ", externalFiles=" + externalFiles +
+               ", commandArg='" + commandArg + '\'' +
+               '}';
     }
 }

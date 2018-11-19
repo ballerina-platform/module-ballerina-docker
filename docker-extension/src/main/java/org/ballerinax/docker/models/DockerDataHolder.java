@@ -32,12 +32,12 @@ public class DockerDataHolder {
     private boolean canProcess;
     private Set<Integer> ports;
     private DockerModel dockerModel;
-    private Set<CopyFileModel> files;
+    private Set<CopyFileModel> externalFiles;
 
     public DockerDataHolder() {
         dockerModel = new DockerModel();
         ports = new HashSet<>();
-        files = new HashSet<>();
+        externalFiles = new HashSet<>();
     }
 
     public Set<Integer> getPorts() {
@@ -56,12 +56,12 @@ public class DockerDataHolder {
         this.dockerModel = dockerModel;
     }
 
-    public Set<CopyFileModel> getFiles() {
-        return files;
+    public Set<CopyFileModel> getExternalFiles() {
+        return externalFiles;
     }
 
-    public void addExternalFile(Set<CopyFileModel> files) {
-        this.files.addAll(files);
+    public void addExternalFiles(Set<CopyFileModel> files) {
+        this.externalFiles.addAll(files);
     }
 
     public boolean isCanProcess() {

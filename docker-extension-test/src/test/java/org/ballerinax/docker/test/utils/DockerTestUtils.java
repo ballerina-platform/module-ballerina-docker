@@ -35,8 +35,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.Locale;
 
-import static org.ballerinax.docker.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
-import static org.ballerinax.docker.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
+import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
+import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
 
 /**
  * Docker test utils.

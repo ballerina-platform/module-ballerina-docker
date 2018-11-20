@@ -27,15 +27,10 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina Docker Extension</name>
-    <url>http://ballerinalang.org</url>
+    <name>BallerinaX - Docker Extension</name>
+    <url>https://ballerina.io</url>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>lib-creator</artifactId>
@@ -45,17 +40,21 @@
             <artifactId>ballerina-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>docker-client</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinax.docker</groupId>
+            <artifactId>docker-generator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
 
     <build>
         <resources>
@@ -243,6 +242,7 @@
                                     <include>com.fasterxml.jackson.core:jackson-databind</include>
                                     <include>com.fasterxml.jackson.core:jackson-core</include>
                                     <include>com.fasterxml.jackson.core:jackson-annotations</include>
+                                    <include>org.ballerinax.docker:docker-generator</include>
                                 </includes>
                                 <excludes>
                                     <exclude>org.slf4j:slf4j-api</exclude>
@@ -260,7 +260,7 @@
                                     <exclude>org.ballerinalang:ballerina-mime</exclude>
                                     <exclude>org.ballerinalang:ballerina-logging</exclude>
                                     <exclude>org.ballerinalang:ballerina-http</exclude>
-                                    <exclude>junit:junit</exclude>
+                                    <exclude>org.testng:testng</exclude>
                                     <exclude>org.bsc.maven:maven-processor-plugin</exclude>
                                 </excludes>
                             </artifactSet>

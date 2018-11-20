@@ -18,9 +18,12 @@
 
 package org.ballerinax.docker.test.samples;
 
+import io.fabric8.docker.api.model.ContainerCreateResponse;
 import io.fabric8.docker.api.model.ImageInspect;
+import io.fabric8.docker.api.model.Protocol;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
+import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -29,8 +32,11 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerClient;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
 
 
@@ -39,12 +45,39 @@ public class Sample1Test implements SampleTest {
     private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample1";
     private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
     private final String dockerImage = "hello_world_docker:latest";
+    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
+    private ContainerCreateResponse container;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
     }
-
+    
+    @Test
+    public void testService() throws IOException, InterruptedException {
+        // startup container
+        Map<Integer, Protocol> exposedPorts = new LinkedHashMap<>();
+        exposedPorts.put(9090, Protocol.TCP);
+    
+        container = DOCKER_CLIENT.container()
+                .createNew()
+                .withName(dockerContainerName)
+                .withExposedPorts(exposedPorts)
+                .withImage(dockerImage)
+                .done();
+    
+        getDockerClient().container()
+                .withName(container.getId())
+                .start();
+    
+        // send request
+        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample1_client.bal");
+        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
+        Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
+        Assert.assertEquals(runOutput.getStdOutput(), "Hello, World from service helloWorld ! ",
+                "Unexpected service response.");
+    
+    }
 
     @Test
     public void validateDockerfile() {
@@ -61,6 +94,18 @@ public class Sample1Test implements SampleTest {
 
     @AfterClass
     public void cleanUp() throws DockerPluginException {
+        if (null != container) {
+            // stop container
+            getDockerClient().container()
+                    .withName(container.getId())
+                    .stop();
+        
+            // remove container
+            getDockerClient().container()
+                    .withName(container.getId())
+                    .remove();
+        }
+    
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

@@ -47,20 +47,21 @@ public class DockerTestUtils {
     private static final String DISTRIBUTION_PATH = System.getProperty("ballerina.pack");
     private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH + File.separator + "ballerina";
     private static final String BUILD = "build";
+    private static final String RUN = "run";
     private static final String EXECUTING_COMMAND = "Executing command: ";
     private static final String COMPILING = "Compiling: ";
+    private static final String RUNNING = "Running: ";
     private static final String EXIT_CODE = "Exit code: ";
 
-    private static void logOutput(InputStream inputStream) throws IOException {
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new InputStreamReader(inputStream));
-            br.lines().forEach(log::info);
-        } finally {
-            if (br != null) {
-                br.close();
-            }
+    private static String logOutput(InputStream inputStream) throws IOException {
+        StringBuilder output = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+            br.lines().forEach(line -> {
+                output.append(line);
+                log.info(line);
+            });
         }
+        return output.toString();
     }
 
     /**
@@ -84,7 +85,7 @@ public class DockerTestUtils {
         client.image().withName(imageName).delete().andPrune();
     }
 
-    private static DockerClient getDockerClient() {
+    public static DockerClient getDockerClient() {
         disableFailOnUnknownProperties();
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         String dockerHost = operatingSystem.contains("win") ? WINDOWS_DEFAULT_DOCKER_HOST : UNIX_DEFAULT_DOCKER_HOST;
@@ -147,6 +148,32 @@ public class DockerTestUtils {
         logOutput(process.getInputStream());
         logOutput(process.getErrorStream());
         return exitCode;
+    }
+    
+    /**
+     * Run a ballerina file in a given directory
+     *
+     * @param sourceDirectory Ballerina source directory
+     * @param fileName        Ballerina source file name
+     * @return Exit code
+     * @throws InterruptedException if an error occurs while compiling
+     * @throws IOException          if an error occurs while writing file
+     */
+    public static ProcessOutput runBallerinaFile(String sourceDirectory, String fileName) throws InterruptedException,
+            IOException {
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, RUN, fileName);
+        log.info(RUNNING + sourceDirectory + File.separator + fileName);
+        log.debug(EXECUTING_COMMAND + pb.command());
+        pb.directory(new File(sourceDirectory));
+        Process process = pb.start();
+        int exitCode = process.waitFor();
+        
+        ProcessOutput po = new ProcessOutput();
+        log.info(EXIT_CODE + exitCode);
+        po.setExitCode(exitCode);
+        po.setStdOutput(logOutput(process.getInputStream()));
+        po.setErrOutput(logOutput(process.getErrorStream()));
+        return po;
     }
 
     // Disable fail on unknown properties using reflection to avoid docker client issue.

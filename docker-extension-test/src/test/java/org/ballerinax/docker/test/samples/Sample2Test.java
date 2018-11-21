@@ -51,7 +51,9 @@ public class Sample2Test implements SampleTest {
     @Test(dependsOnMethods = "validateDockerImage")
     public void testService() throws IOException, InterruptedException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
-        Assert.assertTrue(DockerTestUtils.startContainer(containerID), "Service did not start properly.");
+        Assert.assertTrue(DockerTestUtils.startContainer(containerID,
+                "[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9090"),
+                "Service did not start properly.");
         
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample2_client.bal");

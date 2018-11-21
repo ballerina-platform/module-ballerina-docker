@@ -103,6 +103,7 @@ public class DockerTestUtils {
         String dockerHost = operatingSystem.contains("win") ? WINDOWS_DEFAULT_DOCKER_HOST : UNIX_DEFAULT_DOCKER_HOST;
         Config dockerClientConfig = new ConfigBuilder()
                 .withDockerUrl(dockerHost)
+                .withConnectionTimeout(20000)
                 .build();
         return new io.fabric8.docker.client.DefaultDockerClient(dockerClientConfig);
     }
@@ -243,11 +244,13 @@ public class DockerTestUtils {
      * Start a docker container and wait until a ballerina service starts.
      *
      * @param containerID ID of the container.
+     * @param logToWait   Log message to confirm waiting
      * @return true if service started, else false.
      * @throws IOException          Error when closing log reader.
      * @throws InterruptedException Error when waiting for service start.
      */
-    public static boolean startContainer(String containerID) throws IOException, InterruptedException {
+    public static boolean startContainer(String containerID, String logToWait) throws IOException,
+            InterruptedException {
         DockerError error = new DockerError();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         final PrintStream out = System.out;
@@ -277,7 +280,7 @@ public class DockerTestUtils {
                             
                             @Override
                             public void onEvent(String event) {
-                                if (event.contains("[ballerina/http] started")) {
+                                if (event.contains(logToWait)) {
                                     countDownLatch.countDown();
                                 }
                             }

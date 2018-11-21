@@ -39,13 +39,21 @@ public class Sample4Test implements SampleTest {
     private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample4";
     private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
     private final String dockerImage = "helloworld-debug:latest";
+    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
+    private String containerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "docker_debug.bal"), 0);
     }
-
-
+    
+    @Test(dependsOnMethods = "validateDockerImage")
+    public void testService() throws IOException, InterruptedException {
+        containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
+        Assert.assertTrue(DockerTestUtils.startContainer(containerID, "Ballerina remote debugger is activated on port"),
+                "Service did not start properly.");
+    }
+    
     @Test
     public void validateDockerfile() {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
@@ -62,6 +70,7 @@ public class Sample4Test implements SampleTest {
 
     @AfterClass
     public void cleanUp() throws DockerPluginException {
+        DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

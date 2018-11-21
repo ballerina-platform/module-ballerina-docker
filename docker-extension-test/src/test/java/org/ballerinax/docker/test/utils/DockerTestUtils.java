@@ -20,7 +20,9 @@ package org.ballerinax.docker.test.utils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.docker.api.model.HostConfig;
 import io.fabric8.docker.api.model.ImageInspect;
+import io.fabric8.docker.api.model.PortBinding;
 import io.fabric8.docker.client.Config;
 import io.fabric8.docker.client.ConfigBuilder;
 import io.fabric8.docker.client.DockerClient;
@@ -33,7 +35,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
 import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
@@ -189,6 +194,22 @@ public class DockerTestUtils {
         } catch (NoSuchFieldException | IllegalAccessException ignored) {
         }
     }
-
-
+    
+    /**
+     * Create port mapping from host to docker instance.
+     *
+     * @param port Port of host docker instance.
+     * @return The configuration.
+     */
+    public static HostConfig getPortMappingForHost(Integer port) {
+        Map<String, ArrayList<PortBinding>> portBinding = new HashMap<>();
+        ArrayList<PortBinding> hostPort = new ArrayList<>();
+        PortBinding svcPortBinding = new PortBinding("localhost", port.toString());
+        hostPort.add(svcPortBinding);
+        portBinding.put(port.toString() + "/tcp", hostPort);
+        
+        HostConfig hostConfig = new HostConfig();
+        hostConfig.setPortBindings(portBinding);
+        return hostConfig;
+    }
 }

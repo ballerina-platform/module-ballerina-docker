@@ -20,7 +20,6 @@ package org.ballerinax.docker.test.samples;
 
 import io.fabric8.docker.api.model.ContainerCreateResponse;
 import io.fabric8.docker.api.model.ImageInspect;
-import io.fabric8.docker.api.model.Protocol;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.test.utils.ProcessOutput;
@@ -32,8 +31,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerClient;
@@ -56,13 +53,10 @@ public class Sample1Test implements SampleTest {
     @Test
     public void testService() throws IOException, InterruptedException {
         // startup container
-        Map<Integer, Protocol> exposedPorts = new LinkedHashMap<>();
-        exposedPorts.put(9090, Protocol.TCP);
-    
         container = DOCKER_CLIENT.container()
                 .createNew()
                 .withName(dockerContainerName)
-                .withExposedPorts(exposedPorts)
+                .withHostConfig(DockerTestUtils.getPortMappingForHost(9090))
                 .withImage(dockerImage)
                 .done();
     
@@ -99,13 +93,13 @@ public class Sample1Test implements SampleTest {
             getDockerClient().container()
                     .withName(container.getId())
                     .stop();
-        
+
             // remove container
             getDockerClient().container()
                     .withName(container.getId())
                     .remove();
         }
-    
+
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

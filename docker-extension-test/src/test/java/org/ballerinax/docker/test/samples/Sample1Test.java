@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerClient;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
 
 
@@ -52,7 +51,7 @@ public class Sample1Test implements SampleTest {
     @Test(dependsOnMethods = "validateDockerImage")
     public void testService() throws IOException, InterruptedException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
-        Assert.assertTrue(DockerTestUtils.startService(containerID), "Service did not start properly.");
+        Assert.assertTrue(DockerTestUtils.startContainer(containerID), "Service did not start properly.");
     
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample1_client.bal");
@@ -77,18 +76,7 @@ public class Sample1Test implements SampleTest {
 
     @AfterClass
     public void cleanUp() throws DockerPluginException {
-        if (null != containerID) {
-            // stop container
-            getDockerClient().container()
-                    .withName(containerID)
-                    .stop();
-
-            // remove container
-            getDockerClient().container()
-                    .withName(containerID)
-                    .remove();
-        }
-
+        DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

@@ -45,26 +45,17 @@ public class Sample1Test implements SampleTest {
     private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
     private final String dockerImage = "hello_world_docker:latest";
     private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
-    private ContainerCreateResponse container;
+    private String containerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
     }
     
-    @Test
+    @Test(dependsOnMethods = "validateDockerImage")
     public void testService() throws IOException, InterruptedException {
-        // startup container
-        container = DOCKER_CLIENT.container()
-                .createNew()
-                .withName(dockerContainerName)
-                .withHostConfig(DockerTestUtils.getPortMappingForHost(9090))
-                .withImage(dockerImage)
-                .done();
-    
-        getDockerClient().container()
-                .withName(container.getId())
-                .start();
+        containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
+        Assert.assertTrue(DockerTestUtils.startService(containerID), "Service did not start properly.");
     
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample1_client.bal");
@@ -72,9 +63,8 @@ public class Sample1Test implements SampleTest {
         Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
         Assert.assertEquals(runOutput.getStdOutput(), "Hello, World from service helloWorld ! ",
                 "Unexpected service response.");
-    
     }
-
+    
     @Test
     public void validateDockerfile() {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
@@ -90,15 +80,15 @@ public class Sample1Test implements SampleTest {
 
     @AfterClass
     public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
-        if (null != container) {
+        if (null != containerID) {
             // stop container
             getDockerClient().container()
-                    .withName(container.getId())
+                    .withName(containerID)
                     .stop();
 
             // remove container
             getDockerClient().container()
-                    .withName(container.getId())
+                    .withName(containerID)
                     .remove();
         }
         

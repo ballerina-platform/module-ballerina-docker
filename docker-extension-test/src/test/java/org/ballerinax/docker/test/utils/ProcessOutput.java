@@ -49,4 +49,13 @@ public class ProcessOutput {
     public void setErrOutput(String errOutput) {
         this.errOutput = errOutput;
     }
+    
+    @Override
+    public String toString() {
+        return "ProcessOutput{" +
+               "exitCode=" + exitCode +
+               ", stdOutput='" + stdOutput + '\'' +
+               ", errOutput='" + errOutput + '\'' +
+               '}';
+    }
 }

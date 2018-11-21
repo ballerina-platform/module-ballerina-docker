@@ -235,5 +235,7 @@
         <com.fasterxml.jackson.core.annotations.version>2.9.1</com.fasterxml.jackson.core.annotations.version>
         <testng.version>6.14.3</testng.version>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 </project>

@@ -26,6 +26,8 @@ import io.fabric8.docker.api.model.PortBinding;
 import io.fabric8.docker.client.Config;
 import io.fabric8.docker.client.ConfigBuilder;
 import io.fabric8.docker.client.DockerClient;
+import io.fabric8.docker.dsl.EventListener;
+import io.fabric8.docker.dsl.OutputHandle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -34,11 +36,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
 import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
@@ -198,18 +203,115 @@ public class DockerTestUtils {
     /**
      * Create port mapping from host to docker instance.
      *
-     * @param port Port of host docker instance.
+     * @param hostPort Port of host docker instance.
+     * @param containerPort Port of the container.
      * @return The configuration.
      */
-    public static HostConfig getPortMappingForHost(Integer port) {
+    public static HostConfig getPortMappingForHost(Integer hostPort, Integer containerPort) {
         Map<String, ArrayList<PortBinding>> portBinding = new HashMap<>();
-        ArrayList<PortBinding> hostPort = new ArrayList<>();
-        PortBinding svcPortBinding = new PortBinding("localhost", port.toString());
-        hostPort.add(svcPortBinding);
-        portBinding.put(port.toString() + "/tcp", hostPort);
-        
+        ArrayList<PortBinding> hostPortList = new ArrayList<>();
+        PortBinding svcPortBinding = new PortBinding("localhost", hostPort.toString());
+        hostPortList.add(svcPortBinding);
+        portBinding.put(containerPort.toString() + "/tcp", hostPortList);
+    
         HostConfig hostConfig = new HostConfig();
         hostConfig.setPortBindings(portBinding);
         return hostConfig;
+    }
+    
+    /**
+     * Start a docker container and wait until a ballerina service starts.
+     *
+     * @param containerID ID of the container.
+     * @return true if service started, else false.
+     * @throws IOException          Error when closing log reader.
+     * @throws InterruptedException Error when waiting for service start.
+     */
+    public static boolean startService(String containerID) throws IOException, InterruptedException {
+        DockerError error = new DockerError();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        final PrintStream out = System.out;
+        getDockerClient().container().withName(containerID).start();
+        OutputHandle handle =
+                getDockerClient().container().withName(containerID).logs().writingOutput(out).writingError(out).
+                usingListener(new EventListener() {
+                    @Override
+                    public void onSuccess(String message) {
+                    }
+                    
+                    @Override
+                    public void onError(String message) {
+                        error.setErrorMsg(message);
+                        countDownLatch.countDown();
+                    }
+                    
+                    @Override
+                    public void onError(Throwable t) {
+                        if (!(t instanceof SocketTimeoutException)) {
+                            t.printStackTrace(System.out);
+                            error.setErrorMsg(t.getMessage());
+                        }
+                        countDownLatch.countDown();
+                    }
+                    
+                    @Override
+                    public void onEvent(String event) {
+                        if (event.contains("[ballerina/http] started HTTP/WS endpoint")) {
+                            countDownLatch.countDown();
+                        }
+                    }
+                }).follow();
+        
+        countDownLatch.await();
+        handle.close();
+        if (error.isError()) {
+            log.error(error.getErrorMsg());
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+    /**
+     * Create a container.
+     *
+     * @param dockerImage   Docker image name.
+     * @param containerName The name of the container.
+     * @return The container ID.
+     */
+    public static String createContainer(String dockerImage, String containerName) {
+        return getDockerClient().container()
+                .createNew()
+                .withName(containerName)
+                .withHostConfig(DockerTestUtils.getPortMappingForHost(9090, 9090))
+                .withImage(dockerImage)
+                .withAttachStderr(true)
+                .withAttachStdout(true)
+                .done().getId();
+    }
+    
+    /**
+     * Class to hold docker errors.
+     */
+    private static class DockerError {
+        private boolean error;
+        private String errorMsg;
+    
+        DockerError() {
+            this.error = false;
+        }
+    
+        boolean isError() {
+            return error;
+        }
+    
+        String getErrorMsg() {
+            return errorMsg;
+        }
+    
+        void setErrorMsg(String errorMsg) {
+            this.error = true;
+            this.errorMsg = errorMsg;
+        }
     }
 }

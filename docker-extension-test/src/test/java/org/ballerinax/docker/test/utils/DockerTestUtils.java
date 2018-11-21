@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
 import java.io.PrintStream;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.ws.rs.ext.RuntimeDelegate;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
 import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
@@ -240,6 +242,23 @@ public class DockerTestUtils {
         return hostConfig;
     }
     
+    /**
+     * Create a container.
+     *
+     * @param dockerImage   Docker image name.
+     * @param containerName The name of the container.
+     * @return The container ID.
+     */
+    public static String createContainer(String dockerImage, String containerName) {
+        return getDockerClient().container()
+                .createNew()
+                .withName(containerName)
+                .withHostConfig(DockerTestUtils.getPortMappingForHost(9090, 9090))
+                .withImage(dockerImage)
+                .withAttachStderr(true)
+                .withAttachStdout(true)
+                .done().getId();
+    }
     
     /**
      * Start a docker container and wait until a ballerina service starts.
@@ -249,7 +268,7 @@ public class DockerTestUtils {
      * @throws IOException          Error when closing log reader.
      * @throws InterruptedException Error when waiting for service start.
      */
-    public static boolean startService(String containerID) throws IOException, InterruptedException {
+    public static boolean startContainer(String containerID) throws IOException, InterruptedException {
         DockerError error = new DockerError();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         final PrintStream out = System.out;
@@ -269,7 +288,8 @@ public class DockerTestUtils {
                             
                             @Override
                             public void onError(Throwable t) {
-                                if (!(t instanceof SocketTimeoutException)) {
+                                // Ignoring logging socket timeout exception due to okio async timeout.
+                                if (!(t instanceof SocketTimeoutException) && !(t instanceof InterruptedIOException)) {
                                     t.printStackTrace(System.out);
                                     error.setErrorMsg(t.getMessage());
                                 }
@@ -278,38 +298,39 @@ public class DockerTestUtils {
                             
                             @Override
                             public void onEvent(String event) {
-                                if (event.contains("[ballerina/http] started HTTP/WS endpoint")) {
+                                if (event.contains("[ballerina/http] started")) {
                                     countDownLatch.countDown();
                                 }
                             }
                         }).follow();
-        
-        countDownLatch.await();
+    
+        boolean awaitResult = countDownLatch.await(5, TimeUnit.SECONDS);
         handle.close();
         if (error.isError()) {
             log.error(error.getErrorMsg());
             return false;
         } else {
-            return true;
+            return awaitResult;
         }
     }
     
     /**
-     * Create a container.
+     * Stop and remove a running container.
      *
-     * @param dockerImage   Docker image name.
-     * @param containerName The name of the container.
-     * @return The container ID.
+     * @param containerID The container ID.
      */
-    public static String createContainer(String dockerImage, String containerName) {
-        return getDockerClient().container()
-                .createNew()
-                .withName(containerName)
-                .withHostConfig(DockerTestUtils.getPortMappingForHost(9090, 9090))
-                .withImage(dockerImage)
-                .withAttachStderr(true)
-                .withAttachStdout(true)
-                .done().getId();
+    public static void stopContainer(String containerID) {
+        if (null != containerID) {
+            // stop container
+            getDockerClient().container()
+                    .withName(containerID)
+                    .stop();
+        
+            // remove container
+            getDockerClient().container()
+                    .withName(containerID)
+                    .remove();
+        }
     }
     
     /**

@@ -55,13 +55,10 @@ public class Sample1Test implements SampleTest {
     @Test
     public void testService() throws IOException, InterruptedException {
         // startup container
-        Map<Integer, Protocol> exposedPorts = new LinkedHashMap<>();
-        exposedPorts.put(9090, Protocol.TCP);
-    
         container = DOCKER_CLIENT.container()
                 .createNew()
                 .withName(dockerContainerName)
-                .withExposedPorts(exposedPorts)
+                .withHostConfig(DockerTestUtils.getPortMappingForHost(9090))
                 .withImage(dockerImage)
                 .done();
     
@@ -98,7 +95,7 @@ public class Sample1Test implements SampleTest {
             getDockerClient().container()
                     .withName(container.getId())
                     .stop();
-        
+
             // remove container
             getDockerClient().container()
                     .withName(container.getId())

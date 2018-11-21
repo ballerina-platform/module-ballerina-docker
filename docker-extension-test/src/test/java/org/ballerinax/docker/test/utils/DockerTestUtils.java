@@ -31,6 +31,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -214,6 +216,24 @@ public class DockerTestUtils {
         po.setStdOutput(logOutput(process.getInputStream()));
         po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
+    }
+    
+    /**
+     * Create port mapping from host to docker instance.
+     *
+     * @param port Port of host docker instance.
+     * @return The configuration.
+     */
+    public static HostConfig getPortMappingForHost(Integer port) {
+        Map<String, ArrayList<PortBinding>> portBinding = new HashMap<>();
+        ArrayList<PortBinding> hostPort = new ArrayList<>();
+        PortBinding svcPortBinding = new PortBinding("localhost", port.toString());
+        hostPort.add(svcPortBinding);
+        portBinding.put(port.toString() + "/tcp", hostPort);
+        
+        HostConfig hostConfig = new HostConfig();
+        hostConfig.setPortBindings(portBinding);
+        return hostConfig;
     }
     
     private static synchronized void addJavaAgents(Map<String, String> envProperties) {

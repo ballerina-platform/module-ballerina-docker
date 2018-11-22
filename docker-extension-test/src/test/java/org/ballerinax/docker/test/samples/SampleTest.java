@@ -18,7 +18,6 @@
 
 package org.ballerinax.docker.test.samples;
 
-import io.fabric8.docker.client.DockerClient;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.testng.annotations.AfterClass;
@@ -27,11 +26,8 @@ import org.testng.annotations.BeforeClass;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerClient;
-
 public interface SampleTest {
     String SAMPLE_DIR = System.getProperty("sample.dir");
-    DockerClient DOCKER_CLIENT = getDockerClient();
     String CLIENT_BAL_FOLDER = Paths.get("src").resolve("test").resolve("resources").resolve("sample-clients")
             .toAbsolutePath().toString();
 

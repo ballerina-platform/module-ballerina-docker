@@ -84,7 +84,7 @@ class DockerAnnotationProcessor {
             dockerHandler.createArtifacts(out, "\t@docker \t\t", balxFilePath, outputDir);
             printDockerInstructions(dockerModel);
         } catch (DockerGenException e) {
-            throw new DockerPluginException("Error occurred when trying to create/build/push docker image/container.",
+            throw new DockerPluginException("Error occurred when trying to create/build/push docker image.",
                     e);
         }
     }

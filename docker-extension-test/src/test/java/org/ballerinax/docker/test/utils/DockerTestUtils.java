@@ -97,7 +97,7 @@ public class DockerTestUtils {
         client.image().withName(imageName).delete().andPrune();
     }
 
-    public static DockerClient getDockerClient() {
+    private static DockerClient getDockerClient() {
         disableFailOnUnknownProperties();
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         String dockerHost = operatingSystem.contains("win") ? WINDOWS_DEFAULT_DOCKER_HOST : UNIX_DEFAULT_DOCKER_HOST;

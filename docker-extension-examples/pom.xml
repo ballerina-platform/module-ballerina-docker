@@ -23,6 +23,7 @@
     <parent>
         <artifactId>docker-extension-parent</artifactId>
         <groupId>org.ballerinax.docker</groupId>
+        <relativePath>../pom.xml</relativePath>
         <version>0.983.1-SNAPSHOT</version>
     </parent>
 

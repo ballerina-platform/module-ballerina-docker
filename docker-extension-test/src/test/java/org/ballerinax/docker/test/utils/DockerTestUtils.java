@@ -297,7 +297,7 @@ public class DockerTestUtils {
                             
                             @Override
                             public void onEvent(String event) {
-                                log.debug("[Error]:" + event);
+                                log.debug("[Event]:" + event);
                                 if (event.contains(logToWait)) {
                                     countDownLatch.countDown();
                                 }

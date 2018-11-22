@@ -47,7 +47,7 @@ public class Sample4Test implements SampleTest {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "docker_debug.bal"), 0);
     }
     
-    @Test(dependsOnMethods = "validateDockerImage")
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
     public void testService() throws IOException, InterruptedException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID, "Ballerina remote debugger is activated on port"),

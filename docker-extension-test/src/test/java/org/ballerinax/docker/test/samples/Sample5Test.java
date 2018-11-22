@@ -48,7 +48,7 @@ public class Sample5Test implements SampleTest {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_config_file.bal"), 0);
     }
     
-    @Test(dependsOnMethods = "validateDockerImage")
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
     public void testService() throws IOException, InterruptedException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,

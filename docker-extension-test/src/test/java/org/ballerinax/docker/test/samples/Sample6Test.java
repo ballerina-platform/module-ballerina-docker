@@ -66,21 +66,21 @@ public class Sample6Test implements SampleTest {
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample6_burger_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
         Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
-        Assert.assertTrue(runOutput.getStdOutput().contains("Burger menu "), "Unexpected service response.");
+        Assert.assertEquals(runOutput.getStdOutput(), "Burger menu ", "Unexpected service response.");
     }
     
     @Test(dependsOnMethods = "validatePizzaDockerImage")
     public void testPizzaService() throws IOException, InterruptedException {
-        pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName);
+        pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName, 9099, 9099);
         Assert.assertTrue(DockerTestUtils.startContainer(pizzaContainerID,
-                "[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090"),
+                "[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9099"),
                 "Service did not start properly.");
         
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample6_pizza_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
         Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
-        Assert.assertTrue(runOutput.getStdOutput().contains("Pizza menu "), "Unexpected service response.");
+        Assert.assertEquals(runOutput.getStdOutput(), "Pizza menu ", "Unexpected service response.");
     }
 
     @Test

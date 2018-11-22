@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 endpoint http:Client helloWorldEP {
-    url: "http://localhost:9090"
+    url: "http://localhost:9099"
 };
 
 public function main() {

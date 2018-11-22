@@ -243,6 +243,24 @@ public class DockerTestUtils {
     }
     
     /**
+     * Create a container with host and container ports.
+     *
+     * @param dockerImage   Docker image name.
+     * @param containerName The name of the container.
+     * @return The container ID.
+     */
+    public static String createContainer(String dockerImage, String containerName, int hostPort, int containerPort) {
+        return getDockerClient().container()
+                .createNew()
+                .withName(containerName)
+                .withHostConfig(DockerTestUtils.getPortMappingForHost(hostPort, containerPort))
+                .withImage(dockerImage)
+                .withAttachStderr(true)
+                .withAttachStdout(true)
+                .done().getId();
+    }
+    
+    /**
      * Create a container.
      *
      * @param dockerImage   Docker image name.
@@ -250,14 +268,7 @@ public class DockerTestUtils {
      * @return The container ID.
      */
     public static String createContainer(String dockerImage, String containerName) {
-        return getDockerClient().container()
-                .createNew()
-                .withName(containerName)
-                .withHostConfig(DockerTestUtils.getPortMappingForHost(9090, 9090))
-                .withImage(dockerImage)
-                .withAttachStderr(true)
-                .withAttachStdout(true)
-                .done().getId();
+        return createContainer(dockerImage, containerName, 9090, 9090);
     }
     
     /**

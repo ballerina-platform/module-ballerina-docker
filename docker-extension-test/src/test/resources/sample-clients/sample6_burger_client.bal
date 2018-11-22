@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 endpoint http:Client helloWorldEP {
-    url: "https://localhost:9090",
+    url: "https://localhost:9096",
     secureSocket: {
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

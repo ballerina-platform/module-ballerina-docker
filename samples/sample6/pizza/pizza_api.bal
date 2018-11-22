@@ -6,12 +6,12 @@ listener http:Listener pizzaEP = new(9099);
 
 @docker:Config {}
 @http:ServiceConfig {
-    basePath:"/pizza"
+    basePath: "/pizza"
 }
 service PizzaAPI on pizzaEP {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/menu"
+        methods: ["GET"],
+        path: "/menu"
     }
     resource function getPizzaMenu(http:Caller outboundEP, http:Request request) {
         http:Response response = new;

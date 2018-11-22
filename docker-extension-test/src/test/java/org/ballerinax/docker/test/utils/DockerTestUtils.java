@@ -291,6 +291,7 @@ public class DockerTestUtils {
                         usingListener(new EventListener() {
                             @Override
                             public void onSuccess(String message) {
+                                log.info("Success:" + message);
                             }
                             
                             @Override
@@ -311,14 +312,17 @@ public class DockerTestUtils {
                             
                             @Override
                             public void onEvent(String event) {
+                                log.info("Event:" + event);
                                 if (event.contains(logToWait)) {
                                     countDownLatch.countDown();
                                 }
                             }
                         }).follow();
-    
+        log.info("Starting to wait.");
         boolean awaitResult = countDownLatch.await(5, TimeUnit.SECONDS);
+        log.info("Wait finished");
         handle.close();
+        log.info("Closing handler");
         if (error.isError()) {
             log.error(error.getErrorMsg());
             return false;
@@ -334,6 +338,7 @@ public class DockerTestUtils {
      */
     public static void stopContainer(String containerID) {
         if (null != containerID) {
+            log.info("Removing container: " + containerID);
             // stop container
             getDockerClient().container()
                     .withName(containerID)

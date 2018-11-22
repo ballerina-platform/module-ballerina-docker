@@ -21,10 +21,10 @@
 
     <test name="ballerinax-docker-sample-tests" parallel="false">
         <classes>
-            <!--<class name="org.ballerinax.docker.test.samples.Sample1Test"/>-->
-            <!--<class name="org.ballerinax.docker.test.samples.Sample2Test"/>-->
-            <!--<class name="org.ballerinax.docker.test.samples.Sample4Test"/>-->
-            <!--<class name="org.ballerinax.docker.test.samples.Sample5Test"/>-->
+            <class name="org.ballerinax.docker.test.samples.Sample1Test"/>
+            <class name="org.ballerinax.docker.test.samples.Sample2Test"/>
+            <class name="org.ballerinax.docker.test.samples.Sample4Test"/>
+            <class name="org.ballerinax.docker.test.samples.Sample5Test"/>
             <class name="org.ballerinax.docker.test.samples.Sample6Test"/>
             <class name="org.ballerinax.docker.test.samples.Sample7Test"/>
         </classes>

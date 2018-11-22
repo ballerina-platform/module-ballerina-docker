@@ -3,17 +3,17 @@ import ballerinax/docker;
 
 @docker:Expose {}
 endpoint http:Listener pizzaEP {
-    port:9099
+    port: 9099
 };
 
 @docker:Config {}
 @http:ServiceConfig {
-    basePath:"/pizza"
+    basePath: "/pizza"
 }
 service<http:Service> PizzaAPI bind pizzaEP {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/menu"
+        methods: ["GET"],
+        path: "/menu"
     }
     getPizzaMenu(endpoint outboundEP, http:Request req) {
         http:Response response = new;

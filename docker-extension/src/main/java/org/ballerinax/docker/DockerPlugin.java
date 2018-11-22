@@ -18,6 +18,7 @@
 
 package org.ballerinax.docker;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
@@ -44,7 +45,6 @@ import java.util.List;
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.generator.DockerGenConstants.PORT;
 import static org.ballerinax.docker.utils.DockerPluginUtils.extractBalxName;
-import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
 
 /**
  * Compiler plugin to generate docker artifacts.
@@ -158,11 +158,14 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(), filePath,
                         targetPath);
             } catch (DockerPluginException e) {
-                printError(e.getMessage());
+                BLangCompilerException wrapperEx = new BLangCompilerException("package [" + packageID + "] " +
+                                                                              e.getMessage(), e);
                 try {
                     DockerPluginUtils.deleteDirectory(targetPath);
                 } catch (DockerPluginException ignored) {
+                    // ignore
                 }
+                throw wrapperEx;
             }
         }
     }

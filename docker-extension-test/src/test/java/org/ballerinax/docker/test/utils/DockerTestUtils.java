@@ -247,6 +247,8 @@ public class DockerTestUtils {
      *
      * @param dockerImage   Docker image name.
      * @param containerName The name of the container.
+     * @param hostPort      The port of the host.
+     * @param containerPort The port of the container.
      * @return The container ID.
      */
     public static String createContainer(String dockerImage, String containerName, int hostPort, int containerPort) {
@@ -285,17 +287,19 @@ public class DockerTestUtils {
         DockerError error = new DockerError();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         final PrintStream out = System.out;
+        log.debug("Starting container: " + containerID);
         getDockerClient().container().withName(containerID).start();
         OutputHandle handle =
                 getDockerClient().container().withName(containerID).logs().writingOutput(out).writingError(out).
                         usingListener(new EventListener() {
                             @Override
                             public void onSuccess(String message) {
-                                log.info("Success:" + message);
+                                log.debug("[Success]:" + message);
                             }
                             
                             @Override
                             public void onError(String message) {
+                                log.debug("[Error]:" + message);
                                 error.setErrorMsg(message);
                                 countDownLatch.countDown();
                             }
@@ -307,22 +311,23 @@ public class DockerTestUtils {
                                     t.printStackTrace(System.out);
                                     error.setErrorMsg(t.getMessage());
                                 }
+                                log.debug("[Error]:" + t.getMessage());
                                 countDownLatch.countDown();
                             }
                             
                             @Override
                             public void onEvent(String event) {
-                                log.info("Event:" + event);
+                                log.debug("[Error]:" + event);
                                 if (event.contains(logToWait)) {
                                     countDownLatch.countDown();
                                 }
                             }
                         }).follow();
-        log.info("Starting to wait.");
+        log.debug("Waiting for service to start with container: " + containerID);
         boolean awaitResult = countDownLatch.await(5, TimeUnit.SECONDS);
-        log.info("Wait finished");
+        log.debug("Waiting finished for container: " + containerID);
         handle.close();
-        log.info("Closing handler");
+        log.debug("Closing log handler for container: " + containerID);
         if (error.isError()) {
             log.error(error.getErrorMsg());
             return false;

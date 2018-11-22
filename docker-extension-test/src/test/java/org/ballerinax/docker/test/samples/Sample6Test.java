@@ -55,7 +55,7 @@ public class Sample6Test implements SampleTest {
         Assert.assertEquals(DockerTestUtils.compileBallerinaProject(sourceDirPath), 0);
     }
     
-    @Test(dependsOnMethods = "validateBurgerDockerImage")
+    @Test(dependsOnMethods = "validateBurgerDockerImage", timeOut = 30000)
     public void testBurgerService() throws IOException, InterruptedException {
         burgerContainerID = DockerTestUtils.createContainer(burgerDockerImage, burgerContainerName, 9096, 9096);
         Assert.assertTrue(DockerTestUtils.startContainer(burgerContainerID,
@@ -69,7 +69,7 @@ public class Sample6Test implements SampleTest {
         Assert.assertEquals(runOutput.getStdOutput(), "Burger menu ", "Unexpected service response.");
     }
     
-    @Test(dependsOnMethods = "validatePizzaDockerImage")
+    @Test(dependsOnMethods = "validatePizzaDockerImage", timeOut = 30000)
     public void testPizzaService() throws IOException, InterruptedException {
         pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName, 9099, 9099);
         Assert.assertTrue(DockerTestUtils.startContainer(pizzaContainerID,

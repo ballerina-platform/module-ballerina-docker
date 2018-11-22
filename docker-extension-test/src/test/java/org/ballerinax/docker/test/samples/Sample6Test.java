@@ -21,6 +21,7 @@ package org.ballerinax.docker.test.samples;
 import io.fabric8.docker.api.model.ImageInspect;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
+import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -40,13 +41,46 @@ public class Sample6Test implements SampleTest {
     private final String burgerTargetPath = targetDirPath + File.separator + "burger" + File.separator;
     private final String pizzaTargetPath = targetDirPath + File.separator + "pizza" + File.separator;
     private final String burgerDockerImage = "burger:latest";
+    private final String burgerContainerName = "ballerinax_docker_burger_" +
+                                               this.getClass().getSimpleName().toLowerCase();
+    private String burgerContainerID;
     private final String pizzaDockerImage = "pizza:latest";
+    private final String pizzaContainerName = "ballerinax_docker_pizza_" +
+                                              this.getClass().getSimpleName().toLowerCase();
+    private String pizzaContainerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaProject(sourceDirPath), 0);
     }
-
+    
+    @Test(dependsOnMethods = "validateBurgerDockerImage")
+    public void testBurgerService() throws IOException, InterruptedException {
+        burgerContainerID = DockerTestUtils.createContainer(burgerDockerImage, burgerContainerName, 9096, 9096);
+        Assert.assertTrue(DockerTestUtils.startContainer(burgerContainerID,
+                "[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9096"),
+                "Service did not start properly.");
+        
+        // send request
+        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample6_burger_client.bal");
+        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
+        Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
+        Assert.assertTrue(runOutput.getStdOutput().contains("Burger menu "), "Unexpected service response.");
+    }
+    
+    @Test(dependsOnMethods = "validatePizzaDockerImage")
+    public void testPizzaService() throws IOException, InterruptedException {
+        pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName);
+        Assert.assertTrue(DockerTestUtils.startContainer(pizzaContainerID,
+                "[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090"),
+                "Service did not start properly.");
+        
+        // send request
+        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample6_pizza_client.bal");
+        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
+        Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
+        Assert.assertTrue(runOutput.getStdOutput().contains("Pizza menu "), "Unexpected service response.");
+    }
 
     @Test
     public void validateBurgerDockerfile() {
@@ -76,6 +110,8 @@ public class Sample6Test implements SampleTest {
 
     @AfterClass
     public void cleanUp() throws DockerPluginException {
+        DockerTestUtils.stopContainer(burgerContainerID);
+        DockerTestUtils.stopContainer(pizzaContainerID);
         DockerPluginUtils.deleteDirectory(pizzaTargetPath);
         DockerPluginUtils.deleteDirectory(burgerTargetPath);
         DockerTestUtils.deleteDockerImage(burgerDockerImage);

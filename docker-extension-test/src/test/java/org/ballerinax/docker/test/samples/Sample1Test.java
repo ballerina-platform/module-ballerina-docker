@@ -45,7 +45,6 @@ public class Sample1Test implements SampleTest {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
     }
 
-
     @Test
     public void validateDockerfile() {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");

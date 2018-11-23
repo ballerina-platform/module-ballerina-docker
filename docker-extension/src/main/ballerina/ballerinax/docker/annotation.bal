@@ -29,22 +29,23 @@
 # + dockerHost - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)
 # + dockerCertPath - Docker certificate path
 public type DockerConfiguration record {
-    string name;
-    string registry;
-    string tag;
-    string username;
-    string password;
-    string baseImage;
-    boolean push;
-    boolean buildImage;
-    boolean enableDebug;
-    int debugPort;
-    string dockerHost;
-    string dockerCertPath;
+    string name?;
+    string registry?;
+    string tag?;
+    string username?;
+    string password?;
+    string baseImage?;
+    boolean push?;
+    boolean buildImage?;
+    boolean enableDebug?;
+    int debugPort?;
+    string dockerHost?;
+    string dockerCertPath?;
+    !...
 };
 
 # @docker:Config annotation to configure docker artifact generation.
-public annotation<service, endpoint> Config DockerConfiguration;
+public annotation<service, listener> Config DockerConfiguration;
 
 # External file type for docker.
 #
@@ -54,7 +55,8 @@ public annotation<service, endpoint> Config DockerConfiguration;
 public type FileConfig record {
     string source;
     string target;
-    boolean isBallerinaConf;
+    boolean isBallerinaConf?;
+    !...
 };
 
 # External File configurations for docker.
@@ -62,15 +64,16 @@ public type FileConfig record {
 # + files - Array of [FileConfig](docker.html#FileConfig)
 public type FileConfigs record {
     FileConfig[] files;
+    !...
 };
 
 # @docker:CopyFile annotation to copy external files to docker image.
-public annotation<service, endpoint> CopyFiles FileConfigs;
+public annotation<service, listener> CopyFiles FileConfigs;
 
 # Expose ports for docker.
 public type ExposeConfig record {
+    !...
 };
 
-
 # @docker:Expose annotation to expose ballerina ports.
-public annotation<endpoint> Expose ExposeConfig;
+public annotation<listener> Expose ExposeConfig;

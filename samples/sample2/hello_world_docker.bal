@@ -1,16 +1,15 @@
 import ballerina/http;
 import ballerinax/docker;
 
-@docker:Expose{}
-endpoint http:Listener helloWorldEP {
-    port:9090,
+@docker:Expose {}
+listener http:Server helloWorldEP = new http:Server(9090, config = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {
       basePath:"/helloWorld"
@@ -20,10 +19,10 @@ endpoint http:Listener helloWorldEP {
     name:"helloworld",
     tag:"v1.0"
 }
-service<http:Service> helloWorld bind helloWorldEP {
-    sayHello (endpoint outboundEP, http:Request request) {
+service helloWorld on helloWorldEP {
+    resource function sayHello (http:Caller outboundEP, http:Request request) {
         http:Response response = new;
         response.setTextPayload("Hello, World! \n");
-        _ = outboundEP -> respond(response);
+        _ = outboundEP->respond(response);
     }
 }

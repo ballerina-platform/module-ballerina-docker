@@ -12,19 +12,17 @@ import ballerinax/docker;
 }
 
 @docker:Expose {}
-endpoint http:Listener helloWorldEP {
-    port: 9090
-};
+listener http:Server helloWorldEP = new http:Server(9090);
 
 @http:ServiceConfig {
     basePath: "/helloWorld"
 }
-service<http:Service> helloWorld bind helloWorldEP {
+service helloWorld on helloWorldEP {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/config/{user}"
     }
-    getConfig(endpoint outboundEP, http:Request request, string user) {
+    resource function getConfig(http:Caller outboundEP, http:Request request, string user) {
         http:Response response = new;
         string userId = getConfigValue(user, "userid");
         string groups = getConfigValue(user, "groups");
@@ -32,11 +30,12 @@ service<http:Service> helloWorld bind helloWorldEP {
         response.setTextPayload(payload + "\n");
         _ = outboundEP->respond(response);
     }
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/data"
     }
-    getData(endpoint outboundEP, http:Request request) {
+    resource function getData(http:Caller outboundEP, http:Request request) {
         http:Response response = new;
         string payload = readFile("./data/data.txt");
         response.setTextPayload("{'data': '" + untaint payload + "'}\n");

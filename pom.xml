@@ -35,6 +35,7 @@
         <module>docker-generator</module>
         <module>docker-extension</module>
         <module>docker-extension-test</module>
+        <module>docker-extension-examples</module>
     </modules>
 
     <dependencyManagement>

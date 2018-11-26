@@ -15,7 +15,7 @@ Annotation based docker extension implementation for ballerina.
 ## Supported Annotations:
 
 ### @docker:Config{}
-- Supported with ballerina services or endpoints.
+- Supported with ballerina services or listeners.
 
 |**Annotation Name**|**Description**|**Default value**|
 |--|--|--|
@@ -33,7 +33,7 @@ Annotation based docker extension implementation for ballerina.
 |password|Password for docker registry|None|
 
 ### @docker:CopyFiles{}
-- Supported with ballerina services or endpoints.
+- Supported with ballerina services or listeners.
 
 |**Annotation Name**|**Description**|**Default value**|
 |--|--|--|
@@ -42,7 +42,7 @@ Annotation based docker extension implementation for ballerina.
 |isBallerinaConf|flag whether file is a ballerina config file|false|
 
 ### @docker:Expose{}
-- Supported with ballerina endpoints.
+- Supported with ballerina listeners.
 
 ## How to run
 
@@ -65,20 +65,18 @@ import ballerina/http;
 import ballerinax/docker;
 
 @docker:Expose{}
-endpoint http:Listener helloWorldEP {
-    port:9090
-};
+listener http:Listener helloWorldEP = new(9090);
 
 @http:ServiceConfig {
-      basePath:"/helloWorld"
+      basePath: "/helloWorld"
 }
 @docker:Config {
-    registry:"docker.abc.com",
-    name:"helloworld",
-    tag:"v1.0"
+    registry: "docker.abc.com",
+    name: "helloworld",
+    tag: "v1.0"
 }
-service<http:Service> helloWorld bind helloWorldEP {
-    sayHello (endpoint outboundEP, http:Request request) {
+service helloWorld on helloWorldEP {
+    resource function sayHello(http:Caller outboundEP, http:Request request) {
         http:Response response = new;
         response.setTextPayload("Hello, World from service helloWorld ! \n");
         _ = outboundEP -> respond(response);

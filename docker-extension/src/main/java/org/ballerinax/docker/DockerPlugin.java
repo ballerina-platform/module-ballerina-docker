@@ -20,7 +20,6 @@ package org.ballerinax.docker;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -106,11 +105,6 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
         DockerDataHolder dataHolder = DockerContext.getInstance().getDataHolder();
         dataHolder.setCanProcess(true);
-        if (!variableNode.getFlags().contains(Flag.LISTENER)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, variableNode.getPosition(), "@docker " +
-                    "annotations are only supported by listener variables.");
-            return;
-        }
         try {
             for (AnnotationAttachmentNode attachmentNode : annotations) {
                 DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()

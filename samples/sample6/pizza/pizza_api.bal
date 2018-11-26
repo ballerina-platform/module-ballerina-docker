@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerinax/docker;
 
 @docker:Expose {}
-listener http:Server pizzaEP = new http:Server(9099);
+listener http:Listener pizzaEP = new(9099);
 
 @docker:Config {}
 @http:ServiceConfig {

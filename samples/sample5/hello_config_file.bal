@@ -12,7 +12,7 @@ import ballerinax/docker;
 }
 
 @docker:Expose {}
-listener http:Server helloWorldEP = new http:Server(9090);
+listener http:Listener helloWorldEP = new(9090);
 
 @http:ServiceConfig {
     basePath: "/helloWorld"

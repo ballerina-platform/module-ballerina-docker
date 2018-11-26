@@ -55,15 +55,9 @@
                             <configuration>
                                 <append>true</append>
                                 <inclNoLocationClasses>true</inclNoLocationClasses>
+                                <propertyName>jacoco.agent.argLine</propertyName>
                                 <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
                             </configuration>
-                        </execution>
-                        <execution>
-                            <id>default-report</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
                         </execution>
                         <execution>
                             <id>generate-code-coverage-report</id>

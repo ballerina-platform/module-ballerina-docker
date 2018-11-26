@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
 import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
@@ -44,6 +45,7 @@ import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT
 public class DockerTestUtils {
 
     private static final Log log = LogFactory.getLog(DockerTestUtils.class);
+    private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final String DISTRIBUTION_PATH = System.getProperty("ballerina.pack");
     private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH + File.separator + "ballerina";
     private static final String BUILD = "build";
@@ -109,6 +111,9 @@ public class DockerTestUtils {
         log.info(COMPILING + sourceDirectory);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(new File(sourceDirectory));
+        Map<String, String> environment = pb.environment();
+        addJavaAgents(environment);
+        
         Process process = pb.start();
         int exitCode = process.waitFor();
         log.info(EXIT_CODE + exitCode);
@@ -141,6 +146,9 @@ public class DockerTestUtils {
                 (BALLERINA_COMMAND, BUILD);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(new File(sourceDirectory));
+        Map<String, String> environment = pb.environment();
+        addJavaAgents(environment);
+    
         process = pb.start();
         exitCode = process.waitFor();
         log.info(EXIT_CODE + exitCode);
@@ -162,6 +170,25 @@ public class DockerTestUtils {
         } catch (NoSuchFieldException | IllegalAccessException ignored) {
         }
     }
-
-
+    
+    private static synchronized void addJavaAgents(Map<String, String> envProperties) {
+        String javaOpts = "";
+        if (envProperties.containsKey(JAVA_OPTS)) {
+            javaOpts = envProperties.get(JAVA_OPTS);
+        }
+        if (javaOpts.contains("jacoco.agent")) {
+            return;
+        }
+        javaOpts = getJacocoAgentArgs() + javaOpts;
+        envProperties.put(JAVA_OPTS, javaOpts);
+    }
+    
+    private static String getJacocoAgentArgs() {
+        String jacocoArgLine = System.getProperty("jacoco.agent.argLine");
+        if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
+            log.warn("Running integration test without jacoco test coverage");
+            return "";
+        }
+        return jacocoArgLine + " ";
+    }
 }

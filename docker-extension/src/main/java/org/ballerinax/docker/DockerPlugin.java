@@ -106,11 +106,6 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
         DockerDataHolder dataHolder = DockerContext.getInstance().getDataHolder();
         dataHolder.setCanProcess(true);
-        if (!variableNode.getFlags().contains(Flag.LISTENER)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, variableNode.getPosition(), "@docker " +
-                    "annotations are only supported by listener variables.");
-            return;
-        }
         try {
             for (AnnotationAttachmentNode attachmentNode : annotations) {
                 DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()

@@ -4,7 +4,7 @@ import ballerinax/docker;
 
 //Adding the @docker:Expose{} annotation to a listner endpoint will expose the endpoint port.
 @docker:Expose {}
-listener http:Server helloWorldEP = new http:Server(9090);
+listener http:Listener helloWorldEP = new(9090);
 
 //Adding the @docker:Confing{} annotation to a service modifies the generated Docker image and Dockerfile.
 //This sample will generate a docker image as `helloworld:v1.0.0`.

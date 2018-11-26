@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerinax/docker;
 
 @docker:Expose {}
-listener http:Server helloWorldEP = new http:Server(9090);
+listener http:Listener helloWorldEP = new(9090);
 
 @docker:Config {
     enableDebug:true,
@@ -18,4 +18,3 @@ service helloWorld on helloWorldEP {
         _ = outboundEP->respond(response);
     }
 }
-

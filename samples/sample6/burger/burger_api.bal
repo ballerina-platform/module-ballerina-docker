@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerinax/docker;
 
 @docker:Expose {}
-listener http:Server burgerEP = new http:Server(9096, config = {
+listener http:Listener burgerEP = new(9096, config = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

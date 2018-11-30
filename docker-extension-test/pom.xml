@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension-test</artifactId>
     <packaging>jar</packaging>
-    <name>BallerinaX - Docker Extension Tests</name>
+    <name>Ballerinax - Docker Extension Tests</name>
     <url>https://ballerina.io</url>
 
     <dependencies>

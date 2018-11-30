@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension-parent</artifactId>
     <packaging>pom</packaging>
-    <name>BallerinaX - Docker Parent</name>
+    <name>Ballerinax - Docker Parent</name>
     <url>https://ballerina.io</url>
 
     <modules>
@@ -159,7 +159,7 @@
             <dependency>
                 <groupId>org.ballerinax.docker</groupId>
                 <artifactId>docker-generator</artifactId>
-                <version>${ballerina.lang.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>

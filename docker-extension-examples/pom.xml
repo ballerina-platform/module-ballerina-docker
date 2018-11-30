@@ -29,7 +29,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension-examples</artifactId>
-    <name>BallerinaX - Docker Extension Examples</name>
+    <name>Ballerinax - Docker Extension Examples</name>
     <packaging>pom</packaging>
     <url>https://ballerina.io</url>
 

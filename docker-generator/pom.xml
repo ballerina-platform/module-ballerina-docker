@@ -26,7 +26,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-generator</artifactId>
-    <name>BallerinaX - Docker Generator</name>
+    <name>Ballerinax - Docker Generator</name>
     <url>https://ballerina.io</url>
     <packaging>jar</packaging>
 

@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension-coverage-report</artifactId>
-    <name>BallerinaX - Docker Extension Test Coverage</name>
+    <name>Ballerinax - Docker Extension Test Coverage</name>
     <packaging>pom</packaging>
     <url>https://ballerina.io</url>
 

@@ -12,12 +12,12 @@ listener http:Listener helloWorldEP = new(9090, config = {
 });
 
 @http:ServiceConfig {
-      basePath:"/helloWorld"
+      basePath: "/helloWorld"
 }
 @docker:Config {
-    registry:"docker.abc.com",
-    name:"helloworld",
-    tag:"v1.0"
+    registry: "docker.abc.com",
+    name: "helloworld",
+    tag: "v1.0"
 }
 service helloWorld on helloWorldEP {
     resource function sayHello (http:Caller outboundEP, http:Request request) {

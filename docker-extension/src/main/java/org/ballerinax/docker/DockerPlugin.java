@@ -34,6 +34,7 @@ import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.io.File;
@@ -89,13 +90,15 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 }
             }
             BLangService bService = (BLangService) serviceNode;
-            if (bService.attachExpr instanceof BLangTypeInit) {
-                BLangTypeInit bListener = (BLangTypeInit) bService.attachExpr;
-                try {
-                    dataHolder.addPort(Integer.parseInt(bListener.argsExpr.get(0).toString()));
-                } catch (NumberFormatException e) {
-                    throw new DockerPluginException("Unable to parse port of the listener: " +
-                                                    bListener.argsExpr.get(0).toString());
+            for (BLangExpression attachedExpr : bService.getAttachedExprs()) {
+                if (attachedExpr instanceof BLangTypeInit) {
+                    BLangTypeInit bListener = (BLangTypeInit) attachedExpr;
+                    try {
+                        dataHolder.addPort(Integer.parseInt(bListener.argsExpr.get(0).toString()));
+                    } catch (NumberFormatException e) {
+                        throw new DockerPluginException("Unable to parse port of the listener: " +
+                                                        bListener.argsExpr.get(0).toString());
+                    }
                 }
             }
         } catch (DockerPluginException e) {

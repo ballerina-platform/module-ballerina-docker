@@ -1,7 +1,7 @@
 ## Sample4: Remote debug ballerina service with docker
 
 - This sample runs simple ballerina hello world service in a docker container in debug mode.
-- Debug port is default set as 5005. This can be configured with "debugPort:5005" attribute.
+- Debug port is default set as 5005. This can be configured with "debugPort: 5005" attribute.
 - Following artifacts will be generated from this sample.
     ``` 
     $> docker images
@@ -14,16 +14,21 @@
     ```
 ### How to run:
 
-1. Compile the  hello-world-docker.bal file. Command to run docker image will be printed on success:
+1. Compile the docker_debug.bal  file. Command to run docker image will be printed on success:
 ```bash
 $> ballerina build docker_debug.bal 
-@docker 		 - complete 3/3
-Run following command to start docker container: 
-docker run -d -p 9090:9090 -p 5005:5005 helloworld-debug:latest
+Compiling source
+    docker_debug.bal
+Generating executable
+    docker_debug.balx
+	@docker 		 - complete 3/3
+
+	Run the following command to start a Docker container:
+	docker run -d -p 9090:9090 -p 5005:5005 helloworld-debug:latest
 ```
 **_Note that the debug port(5005) is also exposed_**
 
-2. hello-world-docker.balx, Dockerfile and docker image will be generated: 
+2. docker_debug.balx, Dockerfile and docker image will be generated: 
 ```bash
 $> tree
 .
@@ -65,4 +70,10 @@ Ballerina remote debugger is activated on port : 5005
 ```bash
 ip: localhost
 port: 5005
+```
+
+8. Remove docker instance and image.
+```bash
+$> docker rm -f 4c6fbbfe2dac
+$> docker rmi helloworld-debug:latest
 ```

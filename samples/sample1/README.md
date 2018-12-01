@@ -18,10 +18,14 @@
 1. Compile the  hello_world_docker.bal file. Command to run docker image will be printed on success:
 ```bash
 $> ballerina build hello_world_docker.bal
-@docker 		 - complete 3/3
+Compiling source
+    hello_world_docker.bal
+Generating executable
+    hello_world_docker.balx
+	@docker 		 - complete 3/3
 
-Run following command to start docker container: 
-docker run -d -p 9090:9090 hello_world_docker:latest
+	Run the following command to start a Docker container:
+	docker run -d -p 9090:9090 hello_world_docker:latest
 ```
 
 2. hello_world_docker.balx, Dockerfile and docker image will be generated: 
@@ -61,4 +65,10 @@ CONTAINER ID        IMAGE                       COMMAND                  CREATED
 ```bash
 $> curl http://localhost:9090/helloWorld/sayHello
 Hello, World from service helloWorld !
+```
+
+7. Remove docker instance and image.
+```bash
+$> docker rm -f 68eb4160ac76
+$> docker rmi hello_world_docker:latest
 ```

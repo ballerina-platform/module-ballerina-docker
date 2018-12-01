@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerinax/docker;
 
 @http:ServiceConfig {
-    basePath:"/helloWorld"
+    basePath: "/helloWorld"
 }
 @docker:Config {}
 service helloWorld on new http:Listener(9090) {

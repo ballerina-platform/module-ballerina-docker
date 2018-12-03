@@ -120,7 +120,7 @@
             <dependency>
                 <groupId>org.ballerinax.docker</groupId>
                 <artifactId>docker-generator</artifactId>
-                <version>${ballerina.lang.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>

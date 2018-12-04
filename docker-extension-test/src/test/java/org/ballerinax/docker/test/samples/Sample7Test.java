@@ -34,9 +34,9 @@ import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECT
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
 
 
-public class Sample1Test implements SampleTest {
+public class Sample7Test implements SampleTest {
 
-    private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample1";
+    private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample7";
     private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
     private final String dockerImage = "hello_world_docker:latest";
 
@@ -54,8 +54,11 @@ public class Sample1Test implements SampleTest {
     @Test
     public void validateDockerImage() {
         ImageInspect imageInspect = getDockerImage(dockerImage);
-        Assert.assertEquals(1, imageInspect.getContainerConfig().getExposedPorts().size());
+        Assert.assertEquals("CMD [\"/bin/sh\" \"-c\" \"ballerina run  hello_world_docker.balx\"]",
+                imageInspect.getContainerConfig().getCmd().get(3));
+        Assert.assertEquals(2, imageInspect.getContainerConfig().getExposedPorts().size());
         Assert.assertEquals("9090/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
+        Assert.assertEquals("9696/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[1]);
     }
 
     @AfterClass

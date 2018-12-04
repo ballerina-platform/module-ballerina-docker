@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -15,3 +16,5 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
+<FindBugsFilter>
+</FindBugsFilter>

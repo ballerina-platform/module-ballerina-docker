@@ -21,35 +21,50 @@
 ### How to run:
 1. Initialize ballerina project.
 ```bash
-sample6$> ballerina init
+$> cd sample6
+$> ballerina init
 Ballerina project initialized
 ```
 
 2. Compile the project directory. Command to run docker image will be printed on success:
 ```bash
 $> ballerina build
-@docker                  - complete 3/3 
+Compiling source
+    hemikak/burger:0.0.1
+    hemikak/pizza:0.0.1
 
-Run following command to start docker container:
-docker run -d -p 9096:9096 burger:latest
+Running tests
+    hemikak/burger:0.0.1
+	No tests found
 
-@docker                  - complete 3/3 
+    hemikak/pizza:0.0.1
+	No tests found
 
-Run following command to start docker container:
-docker run -d -p 9099:9099 pizza:latest
+Generating executables
+    ./target/burger.balx
+	@docker 		 - complete 3/3
+
+	Run the following command to start a Docker container:
+	docker run -d -p 9096:9096 burger:latest
+
+    ./target/pizza.balx
+	@docker 		 - complete 3/3
+
+	Run the following command to start a Docker container:
+	docker run -d -p 9099:9099 pizza:latest
 ```
 
-2. hello_config_file.balx, Dockerfile and docker image will be generated: 
+2. balx files, Dockerfile and docker image will be generated: 
 ```bash
-$> tree
-     └── target
-         ├── Ballerina.lock
-         ├── burger
-         │   └── Dockerfile
-         ├── burger.balx
-         ├── pizza
-         │   └── Dockerfile
-         └── pizza.balx
+$> tree target
+target/
+├── Ballerina.lock
+├── burger
+│   └── Dockerfile
+├── burger.balx
+├── pizza
+│   └── Dockerfile
+└── pizza.balx
 ```
 
 3. Verify the docker image is created:
@@ -86,4 +101,12 @@ Pizza menu
 
 $ curl https://localhost:9096/burger/menu -k
 Burger menu 
+```
+
+7. Remove docker instances and images.
+```bash
+$> docker rm -f 130ded2ae413
+$> docker rm -f 3bc5c7f7bcdd
+$> docker rmi burger:latest
+$> docker rmi pizza:latest
 ```

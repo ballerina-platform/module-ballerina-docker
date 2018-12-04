@@ -4,18 +4,21 @@ import ballerinax/docker;
 @docker:Expose {}
 listener http:Listener helloWorldEP = new(9090);
 
-@docker:Config {
-    push:true,
-    registry: "index.docker.io/$env{DOCKER_USERNAME}",
-    name: "helloworld-push",
-    tag: "v2.0.0",
-    username: "$env{DOCKER_USERNAME}",
-    password: "$env{DOCKER_PASSWORD}"
-}
+@docker:Expose {}
+listener http:Listener helloWorldEPSecured = new(9696, config = {
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
+
 @http:ServiceConfig {
     basePath: "/helloWorld"
 }
-service helloWorld on helloWorldEP {
+@docker:Config {}
+service helloWorld on helloWorldEP, helloWorldEPSecured {
     resource function sayHello(http:Caller outboundEP, http:Request request) {
         http:Response response = new;
         response.setTextPayload("Hello, World from service helloWorld ! \n");

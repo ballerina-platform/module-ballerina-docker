@@ -26,7 +26,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-generator</artifactId>
-    <name>BallerinaX - Docker Generator</name>
+    <name>Ballerinax - Docker Generator</name>
     <url>https://ballerina.io</url>
     <packaging>jar</packaging>
 
@@ -52,10 +52,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <argLine>${jacoco.agent.argLine}</argLine>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -74,8 +74,7 @@ public class DockerArtifactHandler {
             copyFileOrDirectory(balxFilePath, balxDestination);
             for (CopyFileModel copyFileModel : dockerModel.getCopyFiles()) {
                 // Copy external files to docker folder
-                String target = outputDir + File.separator + String.valueOf(Paths.get(copyFileModel.getSource())
-                        .getFileName());
+                String target = outputDir + File.separator + Paths.get(copyFileModel.getSource()).getFileName();
                 Path sourcePath = Paths.get(copyFileModel.getSource());
                 if (!sourcePath.isAbsolute()) {
                     sourcePath = sourcePath.toAbsolutePath();

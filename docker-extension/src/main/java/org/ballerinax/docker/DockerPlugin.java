@@ -31,6 +31,8 @@ import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerContext;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.utils.DockerPluginUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -52,6 +54,7 @@ import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
         value = "ballerinax/docker:0.0.0"
 )
 public class DockerPlugin extends AbstractCompilerPlugin {
+    private static final Logger pluginLog = LoggerFactory.getLogger(DockerPlugin.class);
     private DockerAnnotationProcessor dockerAnnotationProcessor;
     private DiagnosticLog dlog;
 
@@ -159,9 +162,11 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         targetPath);
             } catch (DockerPluginException e) {
                 printError(e.getMessage());
+                pluginLog.error(e.getMessage(), e);
                 try {
                     DockerPluginUtils.deleteDirectory(targetPath);
                 } catch (DockerPluginException ignored) {
+                    //ignored
                 }
             }
         }

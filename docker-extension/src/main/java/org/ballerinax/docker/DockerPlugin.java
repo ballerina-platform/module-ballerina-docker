@@ -22,29 +22,28 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.models.DockerContext;
 import org.ballerinax.docker.models.DockerDataHolder;
-import org.ballerinax.docker.utils.DockerGenUtils;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.ballerinax.docker.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.DockerGenConstants.PORT;
-import static org.ballerinax.docker.utils.DockerGenUtils.extractBalxName;
-import static org.ballerinax.docker.utils.DockerGenUtils.printError;
+import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.utils.DockerPluginUtils.extractBalxName;
+import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
 
 /**
  * Compiler plugin to generate docker artifacts.
@@ -64,11 +63,8 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(PackageNode packageNode) {
-        if (packageNode instanceof BLangTestablePackage) {
-            return;
-        }
-    
-        String pkgID = ((BLangPackage) packageNode).packageID.toString();
+        BLangPackage bPackage = (BLangPackage) packageNode;
+        String pkgID = bPackage.packageID.toString();
         DockerContext.getInstance().addDataHolder(pkgID);
     }
 
@@ -86,18 +82,24 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                                 dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                         break;
                     case CopyFiles:
-                        dataHolder.addExternalFile(
+                        dataHolder.addExternalFiles(
                                 dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                         break;
                     default:
                         break;
                 }
             }
-            RecordLiteralNode endpointConfig = serviceNode.getAnonymousEndpointBind();
-            if (endpointConfig != null) {
-                List<BLangRecordLiteral.BLangRecordKeyValue> config =
-                        ((BLangRecordLiteral) endpointConfig).getKeyValuePairs();
-                dataHolder.addPort(extractPort(config));
+            BLangService bService = (BLangService) serviceNode;
+            for (BLangExpression attachedExpr : bService.getAttachedExprs()) {
+                if (attachedExpr instanceof BLangTypeInit) {
+                    BLangTypeInit bListener = (BLangTypeInit) attachedExpr;
+                    try {
+                        dataHolder.addPort(Integer.parseInt(bListener.argsExpr.get(0).toString()));
+                    } catch (NumberFormatException e) {
+                        throw new DockerPluginException("Unable to parse port of the listener: " +
+                                                        bListener.argsExpr.get(0).toString());
+                    }
+                }
             }
         } catch (DockerPluginException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
@@ -105,15 +107,9 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
+    public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
         DockerDataHolder dataHolder = DockerContext.getInstance().getDataHolder();
         dataHolder.setCanProcess(true);
-        if (!(((BLangEndpoint) endpointNode).symbol).registrable) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), "@docker " +
-                    "annotations are only supported by Listener endpoints.");
-            //TODO: Remove return when dlog fixed.
-            return;
-        }
         try {
             for (AnnotationAttachmentNode attachmentNode : annotations) {
                 DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()
@@ -124,20 +120,24 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                                 dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
                         break;
                     case CopyFiles:
-                        dataHolder.addExternalFile(
+                        dataHolder.addExternalFiles(
                                 dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
                         break;
                     case Expose:
-                        List<BLangRecordLiteral.BLangRecordKeyValue> config =
-                                ((BLangRecordLiteral) endpointNode.getConfigurationExpression()).getKeyValuePairs();
-                        dataHolder.addPort(extractPort(config));
+                        BLangTypeInit bListener = (BLangTypeInit) ((BLangSimpleVariable) variableNode).expr;
+                        try {
+                            dataHolder.addPort(Integer.parseInt(bListener.argsExpr.get(0).toString()));
+                        } catch (NumberFormatException e) {
+                            throw new DockerPluginException("Unable to parse port of the service: " +
+                                                            bListener.argsExpr.get(0).toString());
+                        }
                         break;
                     default:
                         break;
                 }
             }
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, endpointNode.getPosition(), e.getMessage());
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, variableNode.getPosition(), e.getMessage());
         }
     }
 
@@ -154,33 +154,17 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 targetPath = userDir + File.separator + extractBalxName(filePath);
             }
             try {
-                DockerGenUtils.deleteDirectory(targetPath);
+                DockerPluginUtils.deleteDirectory(targetPath);
                 dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(), filePath,
                         targetPath);
             } catch (DockerPluginException e) {
                 printError(e.getMessage());
                 try {
-                    DockerGenUtils.deleteDirectory(targetPath);
+                    DockerPluginUtils.deleteDirectory(targetPath);
                 } catch (DockerPluginException ignored) {
                 }
             }
         }
-    }
-
-
-    private int extractPort(List<BLangRecordLiteral.BLangRecordKeyValue> endpointConfig) throws DockerPluginException {
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : endpointConfig) {
-            String key = keyValue.getKey().toString();
-            if (PORT.equals(key)) {
-                try {
-                    return Integer.parseInt(keyValue.getValue().toString());
-                } catch (NumberFormatException e) {
-                    throw new DockerPluginException("Listener endpoint port must be an integer to use " +
-                            "@docker annotations.");
-                }
-            }
-        }
-        throw new DockerPluginException("Unable to extract port from endpoint");
     }
 
     private enum DockerAnnotation {

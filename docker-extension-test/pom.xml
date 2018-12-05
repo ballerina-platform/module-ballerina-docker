@@ -20,7 +20,7 @@
 
     <parent>
         <groupId>org.ballerinax.docker</groupId>
-        <version>0.982.1-SNAPSHOT</version>
+        <version>0.983.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
         <artifactId>docker-extension-parent</artifactId>
     </parent>
@@ -28,8 +28,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension-test</artifactId>
     <packaging>jar</packaging>
-    <name>Docker Extension Tests</name>
-    <url>http://ballerinalang.org</url>
+    <name>Ballerinax - Docker Extension Tests</name>
+    <url>https://ballerina.io</url>
 
     <dependencies>
         <dependency>
@@ -56,6 +56,10 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinax.docker</groupId>
+            <artifactId>docker-generator</artifactId>
         </dependency>
     </dependencies>
 
@@ -149,6 +153,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <argLine>${jacoco.agent.argLine}</argLine>
                     <systemPropertyVariables>
                         <ballerina.pack>
                             ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.lang.version}/bin
@@ -156,11 +161,16 @@
                         <sample.dir>
                             ${project.build.directory}/../../samples
                         </sample.dir>
+                        <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

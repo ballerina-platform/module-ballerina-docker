@@ -2,7 +2,7 @@
 
 ## Building the image
 
-1. Copy Ballerina run time distribution zip file to docker/ folder
-1. Run the following command to build the base docker image.
+1. Copy the ballerina runtime distribution zip file to `docker/` folder.
+1. Run the following command to build the base docker image by replacing `BALLERINA_DISTRIBUTION_FILE` with name of the runtime distribution copied earlier.
 
-```docker build --no-cache=true --squash --build-arg BALLERINA_DIST=<ballerina-0.962.0.tgz> -t ballerina/ballerina:<version> ./docker```
+```docker build --no-cache=true --squash --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE> -t ballerina/ballerina-runtime:<version> ./docker```

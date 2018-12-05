@@ -20,34 +20,28 @@ package org.ballerinax.docker;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinax.docker.exceptions.DockerPluginException;
-import org.ballerinax.docker.models.CopyFileModel;
+import org.ballerinax.docker.generator.DockerArtifactHandler;
+import org.ballerinax.docker.generator.exceptions.DockerGenException;
+import org.ballerinax.docker.generator.models.CopyFileModel;
+import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.models.DockerDataHolder;
-import org.ballerinax.docker.models.DockerModel;
-import org.ballerinax.docker.utils.DockerGenUtils;
+import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.ballerinax.docker.DockerGenConstants.BALX;
-import static org.ballerinax.docker.DockerGenConstants.DOCKER_CERT_PATH;
-import static org.ballerinax.docker.DockerGenConstants.DOCKER_HOST;
-import static org.ballerinax.docker.DockerGenConstants.REGISTRY_SEPARATOR;
-import static org.ballerinax.docker.DockerGenConstants.TAG_SEPARATOR;
-import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
-import static org.ballerinax.docker.utils.DockerGenUtils.printDebug;
-import static org.ballerinax.docker.utils.DockerGenUtils.resolveValue;
+import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
+import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
+import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
+import static org.ballerinax.docker.utils.DockerPluginUtils.isBlank;
+import static org.ballerinax.docker.utils.DockerPluginUtils.printDebug;
+import static org.ballerinax.docker.utils.DockerPluginUtils.resolveValue;
 
 /**
  * Process Docker Annotations.
@@ -64,29 +58,34 @@ class DockerAnnotationProcessor {
      */
     void processDockerModel(DockerDataHolder dockerDataHolder, String balxFilePath, String outputDir) throws
             DockerPluginException {
-        DockerModel dockerModel = dockerDataHolder.getDockerModel();
-        dockerModel.setPorts(dockerDataHolder.getPorts());
-        dockerModel.setFiles(dockerDataHolder.getFiles());
-        // set docker image name
-        if (dockerModel.getName() == null) {
-            String defaultImageName = DockerGenUtils.extractBalxName(balxFilePath);
-            dockerModel.setName(defaultImageName);
+        try {
+            DockerModel dockerModel = dockerDataHolder.getDockerModel();
+            dockerModel.setPorts(dockerDataHolder.getPorts());
+            dockerModel.setCopyFiles(dockerDataHolder.getExternalFiles());
+            // set docker image name
+            if (dockerModel.getName() == null) {
+                String defaultImageName = DockerPluginUtils.extractBalxName(balxFilePath);
+                dockerModel.setName(defaultImageName);
+            }
+            String registry = dockerModel.getRegistry();
+            String imageName = dockerModel.getName();
+            imageName = (registry != null) ? registry + REGISTRY_SEPARATOR + imageName + TAG_SEPARATOR
+                    + dockerModel.getTag() : imageName + TAG_SEPARATOR + dockerModel.getTag();
+            dockerModel.setName(imageName);
+            dockerModel.setBalxFileName(DockerPluginUtils.extractBalxName(balxFilePath) + BALX);
+        
+            Set<Integer> ports = dockerModel.getPorts();
+            if (dockerModel.isEnableDebug()) {
+                ports.add(dockerModel.getDebugPort());
+            }
+            dockerModel.setPorts(ports);
+            printDebug(dockerModel.toString());
+            DockerArtifactHandler dockerHandler = new DockerArtifactHandler(dockerModel);
+            dockerHandler.createArtifacts(out, "\t@docker \t\t", balxFilePath, outputDir);
+            printDockerInstructions(dockerModel);
+        } catch (DockerGenException e) {
+            throw new DockerPluginException("Unable to create/build/push docker image/container.", e);
         }
-        String registry = dockerModel.getRegistry();
-        String imageName = dockerModel.getName();
-        imageName = (registry != null) ? registry + REGISTRY_SEPARATOR + imageName + TAG_SEPARATOR
-                + dockerModel.getTag() : imageName + TAG_SEPARATOR + dockerModel.getTag();
-        dockerModel.setName(imageName);
-        dockerModel.setBalxFileName(DockerGenUtils.extractBalxName(balxFilePath) + BALX);
-
-        Set<Integer> ports = dockerModel.getPorts();
-        if (dockerModel.isEnableDebug()) {
-            ports.add(dockerModel.getDebugPort());
-        }
-        dockerModel.setPorts(ports);
-        printDebug(dockerModel.toString());
-        createDockerArtifacts(dockerModel, balxFilePath, outputDir);
-        printDockerInstructions(dockerModel);
     }
 
     /**
@@ -145,11 +144,11 @@ class DockerAnnotationProcessor {
                     break;
             }
         }
-        String dockerHost = System.getenv(DOCKER_HOST);
+        String dockerHost = System.getenv(DockerPluginConstants.DOCKER_HOST);
         if (!isBlank(dockerHost)) {
             dockerModel.setDockerHost(dockerHost);
         }
-        String dockerCertPath = System.getenv(DOCKER_CERT_PATH);
+        String dockerCertPath = System.getenv(DockerPluginConstants.DOCKER_CERT_PATH);
         if (!isBlank(dockerCertPath)) {
             dockerModel.setDockerCertPath(dockerCertPath);
         }
@@ -205,45 +204,7 @@ class DockerAnnotationProcessor {
         }
         return copyFileModels;
     }
-
-    private void createDockerArtifacts(DockerModel dockerModel, String balxFilePath, String outputDir) throws
-            DockerPluginException {
-        DockerArtifactHandler dockerArtifactHandler = new DockerArtifactHandler(dockerModel);
-        out.print("\t@docker \t\t - complete 1/3 \r");
-        String dockerContent = dockerArtifactHandler.generate();
-        try {
-            DockerGenUtils.writeToFile(dockerContent, outputDir + File.separator + "Dockerfile");
-            String balxDestination = outputDir + File.separator + DockerGenUtils.extractBalxName
-                    (balxFilePath) + BALX;
-            copyFile(balxFilePath, balxDestination);
-            for (CopyFileModel copyFileModel : dockerModel.getFiles()) {
-                // Copy external files to docker folder
-                String target = outputDir + File.separator + String.valueOf(Paths.get(copyFileModel.getSource())
-                        .getFileName());
-                copyFile(copyFileModel.getSource(), target);
-
-            }
-            //check image build is enabled.
-            if (dockerModel.isBuildImage()) {
-                out.print("\t@docker \t\t - complete 1/3 \r");
-                dockerArtifactHandler.buildImage(dockerModel, outputDir);
-                Files.delete(Paths.get(balxDestination));
-                out.print("\t@docker \t\t - complete 2/3 \r");
-                //push only if image build is enabled.
-                if (dockerModel.isPush()) {
-                    dockerArtifactHandler.pushImage(dockerModel);
-                    out.print("\t@docker \t\t - complete 3/3 \r");
-                }
-                out.print("\t@docker \t\t - complete 3/3 \r");
-            }
-        } catch (IOException e) {
-            throw new DockerPluginException("Unable to write content to " + outputDir);
-        } catch (InterruptedException e) {
-            throw new DockerPluginException("Unable to create Docker images " + e.getMessage());
-        }
-    }
-
-
+    
     private void printDockerInstructions(DockerModel dockerModel) {
         out.println();
         out.println("\n\tRun the following command to start a Docker container:");
@@ -253,28 +214,6 @@ class DockerAnnotationProcessor {
         command.append(dockerModel.getName());
         out.println("\t" + command.toString());
         out.println();
-    }
-
-    /**
-     * Copy file from source to destination.
-     *
-     * @param source      source file path
-     * @param destination destination file path
-     * @throws DockerPluginException if an error occurs while copying file
-     */
-    private void copyFile(String source, String destination) throws DockerPluginException {
-        File sourceFile = new File(source);
-        File destinationFile = new File(destination);
-        try (FileInputStream fileInputStream = new FileInputStream(sourceFile);
-             FileOutputStream fileOutputStream = new FileOutputStream(destinationFile)) {
-            int bufferSize;
-            byte[] buffer = new byte[512];
-            while ((bufferSize = fileInputStream.read(buffer)) > 0) {
-                fileOutputStream.write(buffer, 0, bufferSize);
-            }
-        } catch (IOException e) {
-            throw new DockerPluginException("Error while copying file. File not found " + e.getMessage());
-        }
     }
 
     private enum DockerConfiguration {

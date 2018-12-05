@@ -18,9 +18,14 @@ change image name, tag and registry.
 1. Compile the  hello_world_docker.bal file. Command to run docker image will be printed on success:
 ```bash
 $> ballerina build hello_world_docker.bal
-@docker 		 - complete 3/3
-Run following command to start docker container: 
-docker run -d -p 9090:9090 docker.abc.com/helloworld:v1.0
+Compiling source
+    hello_world_docker.bal
+Generating executable
+    hello_world_docker.balx
+	@docker 		 - complete 3/3
+
+	Run the following command to start a Docker container:
+	docker run -d -p 9090:9090 docker.abc.com/helloworld:v1.0
 ```
 
 2. hello_world_docker.balx, Dockerfile and docker image will be generated: 
@@ -57,6 +62,12 @@ CONTAINER ID        IMAGE                            COMMAND                  CR
 
 6. Access the hello world service with curl command:
 ```bash
-$> curl http://localhost:9090/helloWorld/sayHello
+$> curl -k https://localhost:9090/helloWorld/sayHello
 Hello, World!
+```
+
+7. Remove docker instance and image.
+```bash
+$> docker rm -f 130ded2ae413
+$> docker rmi docker.abc.com/helloworld:v1.0
 ```

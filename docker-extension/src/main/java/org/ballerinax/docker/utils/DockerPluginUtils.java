@@ -18,13 +18,12 @@
 
 package org.ballerinax.docker.utils;
 
-import org.ballerinax.docker.DockerGenConstants;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.generator.DockerGenConstants;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,7 +33,7 @@ import java.util.Optional;
 /**
  * Util methods used for artifact generation.
  */
-public class DockerGenUtils {
+public class DockerPluginUtils {
 
     private static final boolean debugEnabled = "true".equals(System.getProperty(DockerGenConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream error = System.err;
@@ -92,26 +91,6 @@ public class DockerGenUtils {
         } else {
             return true;
         }
-    }
-
-    /**
-     * Write content to a File. Create the required directories if they don't not exists.
-     *
-     * @param context        context of the file
-     * @param targetFilePath target file path
-     * @throws IOException If an error occurs when writing to a file
-     */
-    public static void writeToFile(String context, String targetFilePath) throws IOException {
-        File newFile = new File(targetFilePath);
-        if (newFile.exists() && newFile.delete()) {
-            Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
-            return;
-        }
-        if (newFile.getParentFile().mkdirs()) {
-            Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
-            return;
-        }
-        Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
     }
 
     /**

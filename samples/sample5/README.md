@@ -21,9 +21,14 @@
 1. Compile the  hello_config_file.bal file. Command to run docker image will be printed on success:
 ```bash
 $> ballerina build hello_config_file.bal
-@docker 		 - complete 3/3
-Run following command to start docker container: 
-docker run -d -p 9090:9090 hello_config_file:latest
+Compiling source
+    hello_config_file.bal
+Generating executable
+    hello_config_file.balx
+	@docker 		 - complete 3/3
+
+	Run the following command to start a Docker container:
+	docker run -d -p 9090:9090 hello_config_file:latest
 ```
 
 2. hello_config_file.balx, Dockerfile and docker image will be generated: 
@@ -71,4 +76,10 @@ $> curl http://localhost:9090/helloWorld/config/jane
    {userId: jane3@ballerina.com, groups: esb}
 $> curl http://localhost:9090/helloWorld/data
    Data: Lorem ipsum dolor sit amet.
+```
+
+7. Remove docker instance and image.
+```bash
+$> docker rm -f 130ded2ae413
+$> docker rmi hello_config_file:latest
 ```

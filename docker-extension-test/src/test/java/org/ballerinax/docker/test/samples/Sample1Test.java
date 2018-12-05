@@ -21,7 +21,7 @@ package org.ballerinax.docker.test.samples;
 import io.fabric8.docker.api.model.ImageInspect;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
-import org.ballerinax.docker.utils.DockerGenUtils;
+import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 
-import static org.ballerinax.docker.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
 
 
@@ -44,7 +44,6 @@ public class Sample1Test implements SampleTest {
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
     }
-
 
     @Test
     public void validateDockerfile() {
@@ -61,7 +60,7 @@ public class Sample1Test implements SampleTest {
 
     @AfterClass
     public void cleanUp() throws DockerPluginException {
-        DockerGenUtils.deleteDirectory(targetPath);
+        DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }
 }

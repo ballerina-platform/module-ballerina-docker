@@ -112,8 +112,14 @@ public class DockerGenUtils {
      */
     public static void copyFileOrDirectory(String source, String destination) throws DockerGenException {
         File src = new File(source);
+        
+        if (!src.exists()) {
+            throw new DockerGenException("Error while copying file/folder '" + source + "' as it does not exist");
+        }
+        
         File dst = new File(destination);
         try {
+            
             // if source is file
             if (Files.isRegularFile(Paths.get(source))) {
                 if (Files.isDirectory(dst.toPath())) {
@@ -127,7 +133,8 @@ public class DockerGenUtils {
                 FileUtils.copyDirectory(src, dst);
             }
         } catch (IOException e) {
-            throw new DockerGenException("Error while copying file", e);
+            throw new DockerGenException("Error while copying file/folder '" + source + "' to '" + destination + "'",
+                    e);
         }
     }
 }

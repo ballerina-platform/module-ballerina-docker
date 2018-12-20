@@ -19,5 +19,5 @@ helloworld  v1.0    8d5b2f26145b        2 seconds ago        127MB
 $ docker run -d -p 9090:9090 helloworld:v1.0
 
 #Access the service
-$ curl http://localhost:9090/helloworld/sayHello
+$ curl http://localhost:9090/helloWorld/sayHello
 Hello World from Docker!

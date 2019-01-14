@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,22 +22,24 @@ import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.RegistryAuth;
-import org.ballerinax.docker.exceptions.DockerPluginException;
-import org.ballerinax.docker.models.DockerModel;
+import org.ballerinax.docker.generator.exceptions.DockerGenException;
+import org.ballerinax.docker.generator.models.CopyFileModel;
+import org.ballerinax.docker.generator.models.DockerModel;
+import org.ballerinax.docker.generator.utils.DockerGenUtils;
+import org.glassfish.jersey.internal.RuntimeDelegateImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
+import javax.ws.rs.ext.RuntimeDelegate;
+
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDirectory;
-
-import static org.ballerinax.docker.utils.DockerGenUtils.isBlank;
 
 /**
  * Generates Docker artifacts from annotations.
@@ -48,6 +50,7 @@ public class DockerArtifactHandler {
     private DockerModel dockerModel;
 
     public DockerArtifactHandler(DockerModel dockerModel) {
+        RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
         this.dockerModel = dockerModel;
         if (!DockerGenUtils.isBlank(dockerModel.getDockerCertPath())) {
             System.setProperty("docker.cert.path", dockerModel.getDockerCertPath());
@@ -75,12 +78,12 @@ public class DockerArtifactHandler {
             }
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
-                buildImage(outputDir);
+                buildImage(dockerModel, outputDir);
                 outStream.print(logAppender + " - complete 2/3 \r");
                 Files.delete(Paths.get(balxDestination));
                 //push only if image build is enabled.
                 if (dockerModel.isPush()) {
-                    pushImage();
+                    pushImage(dockerModel);
                 }
                 outStream.print(logAppender + " - complete 3/3 \r");
             }
@@ -91,22 +94,6 @@ public class DockerArtifactHandler {
             throw new DockerGenException("Unable to create Docker images " + e.getMessage());
         }
     }
-
-    private static void disableFailOnUnknownProperties() {
-//        // Disable fail on unknown properties using reflection to avoid docker client issue.
-//        // (https://github.com/fabric8io/docker-client/issues/106).
-//        final Field jsonMapperField;
-//        try {
-////            jsonMapperField = Config.class.getDeclaredField("JSON_MAPPER");
-////            assert jsonMapperField != null;
-////            jsonMapperField.setAccessible(true);
-////            final ObjectMapper objectMapper = (ObjectMapper) jsonMapperField.get(null);
-//            assert objectMapper != null;
-//            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//        } catch (NoSuchFieldException | IllegalAccessException ignored) {
-//        }
-    }
-
     
     /**
      * Create docker image.
@@ -117,7 +104,7 @@ public class DockerArtifactHandler {
      * @throws IOException          When error with docker build process
      */
     public void buildImage(DockerModel dockerModel, String dockerDir) throws
-            InterruptedException, IOException, DockerPluginException {
+            InterruptedException, IOException, DockerGenException {
         final DockerError dockerError = new DockerError();
         try (DockerClient client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build()) {
         
@@ -155,7 +142,7 @@ public class DockerArtifactHandler {
      * @param dockerModel DockerModel
      * @throws InterruptedException When error with docker build process
      */
-    public void pushImage(DockerModel dockerModel) throws InterruptedException, DockerPluginException {
+    public void pushImage(DockerModel dockerModel) throws InterruptedException, DockerGenException {
         final DockerError dockerError = new DockerError();
     
         RegistryAuth auth = RegistryAuth.builder()

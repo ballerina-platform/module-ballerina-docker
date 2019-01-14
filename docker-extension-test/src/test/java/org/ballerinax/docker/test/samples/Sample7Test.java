@@ -18,8 +18,8 @@
 
 package org.ballerinax.docker.test.samples;
 
-import io.fabric8.docker.api.model.ImageInspect;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
@@ -29,9 +29,11 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
 
 public class Sample7Test implements SampleTest {
@@ -52,17 +54,17 @@ public class Sample7Test implements SampleTest {
     }
 
     @Test
-    public void validateDockerImage() {
-        ImageInspect imageInspect = getDockerImage(dockerImage);
-        Assert.assertEquals("CMD [\"/bin/sh\" \"-c\" \"ballerina run  hello_world_docker.balx\"]",
-                imageInspect.getContainerConfig().getCmd().get(3));
-        Assert.assertEquals(2, imageInspect.getContainerConfig().getExposedPorts().size());
-        Assert.assertEquals("9090/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
-        Assert.assertEquals("9696/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[1]);
+    public void validateDockerImage() throws InterruptedException, DockerTestException {
+        Assert.assertEquals(getCommand(this.dockerImage).toString(),
+                "[/bin/sh, -c, ballerina run  hello_world_docker.balx]");
+        List<String> ports = getExposedPorts(this.dockerImage);
+        Assert.assertEquals(ports.size(), 2);
+        Assert.assertEquals(ports.get(0), "9090/tcp");
+        Assert.assertEquals(ports.get(1), "9696/tcp");
     }
 
     @AfterClass
-    public void cleanUp() throws DockerPluginException {
+    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

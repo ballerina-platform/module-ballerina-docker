@@ -20,6 +20,7 @@ package org.ballerinax.docker.test.samples;
 
 import com.spotify.docker.client.exceptions.DockerException;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.test.utils.DockerTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -32,5 +33,5 @@ public interface SampleTest {
     void compileSample() throws IOException, InterruptedException;
 
     @AfterClass
-    void cleanUp() throws DockerPluginException, DockerException, InterruptedException;
+    void cleanUp() throws DockerPluginException, DockerException, InterruptedException, DockerTestException;
 }

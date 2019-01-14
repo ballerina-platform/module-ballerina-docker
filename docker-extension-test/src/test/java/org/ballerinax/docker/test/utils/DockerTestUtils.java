@@ -24,14 +24,18 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ImageInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.glassfish.jersey.internal.RuntimeDelegateImpl;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import javax.ws.rs.ext.RuntimeDelegate;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
 import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
@@ -68,9 +72,39 @@ public class DockerTestUtils {
      * @param imageName Docker image Name
      * @return ImageInspect object
      */
-    public static ImageInfo getDockerImage(String imageName) throws DockerException, InterruptedException {
-        DockerClient client = getDockerClient();
-        return client.inspectImage(imageName);
+    public static ImageInfo getDockerImage(String imageName) throws DockerTestException, InterruptedException {
+        try {
+            DockerClient client = getDockerClient();
+            return client.inspectImage(imageName);
+        } catch (DockerException e) {
+            throw new DockerTestException(e);
+        }
+    }
+    
+    /**
+     * Get the list of exposed ports of the docker image.
+     *
+     * @param imageName The docker image name.
+     * @return Exposed ports.
+     * @throws DockerTestException      If issue occurs inspecting docker image
+     * @throws InterruptedException If issue occurs inspecting docker image
+     */
+    public static List<String> getExposedPorts(String imageName) throws DockerTestException, InterruptedException {
+        ImageInfo dockerImage = getDockerImage(imageName);
+        return Objects.requireNonNull(dockerImage.config().exposedPorts()).asList();
+    }
+    
+    /**
+     * Get the list of commands of the docker image.
+     *
+     * @param imageName The docker image name.
+     * @return The list of commands.
+     * @throws DockerTestException      If issue occurs inspecting docker image
+     * @throws InterruptedException If issue occurs inspecting docker image
+     */
+    public static List<String> getCommand(String imageName) throws DockerTestException, InterruptedException {
+        ImageInfo dockerImage = getDockerImage(imageName);
+        return dockerImage.config().cmd();
     }
 
     /**
@@ -78,12 +112,17 @@ public class DockerTestUtils {
      *
      * @param imageName Docker image Name
      */
-    public static void deleteDockerImage(String imageName) throws DockerException, InterruptedException {
-        DockerClient client = getDockerClient();
-        client.removeImage(imageName, true, false);
+    public static void deleteDockerImage(String imageName) throws DockerTestException, InterruptedException {
+        try {
+            DockerClient client = getDockerClient();
+            client.removeImage(imageName, true, false);
+        } catch (DockerException e) {
+            throw new DockerTestException(e);
+        }
     }
 
     private static DockerClient getDockerClient() {
+        RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         String dockerHost = operatingSystem.contains("win") ? WINDOWS_DEFAULT_DOCKER_HOST : UNIX_DEFAULT_DOCKER_HOST;
         return DefaultDockerClient.builder().uri(dockerHost).build();

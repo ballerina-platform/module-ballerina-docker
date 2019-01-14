@@ -18,10 +18,8 @@
 
 package org.ballerinax.docker.test.samples;
 
-import com.google.common.collect.ImmutableList;
-import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.ImageInfo;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
@@ -31,10 +29,10 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
+import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
 
 public class Sample4Test implements SampleTest {
@@ -56,17 +54,15 @@ public class Sample4Test implements SampleTest {
     }
     
     @Test
-    public void validateDockerImage() throws DockerException, InterruptedException {
-        ImageInfo imageInspect = getDockerImage(dockerImage);
-        Assert.assertNotNull(imageInspect.config().exposedPorts());
-        ImmutableList<String> exposedPorts = Objects.requireNonNull(imageInspect.config().exposedPorts()).asList();
-        Assert.assertEquals(1, exposedPorts.size());
-        Assert.assertEquals("5005/tcp", exposedPorts.toArray()[0]);
-        Assert.assertEquals("9090/tcp", exposedPorts.toArray()[1]);
+    public void validateDockerImage() throws InterruptedException, DockerTestException {
+        List<String> ports = getExposedPorts(this.dockerImage);
+        Assert.assertEquals(ports.size(), 2);
+        Assert.assertEquals(ports.get(0), "5005/tcp");
+        Assert.assertEquals(ports.get(1), "9090/tcp");
     }
     
     @AfterClass
-    public void cleanUp() throws DockerPluginException {
+    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

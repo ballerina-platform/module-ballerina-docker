@@ -54,7 +54,7 @@
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
+            <groupId>com.spotify</groupId>
             <artifactId>docker-client</artifactId>
         </dependency>
         <dependency>

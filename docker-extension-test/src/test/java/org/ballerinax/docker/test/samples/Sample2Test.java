@@ -18,8 +18,8 @@
 
 package org.ballerinax.docker.test.samples;
 
-import io.fabric8.docker.api.model.ImageInspect;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
@@ -29,9 +29,10 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
 
 public class Sample2Test implements SampleTest {
@@ -51,16 +52,16 @@ public class Sample2Test implements SampleTest {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         Assert.assertTrue(dockerFile.exists());
     }
-
+    
     @Test
-    public void validateDockerImage() {
-        ImageInspect imageInspect = getDockerImage(dockerImage);
-        Assert.assertEquals(1, imageInspect.getContainerConfig().getExposedPorts().size());
-        Assert.assertEquals("9090/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
+    public void validateDockerImage() throws InterruptedException, DockerTestException {
+        List<String> ports = getExposedPorts(this.dockerImage);
+        Assert.assertEquals(ports.size(), 1);
+        Assert.assertEquals(ports.get(0), "9090/tcp");
     }
-
+    
     @AfterClass
-    public void cleanUp() throws DockerPluginException {
+    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

@@ -18,8 +18,8 @@
 
 package org.ballerinax.docker.test.samples;
 
-import io.fabric8.docker.api.model.ImageInspect;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
@@ -29,8 +29,9 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
 
 public class Sample6Test implements SampleTest {
@@ -46,8 +47,7 @@ public class Sample6Test implements SampleTest {
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaProject(sourceDirPath), 0);
     }
-
-
+    
     @Test
     public void validateBurgerDockerfile() {
         File dockerFile = new File(burgerTargetPath + File.separator + "Dockerfile");
@@ -61,21 +61,21 @@ public class Sample6Test implements SampleTest {
     }
 
     @Test
-    public void validateBurgerDockerImage() {
-        ImageInspect imageInspect = getDockerImage(burgerDockerImage);
-        Assert.assertEquals(1, imageInspect.getContainerConfig().getExposedPorts().size());
-        Assert.assertEquals("9096/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
+    public void validateBurgerDockerImage() throws InterruptedException, DockerTestException {
+        List<String> ports = getExposedPorts(burgerDockerImage);
+        Assert.assertEquals(ports.size(), 1);
+        Assert.assertEquals(ports.get(0), "9096/tcp");
     }
 
     @Test
-    public void validatePizzaDockerImage() {
-        ImageInspect imageInspect = getDockerImage(pizzaDockerImage);
-        Assert.assertEquals(1, imageInspect.getContainerConfig().getExposedPorts().size());
-        Assert.assertEquals("9099/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
+    public void validatePizzaDockerImage() throws InterruptedException, DockerTestException {
+        List<String> ports = getExposedPorts(pizzaDockerImage);
+        Assert.assertEquals(ports.size(), 1);
+        Assert.assertEquals(ports.get(0), "9099/tcp");
     }
-
+    
     @AfterClass
-    public void cleanUp() throws DockerPluginException {
+    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
         DockerPluginUtils.deleteDirectory(pizzaTargetPath);
         DockerPluginUtils.deleteDirectory(burgerTargetPath);
         DockerTestUtils.deleteDockerImage(burgerDockerImage);

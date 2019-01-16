@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,45 +18,39 @@
 
 package org.ballerinax.docker.generator;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.docker.api.model.AuthConfig;
-import io.fabric8.docker.api.model.AuthConfigBuilder;
-import io.fabric8.docker.client.Config;
-import io.fabric8.docker.client.ConfigBuilder;
-import io.fabric8.docker.client.DefaultDockerClient;
-import io.fabric8.docker.client.DockerClient;
-import io.fabric8.docker.client.utils.RegistryUtils;
-import io.fabric8.docker.dsl.EventListener;
-import io.fabric8.docker.dsl.OutputHandle;
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.RegistryAuth;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
+import org.glassfish.jersey.internal.RuntimeDelegateImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
+import javax.ws.rs.ext.RuntimeDelegate;
+
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDirectory;
-
 
 /**
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
-
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
 
     public DockerArtifactHandler(DockerModel dockerModel) {
+        RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
         this.dockerModel = dockerModel;
         if (!DockerGenUtils.isBlank(dockerModel.getDockerCertPath())) {
             System.setProperty("docker.cert.path", dockerModel.getDockerCertPath());
@@ -84,12 +78,12 @@ public class DockerArtifactHandler {
             }
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
-                buildImage(outputDir);
+                buildImage(dockerModel, outputDir);
                 outStream.print(logAppender + " - complete 2/3 \r");
                 Files.delete(Paths.get(balxDestination));
                 //push only if image build is enabled.
                 if (dockerModel.isPush()) {
-                    pushImage();
+                    pushImage(dockerModel);
                 }
                 outStream.print(logAppender + " - complete 3/3 \r");
             }
@@ -100,68 +94,39 @@ public class DockerArtifactHandler {
             throw new DockerGenException("Unable to create Docker images " + e.getMessage());
         }
     }
-
-    private static void disableFailOnUnknownProperties() {
-        // Disable fail on unknown properties using reflection to avoid docker client issue.
-        // (https://github.com/fabric8io/docker-client/issues/106).
-        final Field jsonMapperField;
-        try {
-            jsonMapperField = Config.class.getDeclaredField("JSON_MAPPER");
-            assert jsonMapperField != null;
-            jsonMapperField.setAccessible(true);
-            final ObjectMapper objectMapper = (ObjectMapper) jsonMapperField.get(null);
-            assert objectMapper != null;
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        } catch (NoSuchFieldException | IllegalAccessException ignored) {
-        }
-    }
-
+    
     /**
      * Create docker image.
      *
+     * @param dockerModel dockerModel object
      * @param dockerDir   dockerfile directory
      * @throws InterruptedException When error with docker build process
      * @throws IOException          When error with docker build process
      */
-    private void buildImage(String dockerDir) throws InterruptedException, IOException, DockerGenException {
-        disableFailOnUnknownProperties();
-        Config dockerClientConfig = new ConfigBuilder()
-                .withDockerUrl(dockerModel.getDockerHost())
-                .build();
-        DockerClient client = new io.fabric8.docker.client.DefaultDockerClient(dockerClientConfig);
+    public void buildImage(DockerModel dockerModel, String dockerDir) throws
+            InterruptedException, IOException, DockerGenException {
         final DockerError dockerError = new DockerError();
-        OutputHandle buildHandle = client.image()
-                .build()
-                .withRepositoryName(dockerModel.getName())
-                .withNoCache()
-                .alwaysRemovingIntermediate()
-                .usingListener(new EventListener() {
-                    @Override
-                    public void onSuccess(String message) {
-                        buildDone.countDown();
-                    }
-
-                    @Override
-                    public void onError(String message) {
-                        dockerError.setErrorMsg("Unable to build Docker image: " + message);
-                        buildDone.countDown();
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        dockerError.setErrorMsg("Unable to build Docker image: " + t.getMessage());
-                        buildDone.countDown();
-                    }
-
-                    @Override
-                    public void onEvent(String event) {
-                        DockerGenUtils.printDebug(event);
-                    }
-                })
-                .fromFolder(dockerDir);
+        try (DockerClient client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build()) {
+        
+            client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
+                String buildImageId = message.buildImageId();
+                String error = message.error();
+    
+                // when an image is built successfully.
+                if (null != buildImageId) {
+                    buildDone.countDown();
+                }
+                
+                // when there is an error.
+                if (null != error) {
+                    dockerError.setErrorMsg("Unable to build Docker image: " + error);
+                    buildDone.countDown();
+                }
+            }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
+        } catch (DockerException e) {
+            dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
+        }
         buildDone.await();
-        buildHandle.close();
-        client.close();
         handleError(dockerError);
     }
 
@@ -170,57 +135,45 @@ public class DockerArtifactHandler {
             throw new DockerGenException(dockerError.getErrorMsg());
         }
     }
-
+    
     /**
      * Push docker image.
      *
+     * @param dockerModel DockerModel
      * @throws InterruptedException When error with docker build process
-     * @throws IOException          When error with docker build process
      */
-    private void pushImage() throws InterruptedException, IOException, DockerGenException {
-        disableFailOnUnknownProperties();
-        AuthConfig authConfig = new AuthConfigBuilder().withUsername(dockerModel.getUsername()).withPassword
-                (dockerModel.getPassword())
-                .build();
-        Config config = new ConfigBuilder()
-                .withDockerUrl(dockerModel.getDockerHost())
-                .addToAuthConfigs(RegistryUtils.extractRegistry(dockerModel.getName()), authConfig)
-                .build();
-
-        DockerClient client = new DefaultDockerClient(config);
+    public void pushImage(DockerModel dockerModel) throws InterruptedException, DockerGenException {
         final DockerError dockerError = new DockerError();
-        OutputHandle handle = client.image().withName(dockerModel.getName()).push()
-                .usingListener(new EventListener() {
-                    @Override
-                    public void onSuccess(String message) {
-                        pushDone.countDown();
-                    }
-
-                    @Override
-                    public void onError(String message) {
-                        pushDone.countDown();
-                        dockerError.setErrorMsg("Unable to push Docker image: " + message);
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        pushDone.countDown();
-                        dockerError.setErrorMsg("Unable to push Docker image: " + t.getMessage());
-                    }
-
-                    @Override
-                    public void onEvent(String event) {
-                        DockerGenUtils.printDebug(event);
-                    }
-                })
-                .toRegistry();
-
+    
+        RegistryAuth auth = RegistryAuth.builder()
+                .username(dockerModel.getUsername())
+                .password(dockerModel.getPassword())
+                .build();
+        
+        try (DockerClient client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build()) {
+            client.push(dockerModel.getName(), message -> {
+                String digest = message.digest();
+                String error = message.error();
+                
+                // When image is successfully built.
+                if (null != digest) {
+                    pushDone.countDown();
+                }
+                
+                // When error occurs.
+                if (null != error) {
+                    dockerError.setErrorMsg("Unable to push Docker image: " + error);
+                    pushDone.countDown();
+                }
+            }, auth);
+        } catch (DockerException e) {
+            dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
+            pushDone.countDown();
+        }
         pushDone.await();
-        handle.close();
-        client.close();
         handleError(dockerError);
     }
-
+    
     /**
      * Generate Dockerfile content.
      *

@@ -24,6 +24,7 @@ import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
+import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
@@ -36,8 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -292,30 +291,27 @@ public class DockerTestUtils {
         try {
             DockerClient dockerClient = getDockerClient();
             log.debug("Starting container: " + containerID);
+            
             dockerClient.startContainer(containerID);
     
             log.debug("Waiting for service to start with container: " + containerID);
             int logWaitCount = 0;
             boolean containerStarted = false;
-            StringBuilder logs = new StringBuilder();
+            StringBuilder containerLogs = new StringBuilder();
     
             while (logWaitCount < LOG_WAIT_COUNT) {
                 log.debug("Waiting for container startup " + (logWaitCount + 1) + "/" + LOG_WAIT_COUNT);
                 String tempLogs = "";
-                try (LogStream stream = dockerClient.attachContainer(containerID,
+                LogStream stream = dockerClient.attachContainer(containerID,
                         DockerClient.AttachParameter.LOGS, DockerClient.AttachParameter.STDOUT,
-                        DockerClient.AttachParameter.STDERR, DockerClient.AttachParameter.STREAM)) {
-                    if (stream.hasNext()) {
-                        ByteBuffer content = stream.next().content();
-                        if (content.hasArray()) {
-                            tempLogs = new String(content.array(), StandardCharsets.UTF_8);
-                        }
-                    }
+                        DockerClient.AttachParameter.STDERR, DockerClient.AttachParameter.STREAM);
+                ContainerInfo containerInfo = dockerClient.inspectContainer(containerID);
+                if (containerInfo.state().exitCode() == 0L) {
+                    tempLogs = stream.readFully();
+                    stream.close();
                 }
-    
-                logs.append(tempLogs);
-                log.info(logs);
-                if (logs.toString().contains(logToWait)) {
+                containerLogs.append(tempLogs.trim());
+                if (containerLogs.toString().contains(logToWait)) {
                     containerStarted = true;
                     break;
                 }
@@ -327,7 +323,7 @@ public class DockerTestUtils {
                 log.info("Container started: " + containerID);
                 return true;
             } else {
-                log.error("Container did not start: " + logs);
+                log.error("Container did not start: " + containerLogs);
                 return false;
             }
         } catch (DockerException | InterruptedException ex) {

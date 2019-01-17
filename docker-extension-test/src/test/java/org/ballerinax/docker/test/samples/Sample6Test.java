@@ -56,7 +56,7 @@ public class Sample6Test implements SampleTest {
     }
     
     @Test(dependsOnMethods = "validateBurgerDockerImage", timeOut = 30000)
-    public void testBurgerService() throws IOException, InterruptedException {
+    public void testBurgerService() throws IOException, InterruptedException, DockerTestException {
         burgerContainerID = DockerTestUtils.createContainer(burgerDockerImage, burgerContainerName, 9096, 9096);
         Assert.assertTrue(DockerTestUtils.startContainer(burgerContainerID,
                 "[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9096"),
@@ -70,7 +70,7 @@ public class Sample6Test implements SampleTest {
     }
     
     @Test(dependsOnMethods = "validatePizzaDockerImage", timeOut = 30000)
-    public void testPizzaService() throws IOException, InterruptedException {
+    public void testPizzaService() throws IOException, InterruptedException, DockerTestException {
         pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName, 9099, 9099);
         Assert.assertTrue(DockerTestUtils.startContainer(pizzaContainerID,
                 "[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9099"),
@@ -96,21 +96,21 @@ public class Sample6Test implements SampleTest {
     }
 
     @Test
-    public void validateBurgerDockerImage() throws InterruptedException, DockerTestException {
+    public void validateBurgerDockerImage() throws DockerTestException {
         List<String> ports = getExposedPorts(burgerDockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9096/tcp");
     }
 
     @Test
-    public void validatePizzaDockerImage() throws InterruptedException, DockerTestException {
+    public void validatePizzaDockerImage() throws DockerTestException {
         List<String> ports = getExposedPorts(pizzaDockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9099/tcp");
     }
     
     @AfterClass
-    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
+    public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerTestUtils.stopContainer(burgerContainerID);
         DockerTestUtils.stopContainer(pizzaContainerID);
         DockerPluginUtils.deleteDirectory(pizzaTargetPath);

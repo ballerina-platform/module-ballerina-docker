@@ -50,7 +50,7 @@ public class Sample2Test implements SampleTest {
     }
     
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
-    public void testService() throws IOException, InterruptedException {
+    public void testService() throws IOException, DockerTestException, InterruptedException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9090"),

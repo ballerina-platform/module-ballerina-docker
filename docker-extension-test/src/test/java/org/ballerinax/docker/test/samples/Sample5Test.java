@@ -51,7 +51,7 @@ public class Sample5Test implements SampleTest {
     }
     
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
-    public void testService() throws IOException, InterruptedException {
+    public void testService() throws IOException, InterruptedException, DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090"),
@@ -76,7 +76,7 @@ public class Sample5Test implements SampleTest {
     }
     
     @Test
-    public void validateDockerImage() throws InterruptedException, DockerTestException {
+    public void validateDockerImage() throws DockerTestException {
         Assert.assertEquals(getCommand(this.dockerImage).toString(), "[/bin/sh, -c, ballerina run  " +
                                                                      "--config /home/ballerina/conf/ballerina.conf " +
                                                                      "hello_config_file.balx]");
@@ -86,7 +86,7 @@ public class Sample5Test implements SampleTest {
     }
     
     @AfterClass
-    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
+    public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);

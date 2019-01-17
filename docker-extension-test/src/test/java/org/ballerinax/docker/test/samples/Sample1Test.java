@@ -30,14 +30,10 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerClient;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
 
 
 public class Sample1Test implements SampleTest {
@@ -54,7 +50,7 @@ public class Sample1Test implements SampleTest {
     }
     
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
-    public void testService() throws IOException, InterruptedException {
+    public void testService() throws IOException, InterruptedException, DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090"),
@@ -75,14 +71,14 @@ public class Sample1Test implements SampleTest {
     }
 
     @Test
-    public void validateDockerImage() throws InterruptedException, DockerTestException {
+    public void validateDockerImage() throws DockerTestException {
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9090/tcp");
     }
 
     @AfterClass
-    public void cleanUp() throws DockerPluginException {
+    public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);

@@ -20,8 +20,13 @@ package org.ballerinax.docker.test.utils;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.ContainerConfig;
+import com.spotify.docker.client.messages.ContainerCreation;
+import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.ImageInfo;
+import com.spotify.docker.client.messages.PortBinding;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.glassfish.jersey.internal.RuntimeDelegateImpl;
@@ -31,9 +36,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
-import java.io.PrintStream;
-import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +45,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import javax.ws.rs.ext.RuntimeDelegate;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
 import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
@@ -62,6 +64,7 @@ public class DockerTestUtils {
     private static final String COMPILING = "Compiling: ";
     private static final String RUNNING = "Running: ";
     private static final String EXIT_CODE = "Exit code: ";
+    private static final Integer LOG_WAIT_COUNT = 5;
 
     private static String logOutput(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
@@ -80,12 +83,12 @@ public class DockerTestUtils {
      * @param imageName Docker image Name
      * @return ImageInspect object
      */
-    public static ImageInfo getDockerImage(String imageName) throws DockerTestException, InterruptedException {
+    public static ImageInfo getDockerImage(String imageName) throws DockerTestException {
         try {
             DockerClient client = getDockerClient();
             return client.inspectImage(imageName);
-        } catch (DockerException e) {
-            throw new DockerTestException(e);
+        } catch (DockerException | InterruptedException ex) {
+            throw new DockerTestException(ex);
         }
     }
     
@@ -95,9 +98,8 @@ public class DockerTestUtils {
      * @param imageName The docker image name.
      * @return Exposed ports.
      * @throws DockerTestException      If issue occurs inspecting docker image
-     * @throws InterruptedException If issue occurs inspecting docker image
      */
-    public static List<String> getExposedPorts(String imageName) throws DockerTestException, InterruptedException {
+    public static List<String> getExposedPorts(String imageName) throws DockerTestException {
         ImageInfo dockerImage = getDockerImage(imageName);
         return Objects.requireNonNull(dockerImage.config().exposedPorts()).asList();
     }
@@ -108,9 +110,8 @@ public class DockerTestUtils {
      * @param imageName The docker image name.
      * @return The list of commands.
      * @throws DockerTestException      If issue occurs inspecting docker image
-     * @throws InterruptedException If issue occurs inspecting docker image
      */
-    public static List<String> getCommand(String imageName) throws DockerTestException, InterruptedException {
+    public static List<String> getCommand(String imageName) throws DockerTestException {
         ImageInfo dockerImage = getDockerImage(imageName);
         return dockerImage.config().cmd();
     }
@@ -120,12 +121,12 @@ public class DockerTestUtils {
      *
      * @param imageName Docker image Name
      */
-    public static void deleteDockerImage(String imageName) throws DockerTestException, InterruptedException {
+    public static void deleteDockerImage(String imageName) throws DockerTestException {
         try {
             DockerClient client = getDockerClient();
             client.removeImage(imageName, true, false);
-        } catch (DockerException e) {
-            throw new DockerTestException(e);
+        } catch (DockerException | InterruptedException ex) {
+            throw new DockerTestException(ex);
         }
     }
 
@@ -231,15 +232,15 @@ public class DockerTestUtils {
      * @return The configuration.
      */
     public static HostConfig getPortMappingForHost(Integer hostPort, Integer containerPort) {
-        Map<String, ArrayList<PortBinding>> portBinding = new HashMap<>();
+        Map<String, List<PortBinding>> portBinding = new HashMap<>();
+        
         ArrayList<PortBinding> hostPortList = new ArrayList<>();
-        PortBinding svcPortBinding = new PortBinding("localhost", hostPort.toString());
-        hostPortList.add(svcPortBinding);
-        portBinding.put(containerPort.toString() + "/tcp", hostPortList);
+        hostPortList.add(PortBinding.of("localhost", hostPort));
+        portBinding.put(containerPort.toString(), hostPortList);
     
-        HostConfig hostConfig = new HostConfig();
-        hostConfig.setPortBindings(portBinding);
-        return hostConfig;
+        return HostConfig.builder()
+                .portBindings(portBinding)
+                .build();
     }
     
     /**
@@ -251,15 +252,22 @@ public class DockerTestUtils {
      * @param containerPort The port of the container.
      * @return The container ID.
      */
-    public static String createContainer(String dockerImage, String containerName, int hostPort, int containerPort) {
-        return getDockerClient().container()
-                .createNew()
-                .withName(containerName)
-                .withHostConfig(DockerTestUtils.getPortMappingForHost(hostPort, containerPort))
-                .withImage(dockerImage)
-                .withAttachStderr(true)
-                .withAttachStdout(true)
-                .done().getId();
+    public static String createContainer(String dockerImage, String containerName, int hostPort, int containerPort)
+            throws DockerTestException {
+        try {
+            ContainerConfig containerConfig =
+                    ContainerConfig.builder()
+                            .hostConfig(DockerTestUtils.getPortMappingForHost(hostPort, containerPort))
+                            .image(dockerImage)
+                            .attachStderr(true)
+                            .attachStdout(true)
+                            .build();
+    
+            ContainerCreation container = getDockerClient().createContainer(containerConfig, containerName);
+            return container.id();
+        } catch (DockerException | InterruptedException ex) {
+            throw new DockerTestException(ex);
+        }
     }
     
     /**
@@ -269,7 +277,7 @@ public class DockerTestUtils {
      * @param containerName The name of the container.
      * @return The container ID.
      */
-    public static String createContainer(String dockerImage, String containerName) {
+    public static String createContainer(String dockerImage, String containerName) throws DockerTestException {
         return createContainer(dockerImage, containerName, 9090, 9090);
     }
     
@@ -279,60 +287,51 @@ public class DockerTestUtils {
      * @param containerID ID of the container.
      * @param logToWait   Log message to confirm waiting
      * @return true if service started, else false.
-     * @throws IOException          Error when closing log reader.
-     * @throws InterruptedException Error when waiting for service start.
      */
-    public static boolean startContainer(String containerID, String logToWait) throws IOException,
-            InterruptedException {
-        DockerError error = new DockerError();
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        final PrintStream out = System.out;
-        log.debug("Starting container: " + containerID);
-        getDockerClient().container().withName(containerID).start();
-        OutputHandle handle =
-                getDockerClient().container().withName(containerID).logs().writingOutput(out).writingError(out).
-                        usingListener(new EventListener() {
-                            @Override
-                            public void onSuccess(String message) {
-                                log.debug("[Success]:" + message);
-                            }
-                            
-                            @Override
-                            public void onError(String message) {
-                                log.debug("[Error]:" + message);
-                                error.setErrorMsg(message);
-                                countDownLatch.countDown();
-                            }
-                            
-                            @Override
-                            public void onError(Throwable t) {
-                                // Ignoring logging socket timeout exception due to okio async timeout.
-                                if (!(t instanceof SocketTimeoutException) && !(t instanceof InterruptedIOException)) {
-                                    t.printStackTrace(System.out);
-                                    error.setErrorMsg(t.getMessage());
-                                }
-                                log.debug("[Error]:" + t.getMessage());
-                                countDownLatch.countDown();
-                            }
-                            
-                            @Override
-                            public void onEvent(String event) {
-                                log.debug("[Event]:" + event);
-                                if (event.contains(logToWait)) {
-                                    countDownLatch.countDown();
-                                }
-                            }
-                        }).follow();
-        log.debug("Waiting for service to start with container: " + containerID);
-        boolean awaitResult = countDownLatch.await(5, TimeUnit.SECONDS);
-        log.debug("Waiting finished for container: " + containerID);
-        handle.close();
-        log.debug("Closing log handler for container: " + containerID);
-        if (error.isError()) {
-            log.error(error.getErrorMsg());
-            return false;
-        } else {
-            return awaitResult;
+    public static boolean startContainer(String containerID, String logToWait) throws DockerTestException {
+        try {
+            DockerClient dockerClient = getDockerClient();
+            log.debug("Starting container: " + containerID);
+            dockerClient.startContainer(containerID);
+    
+            log.debug("Waiting for service to start with container: " + containerID);
+            int logWaitCount = 0;
+            boolean containerStarted = false;
+            StringBuilder logs = new StringBuilder();
+    
+            while (logWaitCount < LOG_WAIT_COUNT) {
+                log.debug("Waiting for container startup " + (logWaitCount + 1) + "/" + LOG_WAIT_COUNT);
+                String tempLogs = "";
+                try (LogStream stream = dockerClient.attachContainer(containerID,
+                        DockerClient.AttachParameter.LOGS, DockerClient.AttachParameter.STDOUT,
+                        DockerClient.AttachParameter.STDERR, DockerClient.AttachParameter.STREAM)) {
+                    if (stream.hasNext()) {
+                        ByteBuffer content = stream.next().content();
+                        if (content.hasArray()) {
+                            tempLogs = new String(content.array(), StandardCharsets.UTF_8);
+                        }
+                    }
+                }
+    
+                logs.append(tempLogs);
+                log.info(logs);
+                if (logs.toString().contains(logToWait)) {
+                    containerStarted = true;
+                    break;
+                }
+                logWaitCount++;
+                Thread.sleep(1000);
+            }
+        
+            if (containerStarted) {
+                log.info("Container started: " + containerID);
+                return true;
+            } else {
+                log.error("Container did not start: " + logs);
+                return false;
+            }
+        } catch (DockerException | InterruptedException ex) {
+            throw new DockerTestException(ex);
         }
     }
     
@@ -341,43 +340,15 @@ public class DockerTestUtils {
      *
      * @param containerID The container ID.
      */
-    public static void stopContainer(String containerID) {
-        if (null != containerID) {
-            log.info("Removing container: " + containerID);
-            // stop container
-            getDockerClient().container()
-                    .withName(containerID)
-                    .stop();
-        
-            // remove container
-            getDockerClient().container()
-                    .withName(containerID)
-                    .remove();
-        }
-    }
-    
-    /**
-     * Class to hold docker errors.
-     */
-    private static class DockerError {
-        private boolean error;
-        private String errorMsg;
-        
-        DockerError() {
-            this.error = false;
-        }
-        
-        boolean isError() {
-            return error;
-        }
-        
-        String getErrorMsg() {
-            return errorMsg;
-        }
-        
-        void setErrorMsg(String errorMsg) {
-            this.error = true;
-            this.errorMsg = errorMsg;
+    public static void stopContainer(String containerID) throws DockerTestException {
+        try {
+            if (null != containerID) {
+                // remove container
+                log.info("Removing container: " + containerID);
+                getDockerClient().removeContainer(containerID, DockerClient.RemoveContainerParam.forceKill());
+            }
+        } catch (DockerException | InterruptedException ex) {
+            throw new DockerTestException(ex);
         }
     }
     

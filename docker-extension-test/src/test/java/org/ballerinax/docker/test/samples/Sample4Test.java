@@ -49,7 +49,7 @@ public class Sample4Test implements SampleTest {
     }
     
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
-    public void testService() throws IOException, InterruptedException {
+    public void testService() throws DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID, "Ballerina remote debugger is activated on port"),
                 "Service did not start properly.");
@@ -62,7 +62,7 @@ public class Sample4Test implements SampleTest {
     }
     
     @Test
-    public void validateDockerImage() throws InterruptedException, DockerTestException {
+    public void validateDockerImage() throws DockerTestException {
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 2);
         Assert.assertEquals(ports.get(0), "5005/tcp");
@@ -70,7 +70,7 @@ public class Sample4Test implements SampleTest {
     }
     
     @AfterClass
-    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
+    public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);

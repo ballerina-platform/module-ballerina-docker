@@ -54,7 +54,7 @@ public class Sample7Test implements SampleTest {
     }
 
     @Test
-    public void validateDockerImage() throws InterruptedException, DockerTestException {
+    public void validateDockerImage() throws DockerTestException {
         Assert.assertEquals(getCommand(this.dockerImage).toString(),
                 "[/bin/sh, -c, ballerina run  hello_world_docker.balx]");
         List<String> ports = getExposedPorts(this.dockerImage);
@@ -64,7 +64,7 @@ public class Sample7Test implements SampleTest {
     }
 
     @AfterClass
-    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
+    public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

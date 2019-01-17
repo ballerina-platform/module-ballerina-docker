@@ -24,7 +24,6 @@ import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
-import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
@@ -234,8 +233,8 @@ public class DockerTestUtils {
         Map<String, List<PortBinding>> portBinding = new HashMap<>();
         
         ArrayList<PortBinding> hostPortList = new ArrayList<>();
-        hostPortList.add(PortBinding.of("localhost", hostPort));
-        portBinding.put(containerPort.toString(), hostPortList);
+        hostPortList.add(PortBinding.of("0.0.0.0", hostPort));
+        portBinding.put(containerPort.toString() + "/tcp", hostPortList);
     
         return HostConfig.builder()
                 .portBindings(portBinding)
@@ -297,26 +296,23 @@ public class DockerTestUtils {
             log.debug("Waiting for service to start with container: " + containerID);
             int logWaitCount = 0;
             boolean containerStarted = false;
-            StringBuilder containerLogs = new StringBuilder();
+            String containerLogs = "";
     
             while (logWaitCount < LOG_WAIT_COUNT) {
-                log.debug("Waiting for container startup " + (logWaitCount + 1) + "/" + LOG_WAIT_COUNT);
-                String tempLogs = "";
-                LogStream stream = dockerClient.attachContainer(containerID,
-                        DockerClient.AttachParameter.LOGS, DockerClient.AttachParameter.STDOUT,
-                        DockerClient.AttachParameter.STDERR, DockerClient.AttachParameter.STREAM);
-                ContainerInfo containerInfo = dockerClient.inspectContainer(containerID);
-                if (containerInfo.state().exitCode() == 0L) {
-                    tempLogs = stream.readFully();
-                    stream.close();
-                }
-                containerLogs.append(tempLogs.trim());
-                if (containerLogs.toString().contains(logToWait)) {
+                log.info("Waiting for container startup " + (logWaitCount + 1) + "/" + LOG_WAIT_COUNT);
+                
+                LogStream logStream = dockerClient.logs(containerID, DockerClient.LogsParam.stdout());
+    
+                log.info("DDDD");
+                containerLogs += logStream.readFully().trim();
+                log.info("CONTAINER LOGS: " + containerLogs);
+                log.info("WAITING FOR: " + logToWait);
+                if (containerLogs.trim().contains(logToWait)) {
                     containerStarted = true;
                     break;
                 }
                 logWaitCount++;
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             }
         
             if (containerStarted) {

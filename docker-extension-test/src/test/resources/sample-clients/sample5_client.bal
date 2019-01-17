@@ -17,17 +17,21 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Client helloWorldEP {
-    url: "http://localhost:9090"
-};
+http:Client helloWorldEP = new("http://localhost:9090");
 
 public function main() {
-    http:Response johnResp = check helloWorldEP->get("/helloWorld/config/john");
-    io:println(check johnResp.getTextPayload());
+    var johnResp = helloWorldEP->get("/helloWorld/config/john");
+    if (johnResp is http:Response) {
+        io:println(johnResp.getTextPayload());
+    }
 
-    http:Response janeResp = check helloWorldEP->get("/helloWorld/config/jane");
-    io:println(check janeResp.getTextPayload());
+    var janeResp = helloWorldEP->get("/helloWorld/config/jane");
+    if (janeResp is http:Response) {
+        io:println(janeResp.getTextPayload());
+    }
 
-    http:Response dataResp = check helloWorldEP->get("/helloWorld/data");
-    io:println(check dataResp.getTextPayload());
+    var dataResp = helloWorldEP->get("/helloWorld/data");
+    if (dataResp is http:Response) {
+        io:println(dataResp.getTextPayload());
+    }
 }

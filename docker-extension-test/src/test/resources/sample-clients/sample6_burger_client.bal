@@ -17,24 +17,20 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Client helloWorldEP {
-    url: "https://localhost:9096",
+http:Client helloWorldEP = new("https://localhost:9096", config = {
     secureSocket: {
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
-};
+});
 
 public function main() {
     var response = helloWorldEP->get("/burger/menu");
-    match response {
-        http:Response res => {
-            io:println(check res.getTextPayload());
-        }
-        error e => {
-            io:println(e);
-        }
+    if (response is http:Response) {
+        io:println(response.getTextPayload());
+    } else {
+        io:println(response);
     }
 }

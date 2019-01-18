@@ -41,7 +41,7 @@ public type DockerConfiguration record {
     int debugPort?;
     string dockerHost?;
     string dockerCertPath?;
-    !...
+    !...;
 };
 
 # @docker:Config annotation to configure docker artifact generation.
@@ -56,7 +56,7 @@ public type FileConfig record {
     string source;
     string target;
     boolean isBallerinaConf?;
-    !...
+    !...;
 };
 
 # External File configurations for docker.
@@ -64,7 +64,7 @@ public type FileConfig record {
 # + files - Array of [FileConfig](docker.html#FileConfig)
 public type FileConfigs record {
     FileConfig[] files;
-    !...
+    !...;
 };
 
 # @docker:CopyFile annotation to copy external files to docker image.
@@ -72,7 +72,7 @@ public annotation<service, listener> CopyFiles FileConfigs;
 
 # Expose ports for docker.
 public type ExposeConfig record {
-    !...
+    !...;
 };
 
 # @docker:Expose annotation to expose ballerina ports.

@@ -55,8 +55,8 @@ public class Sample7Test implements SampleTest {
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
     public void testService() throws IOException, DockerTestException, InterruptedException {
         Map<Integer, Integer> portBindings = new HashMap<>();
-        portBindings.put(9096, 9096);
         portBindings.put(9090, 9090);
+        portBindings.put(9696, 9696);
         
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName, portBindings);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,

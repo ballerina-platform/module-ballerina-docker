@@ -225,18 +225,19 @@ public class DockerTestUtils {
     /**
      * Create port mapping from host to docker instance.
      *
-     * @param dockerPortBindings Ports needed exposed.
+     * @param dockerPortBindings Ports needed exposed. Key is docker instance port and value is host port.
      * @return The configuration.
      */
-    public static HostConfig getPortMappingForHost(Map<Integer, Integer> dockerPortBindings) {
+    private static HostConfig getPortMappingForHost(Map<Integer, Integer> dockerPortBindings) {
+    
         Map<String, List<PortBinding>> portBinding = new HashMap<>();
-        
+
         for (Map.Entry<Integer, Integer> dockerPortBinding : dockerPortBindings.entrySet()) {
             ArrayList<PortBinding> hostPortList = new ArrayList<>();
             hostPortList.add(PortBinding.of("0.0.0.0", dockerPortBinding.getValue()));
             portBinding.put(dockerPortBinding.getKey().toString() + "/tcp", hostPortList);
         }
-    
+        
         return HostConfig.builder()
                 .portBindings(portBinding)
                 .build();
@@ -247,7 +248,7 @@ public class DockerTestUtils {
      *
      * @param dockerImage   Docker image name.
      * @param containerName The name of the container.
-     * @param portBindings  Ports to be exposed
+     * @param portBindings  Ports to be exposed. Key is docker instance port and value is host port.
      * @return The container ID.
      */
     public static String createContainer(String dockerImage, String containerName, Map<Integer, Integer> portBindings)
@@ -269,7 +270,7 @@ public class DockerTestUtils {
     }
     
     /**
-     * Create a container.
+     * Create a container. Created port binding of 9090 to 9090 between host and port.
      *
      * @param dockerImage   Docker image name.
      * @param containerName The name of the container.
@@ -295,7 +296,6 @@ public class DockerTestUtils {
             
             dockerClient.startContainer(containerID);
     
-            log.debug("Waiting for service to start with container: " + containerID);
             int logWaitCount = 0;
             boolean containerStarted = false;
             StringBuilder containerLogs = new StringBuilder();

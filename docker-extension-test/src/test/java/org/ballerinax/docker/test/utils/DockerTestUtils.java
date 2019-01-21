@@ -62,7 +62,7 @@ public class DockerTestUtils {
     private static final String COMPILING = "Compiling: ";
     private static final String RUNNING = "Running: ";
     private static final String EXIT_CODE = "Exit code: ";
-    private static final Integer LOG_WAIT_COUNT = 5;
+    private static final Integer LOG_WAIT_COUNT = 10;
 
     private static String logOutput(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
@@ -225,16 +225,17 @@ public class DockerTestUtils {
     /**
      * Create port mapping from host to docker instance.
      *
-     * @param hostPort Port of host docker instance.
-     * @param containerPort Port of the container.
+     * @param dockerPortBindings Ports needed exposed.
      * @return The configuration.
      */
-    public static HostConfig getPortMappingForHost(Integer hostPort, Integer containerPort) {
+    public static HostConfig getPortMappingForHost(Map<Integer, Integer> dockerPortBindings) {
         Map<String, List<PortBinding>> portBinding = new HashMap<>();
         
-        ArrayList<PortBinding> hostPortList = new ArrayList<>();
-        hostPortList.add(PortBinding.of("0.0.0.0", hostPort));
-        portBinding.put(containerPort.toString() + "/tcp", hostPortList);
+        for (Map.Entry<Integer, Integer> dockerPortBinding : dockerPortBindings.entrySet()) {
+            ArrayList<PortBinding> hostPortList = new ArrayList<>();
+            hostPortList.add(PortBinding.of("0.0.0.0", dockerPortBinding.getValue()));
+            portBinding.put(dockerPortBinding.getKey().toString() + "/tcp", hostPortList);
+        }
     
         return HostConfig.builder()
                 .portBindings(portBinding)
@@ -246,16 +247,15 @@ public class DockerTestUtils {
      *
      * @param dockerImage   Docker image name.
      * @param containerName The name of the container.
-     * @param hostPort      The port of the host.
-     * @param containerPort The port of the container.
+     * @param portBindings  Ports to be exposed
      * @return The container ID.
      */
-    public static String createContainer(String dockerImage, String containerName, int hostPort, int containerPort)
+    public static String createContainer(String dockerImage, String containerName, Map<Integer, Integer> portBindings)
             throws DockerTestException {
         try {
             ContainerConfig containerConfig =
                     ContainerConfig.builder()
-                            .hostConfig(DockerTestUtils.getPortMappingForHost(hostPort, containerPort))
+                            .hostConfig(getPortMappingForHost(portBindings))
                             .image(dockerImage)
                             .attachStderr(true)
                             .attachStdout(true)
@@ -276,7 +276,9 @@ public class DockerTestUtils {
      * @return The container ID.
      */
     public static String createContainer(String dockerImage, String containerName) throws DockerTestException {
-        return createContainer(dockerImage, containerName, 9090, 9090);
+        Map<Integer, Integer> defaultPortBindings = new HashMap<>();
+        defaultPortBindings.put(9090, 9090);
+        return createContainer(dockerImage, containerName, defaultPortBindings);
     }
     
     /**
@@ -296,18 +298,13 @@ public class DockerTestUtils {
             log.debug("Waiting for service to start with container: " + containerID);
             int logWaitCount = 0;
             boolean containerStarted = false;
-            String containerLogs = "";
+            StringBuilder containerLogs = new StringBuilder();
     
             while (logWaitCount < LOG_WAIT_COUNT) {
                 log.info("Waiting for container startup " + (logWaitCount + 1) + "/" + LOG_WAIT_COUNT);
-                
                 LogStream logStream = dockerClient.logs(containerID, DockerClient.LogsParam.stdout());
-    
-                log.info("DDDD");
-                containerLogs += logStream.readFully().trim();
-                log.info("CONTAINER LOGS: " + containerLogs);
-                log.info("WAITING FOR: " + logToWait);
-                if (containerLogs.trim().contains(logToWait)) {
+                containerLogs.append(logStream.readFully().trim());
+                if (containerLogs.toString().trim().contains(logToWait)) {
                     containerStarted = true;
                     break;
                 }

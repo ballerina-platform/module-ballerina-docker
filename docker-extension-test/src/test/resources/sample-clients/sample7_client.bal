@@ -19,7 +19,7 @@ import ballerina/http;
 
 http:Client helloWorldEP = new("http://localhost:9090");
 
-http:Client helloWorldSecuredEP = new("https://localhost:9090", config = {
+http:Client helloWorldSecuredEP = new("https://localhost:9696", config = {
     secureSocket: {
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -30,6 +30,13 @@ http:Client helloWorldSecuredEP = new("https://localhost:9090", config = {
 
 public function main() {
     var response = helloWorldEP->get("/helloWorld/sayHello");
+    if (response is http:Response) {
+        io:println(response.getTextPayload());
+    } else {
+        io:println(response);
+    }
+
+    response = helloWorldSecuredEP->get("/helloWorld/sayHello");
     if (response is http:Response) {
         io:println(response.getTextPayload());
     } else {

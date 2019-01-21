@@ -40,13 +40,21 @@ public class Sample4Test implements SampleTest {
     private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample4";
     private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
     private final String dockerImage = "helloworld-debug:latest";
+    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
+    private String containerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "docker_debug.bal"), 0);
     }
-
-
+    
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
+    public void testService() throws DockerTestException {
+        containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
+        Assert.assertTrue(DockerTestUtils.startContainer(containerID, "Ballerina remote debugger is activated on port"),
+                "Service did not start properly.");
+    }
+    
     @Test
     public void validateDockerfile() {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
@@ -54,7 +62,7 @@ public class Sample4Test implements SampleTest {
     }
     
     @Test
-    public void validateDockerImage() throws InterruptedException, DockerTestException {
+    public void validateDockerImage() throws DockerTestException {
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 2);
         Assert.assertEquals(ports.get(0), "5005/tcp");
@@ -62,7 +70,8 @@ public class Sample4Test implements SampleTest {
     }
     
     @AfterClass
-    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
+    public void cleanUp() throws DockerPluginException, DockerTestException {
+        DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

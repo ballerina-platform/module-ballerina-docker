@@ -5,7 +5,7 @@ import ballerinax/docker;
 listener http:Listener helloWorldEP = new(9090);
 
 @docker:Config {
-    push:true,
+    push: true,
     registry: "index.docker.io/$env{DOCKER_USERNAME}",
     name: "helloworld-push",
     tag: "v2.0.0",

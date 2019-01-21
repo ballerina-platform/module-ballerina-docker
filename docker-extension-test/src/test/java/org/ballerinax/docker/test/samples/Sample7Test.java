@@ -21,6 +21,7 @@ package org.ballerinax.docker.test.samples;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
+import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -29,7 +30,9 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
@@ -41,10 +44,32 @@ public class Sample7Test implements SampleTest {
     private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample7";
     private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
     private final String dockerImage = "hello_world_docker:latest";
+    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
+    private String containerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
+    }
+    
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
+    public void testService() throws IOException, DockerTestException, InterruptedException {
+        Map<Integer, Integer> portBindings = new HashMap<>();
+        portBindings.put(9090, 9090);
+        portBindings.put(9696, 9696);
+        
+        containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName, portBindings);
+        Assert.assertTrue(DockerTestUtils.startContainer(containerID,
+                "[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9696"),
+                "Service did not start properly.");
+        
+        // send request
+        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample7_client.bal");
+        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
+        Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
+        Assert.assertEquals(runOutput.getStdOutput().trim(), "Hello, World from service helloWorld ! Hello, World " +
+                                                             "from service helloWorld !",
+                "Unexpected service response.");
     }
 
     @Test
@@ -54,7 +79,7 @@ public class Sample7Test implements SampleTest {
     }
 
     @Test
-    public void validateDockerImage() throws InterruptedException, DockerTestException {
+    public void validateDockerImage() throws DockerTestException {
         Assert.assertEquals(getCommand(this.dockerImage).toString(),
                 "[/bin/sh, -c, ballerina run  hello_world_docker.balx]");
         List<String> ports = getExposedPorts(this.dockerImage);
@@ -64,7 +89,8 @@ public class Sample7Test implements SampleTest {
     }
 
     @AfterClass
-    public void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException {
+    public void cleanUp() throws DockerPluginException, DockerTestException {
+        DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

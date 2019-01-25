@@ -205,9 +205,10 @@ public class DockerTestUtils {
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput runBallerinaFile(String sourceDirectory, String fileName) throws InterruptedException,
+    public static ProcessOutput runBallerinaFile(String sourceDirectory, String fileName)
+            throws InterruptedException,
             IOException {
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, RUN, fileName);
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, RUN, fileName, getDockerClient().getHost());
         log.info(RUNNING + sourceDirectory + File.separator + fileName);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(new File(sourceDirectory));
@@ -234,7 +235,7 @@ public class DockerTestUtils {
 
         for (Map.Entry<Integer, Integer> dockerPortBinding : dockerPortBindings.entrySet()) {
             ArrayList<PortBinding> hostPortList = new ArrayList<>();
-            hostPortList.add(PortBinding.of("localhost", dockerPortBinding.getValue()));
+            hostPortList.add(PortBinding.of("0.0.0.0", dockerPortBinding.getValue()));
             portBinding.put(dockerPortBinding.getKey().toString() + "/tcp", hostPortList);
         }
         

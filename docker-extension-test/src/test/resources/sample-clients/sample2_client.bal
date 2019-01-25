@@ -17,16 +17,19 @@
 import ballerina/io;
 import ballerina/http;
 
-http:Client helloWorldEP = new("https://localhost:9090", config = {
-    secureSocket: {
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
-    }
-});
+http:Client helloWorldEP;
 
-public function main() {
+public function main(string... args) {
+    args = untaint args;
+    helloWorldEP = new("https://" + args[0] + ":9090", config = {
+            secureSocket: {
+                trustStore: {
+                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
+                }
+            }
+        });
+
     var response = helloWorldEP->get("/helloWorld/sayHello");
     if (response is http:Response) {
         io:println(response.getTextPayload());

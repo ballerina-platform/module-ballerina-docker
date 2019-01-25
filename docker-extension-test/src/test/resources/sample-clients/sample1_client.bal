@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/http;
 
-http:Client helloWorldEP = new("http://localhost:9090");
+http:Client helloWorldEP = new("http://0.0.0.0:9090");
 
 public function main() {
     var response = helloWorldEP->get("/helloWorld/sayHello");

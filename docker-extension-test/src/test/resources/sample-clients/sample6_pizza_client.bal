@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/http;
 
-http:Client helloWorldEP = new("http://localhost:9099");
+http:Client helloWorldEP = new("http://0.0.0.0:9099");
 
 public function main() {
     var response = helloWorldEP->get("/pizza/menu");

@@ -234,7 +234,7 @@ public class DockerTestUtils {
 
         for (Map.Entry<Integer, Integer> dockerPortBinding : dockerPortBindings.entrySet()) {
             ArrayList<PortBinding> hostPortList = new ArrayList<>();
-            hostPortList.add(PortBinding.of("localhost", dockerPortBinding.getValue()));
+            hostPortList.add(PortBinding.of("0.0.0.0", dockerPortBinding.getValue()));
             portBinding.put(dockerPortBinding.getKey().toString() + "/tcp", hostPortList);
         }
         

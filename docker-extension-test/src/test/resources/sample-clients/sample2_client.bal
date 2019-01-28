@@ -26,7 +26,8 @@ public function main(string... args) {
                 trustStore: {
                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
-                }
+                },
+                verifyHostname: false
             }
         });
 

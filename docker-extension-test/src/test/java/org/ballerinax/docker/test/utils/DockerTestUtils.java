@@ -24,6 +24,7 @@ import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
+import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
@@ -63,6 +64,7 @@ public class DockerTestUtils {
     private static final String RUNNING = "Running: ";
     private static final String EXIT_CODE = "Exit code: ";
     private static final Integer LOG_WAIT_COUNT = 10;
+    private static String serviceIP = "localhost";
 
     private static String logOutput(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
@@ -208,7 +210,7 @@ public class DockerTestUtils {
     public static ProcessOutput runBallerinaFile(String sourceDirectory, String fileName)
             throws InterruptedException,
             IOException {
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, RUN, fileName, getDockerClient().getHost());
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, RUN, fileName, serviceIP);
         log.info(RUNNING + sourceDirectory + File.separator + fileName);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(new File(sourceDirectory));
@@ -315,6 +317,16 @@ public class DockerTestUtils {
         
             if (containerStarted) {
                 log.info("Container started: " + containerID);
+    
+                // Find docker container IP address if such exists
+                ContainerInfo containerInfo = getDockerClient().inspectContainer(containerID);
+                if (!System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("mac") &&
+                    !"".equals(containerInfo.networkSettings().ipAddress())) {
+                    serviceIP = containerInfo.networkSettings().ipAddress();
+                }
+                
+                log.info("Container IP address found as: " + serviceIP);
+                
                 return true;
             } else {
                 log.error("Container did not start: " + containerLogs);

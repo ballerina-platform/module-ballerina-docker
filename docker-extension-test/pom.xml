@@ -20,7 +20,7 @@
 
     <parent>
         <groupId>org.ballerinax.docker</groupId>
-        <version>0.990.1-SNAPSHOT</version>
+        <version>0.990.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
         <artifactId>docker-extension-parent</artifactId>
     </parent>
@@ -54,7 +54,7 @@
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
+            <groupId>com.spotify</groupId>
             <artifactId>docker-client</artifactId>
         </dependency>
         <dependency>

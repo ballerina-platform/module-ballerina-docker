@@ -18,8 +18,8 @@
 
 package org.ballerinax.docker.test.samples;
 
-import io.fabric8.docker.api.model.ImageInspect;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
@@ -29,9 +29,11 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.test.utils.DockerTestUtils.getDockerImage;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
 
 public class Sample5Test implements SampleTest {
@@ -39,30 +41,52 @@ public class Sample5Test implements SampleTest {
     private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample5";
     private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
     private final String dockerImage = "hello_config_file:latest";
+    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
+    private String containerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_config_file.bal"), 0);
     }
-
+    
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
+    public void testService() throws IOException, InterruptedException, DockerTestException {
+        containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
+        Assert.assertTrue(DockerTestUtils.startContainer(containerID,
+                "[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090"),
+                "Service did not start properly.");
+        
+        // send request
+//        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample5_client.bal");
+//        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
+//        Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
+//        Assert.assertTrue(runOutput.getStdOutput().contains("{'userId': 'john@ballerina.com', 'groups': 'apim,esb'}"),
+//                "Unexpected service response.");
+//        Assert.assertTrue(runOutput.getStdOutput().contains("{'userId': 'jane3@ballerina.com', 'groups': 'esb'}"),
+//                "Unexpected service response.");
+//        Assert.assertTrue(runOutput.getStdOutput().contains("{'data': 'Lorem ipsum dolor sit amet.'}"),
+//                "Unexpected service response.");
+    }
 
     @Test
     public void validateDockerfile() {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         Assert.assertTrue(dockerFile.exists());
     }
-
+    
     @Test
-    public void validateDockerImage() {
-        ImageInspect imageInspect = getDockerImage(dockerImage);
-        Assert.assertEquals("CMD [\"/bin/sh\" \"-c\" \"ballerina run  --config /home/ballerina/conf/ballerina.conf " +
-                "hello_config_file.balx\"]", imageInspect.getContainerConfig().getCmd().get(3));
-        Assert.assertEquals(1, imageInspect.getContainerConfig().getExposedPorts().size());
-        Assert.assertEquals("9090/tcp", imageInspect.getContainerConfig().getExposedPorts().keySet().toArray()[0]);
+    public void validateDockerImage() throws DockerTestException {
+        Assert.assertEquals(getCommand(this.dockerImage).toString(), "[/bin/sh, -c, ballerina run  " +
+                                                                     "--config /home/ballerina/conf/ballerina.conf " +
+                                                                     "hello_config_file.balx]");
+        List<String> ports = getExposedPorts(this.dockerImage);
+        Assert.assertEquals(ports.size(), 1);
+        Assert.assertEquals(ports.get(0), "9090/tcp");
     }
-
+    
     @AfterClass
-    public void cleanUp() throws DockerPluginException {
+    public void cleanUp() throws DockerPluginException, DockerTestException {
+        DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }

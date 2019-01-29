@@ -5,7 +5,7 @@ import ballerinax/docker;
 listener http:Listener helloWorldEP = new(9090);
 
 @docker:Config {
-    enableDebug:true,
+    enableDebug: true,
     name: "helloworld-debug"
 }
 @http:ServiceConfig {

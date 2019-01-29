@@ -13,12 +13,12 @@ listener http:Listener burgerEP = new(9096, config = {
 
 @docker:Config {}
 @http:ServiceConfig {
-    basePath:"/burger"
+    basePath: "/burger"
 }
 service BurgerAPI on burgerEP {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/menu"
+        methods: ["GET"],
+        path: "/menu"
     }
     resource function getBurgerMenu(http:Caller outboundEP, http:Request request) {
         http:Response response = new;

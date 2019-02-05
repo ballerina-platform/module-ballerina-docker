@@ -19,6 +19,7 @@
 package org.ballerinax.docker.test.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.net.HostAndPort;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
@@ -143,6 +144,7 @@ public class DockerTestUtils {
             dockerHost = System.getenv("DOCKER_HOST").replace("tcp", "https");
         }
         DockerClient dockerClient = DefaultDockerClient.builder().uri(dockerHost).build();
+        
         try {
             String dockerCertPath = System.getenv("DOCKER_CERT_PATH");
             if (null != dockerCertPath && !"".equals(dockerCertPath)) {
@@ -349,6 +351,10 @@ public class DockerTestUtils {
                 if (!System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("mac") &&
                     !"".equals(containerInfo.networkSettings().ipAddress())) {
                     serviceIP = containerInfo.networkSettings().ipAddress();
+                }
+    
+                if (null != System.getenv("DOCKER_HOST")) {
+                    serviceIP = HostAndPort.fromString(System.getenv("DOCKER_HOST").replace("tcp://", "")).getHost();
                 }
                 
                 log.info("Container IP address found as: " + serviceIP);

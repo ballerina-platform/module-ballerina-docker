@@ -43,7 +43,9 @@ import java.util.concurrent.CountDownLatch;
 import javax.ws.rs.ext.RuntimeDelegate;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
+import static org.ballerinax.docker.generator.utils.DockerGenUtils.cleanErrorMessage;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDirectory;
+import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
 
 /**
  * Generates Docker artifacts from annotations.
@@ -130,24 +132,26 @@ public class DockerArtifactHandler {
             client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
                 String error = message.error();
+                
+                if (null != message.progress()) {
+                    printDebug(message.progress());
+                }
     
                 // when an image is built successfully.
                 if (null != buildImageId) {
+                    printDebug("Build ID: " + buildImageId);
                     buildDone.countDown();
                 }
                 
                 // when there is an error.
                 if (null != error) {
+                    printDebug("Error message: " + error);
                     dockerError.setErrorMsg("Unable to build Docker image: " + error);
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
-            String cleanedErrorMessage = e.getMessage();
-            cleanedErrorMessage = cleanedErrorMessage.replace("java.util.concurrent.ExecutionException: ", "");
-            cleanedErrorMessage = cleanedErrorMessage.replace("javax.ws.rs.ProcessingException: ", "");
-            cleanedErrorMessage = cleanedErrorMessage.replace("java.io.IOException: ", "");
-            dockerError.setErrorMsg("Unable to connect to server: " + cleanedErrorMessage);
+            dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
         }
         buildDone.await();
@@ -184,24 +188,26 @@ public class DockerArtifactHandler {
             client.push(dockerModel.getName(), message -> {
                 String digest = message.digest();
                 String error = message.error();
+    
+                if (null != message.progress()) {
+                    printDebug(message.progress());
+                }
                 
                 // When image is successfully built.
                 if (null != digest) {
+                    printDebug("Digest: " + digest);
                     pushDone.countDown();
                 }
                 
                 // When error occurs.
                 if (null != error) {
+                    printDebug("Error message: " + error);
                     dockerError.setErrorMsg("Unable to push Docker image: " + error);
                     pushDone.countDown();
                 }
             }, auth);
         } catch (DockerException e) {
-            String cleanedErrorMessage = e.getMessage();
-            cleanedErrorMessage = cleanedErrorMessage.replace("java.util.concurrent.ExecutionException: ", "");
-            cleanedErrorMessage = cleanedErrorMessage.replace("javax.ws.rs.ProcessingException: ", "");
-            cleanedErrorMessage = cleanedErrorMessage.replace("java.io.IOException: ", "");
-            dockerError.setErrorMsg("Unable to connect to server: " + cleanedErrorMessage);
+            dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             pushDone.countDown();
         }
         pushDone.await();

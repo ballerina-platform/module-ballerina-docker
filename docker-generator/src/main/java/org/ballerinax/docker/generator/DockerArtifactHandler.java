@@ -18,8 +18,12 @@
 
 package org.ballerinax.docker.generator;
 
+import com.google.common.base.Optional;
 import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerCertificates;
+import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.RegistryAuth;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
@@ -48,12 +52,22 @@ public class DockerArtifactHandler {
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
-
-    public DockerArtifactHandler(DockerModel dockerModel) {
-        RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
-        this.dockerModel = dockerModel;
-        if (!DockerGenUtils.isBlank(dockerModel.getDockerCertPath())) {
-            System.setProperty("docker.cert.path", dockerModel.getDockerCertPath());
+    private DockerCertificatesStore certs;
+    
+    public DockerArtifactHandler(DockerModel dockerModel) throws DockerGenException {
+        try {
+            RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
+            this.dockerModel = dockerModel;
+            if (!DockerGenUtils.isBlank(dockerModel.getDockerCertPath())) {
+                Optional<DockerCertificatesStore> certsOptional = DockerCertificates.builder()
+                        .dockerCertPath(Paths.get(dockerModel.getDockerCertPath()))
+                        .build();
+                if (certsOptional.isPresent()) {
+                    certs = certsOptional.get();
+                }
+            }
+        } catch (DockerCertificateException e) {
+            throw new DockerGenException("Unable to create Docker images " + e.getMessage());
         }
     }
     
@@ -106,8 +120,13 @@ public class DockerArtifactHandler {
     public void buildImage(DockerModel dockerModel, String dockerDir) throws
             InterruptedException, IOException, DockerGenException {
         final DockerError dockerError = new DockerError();
-        try (DockerClient client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build()) {
-        
+        try {
+            DockerClient client;
+            client = DefaultDockerClient.builder()
+                    .uri(dockerModel.getDockerHost())
+                    .dockerCertificates(certs)
+                    .build();
+    
             client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
                 String error = message.error();
@@ -124,7 +143,12 @@ public class DockerArtifactHandler {
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
-            dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
+            String cleanedErrorMessage = e.getMessage();
+            cleanedErrorMessage = cleanedErrorMessage.replace("java.util.concurrent.ExecutionException: ", "");
+            cleanedErrorMessage = cleanedErrorMessage.replace("javax.ws.rs.ProcessingException: ", "");
+            cleanedErrorMessage = cleanedErrorMessage.replace("java.io.IOException: ", "");
+            dockerError.setErrorMsg("Unable to connect to server: " + cleanedErrorMessage);
+            buildDone.countDown();
         }
         buildDone.await();
         handleError(dockerError);
@@ -150,7 +174,13 @@ public class DockerArtifactHandler {
                 .password(dockerModel.getPassword())
                 .build();
         
-        try (DockerClient client = DefaultDockerClient.builder().uri(dockerModel.getDockerHost()).build()) {
+        try {
+            DockerClient client;
+            client = DefaultDockerClient.builder()
+                    .uri(dockerModel.getDockerHost())
+                    .dockerCertificates(certs)
+                    .build();
+            
             client.push(dockerModel.getName(), message -> {
                 String digest = message.digest();
                 String error = message.error();
@@ -167,7 +197,11 @@ public class DockerArtifactHandler {
                 }
             }, auth);
         } catch (DockerException e) {
-            dockerError.setErrorMsg("Unable to connect to server: " + e.getMessage());
+            String cleanedErrorMessage = e.getMessage();
+            cleanedErrorMessage = cleanedErrorMessage.replace("java.util.concurrent.ExecutionException: ", "");
+            cleanedErrorMessage = cleanedErrorMessage.replace("javax.ws.rs.ProcessingException: ", "");
+            cleanedErrorMessage = cleanedErrorMessage.replace("java.io.IOException: ", "");
+            dockerError.setErrorMsg("Unable to connect to server: " + cleanedErrorMessage);
             pushDone.countDown();
         }
         pushDone.await();

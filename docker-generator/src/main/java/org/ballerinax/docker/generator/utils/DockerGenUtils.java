@@ -137,4 +137,23 @@ public class DockerGenUtils {
                     e);
         }
     }
+    
+    /**
+     * Cleans error message getting rid of java class names.
+     *
+     * @param errorMessage The error message to be updated.
+     * @return Cleaned error message.
+     */
+    public static String cleanErrorMessage(String errorMessage) {
+        if (errorMessage.contains("unable to find valid certification path")) {
+            errorMessage = "unable to find docker cert path.";
+        } else if (errorMessage.contains("Connection refused")) {
+            errorMessage = "connection refused to docker host";
+        } else if (errorMessage.contains("Unable to connect to server")) {
+            errorMessage = errorMessage.replace("Unable to connect to server: Timeout: GET",
+                    "unable to connect to docker host: ");
+        }
+    
+        return errorMessage;
+    }
 }

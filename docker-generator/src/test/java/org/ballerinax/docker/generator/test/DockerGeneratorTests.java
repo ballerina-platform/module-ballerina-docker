@@ -19,6 +19,7 @@
 package org.ballerinax.docker.generator.test;
 
 import org.ballerinax.docker.generator.DockerArtifactHandler;
+import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
@@ -43,7 +44,7 @@ public class DockerGeneratorTests {
 
     @Test
     public void testDockerGenerate() throws IOException, NoSuchMethodException, InvocationTargetException,
-            IllegalAccessException {
+            IllegalAccessException, DockerGenException {
         DockerModel dockerModel = new DockerModel();
         Set<Integer> ports = new HashSet<>();
         ports.add(9090);

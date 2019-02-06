@@ -18,6 +18,7 @@
 
 package org.ballerinax.docker.test.samples;
 
+import org.apache.commons.io.FilenameUtils;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.testng.annotations.AfterClass;
@@ -30,7 +31,7 @@ import java.nio.file.Paths;
  * Base class for test cases written to test samples.
  */
 public interface SampleTest {
-    String SAMPLE_DIR = System.getProperty("sample.dir");
+    String SAMPLE_DIR = FilenameUtils.separatorsToSystem(System.getProperty("sample.dir"));
     String CLIENT_BAL_FOLDER = Paths.get("src").resolve("test").resolve("resources").resolve("sample-clients")
             .toAbsolutePath().toString();
 

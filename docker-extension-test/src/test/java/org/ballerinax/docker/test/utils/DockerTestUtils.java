@@ -33,6 +33,7 @@ import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.glassfish.jersey.internal.RuntimeDelegateImpl;
@@ -61,7 +62,8 @@ public class DockerTestUtils {
 
     private static final Log log = LogFactory.getLog(DockerTestUtils.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
-    private static final String DISTRIBUTION_PATH = System.getProperty("ballerina.pack");
+    private static final String DISTRIBUTION_PATH = FilenameUtils.separatorsToSystem(
+            System.getProperty("ballerina.pack"));
     private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH + File.separator + "ballerina";
     private static final String BUILD = "build";
     private static final String RUN = "run";

@@ -36,7 +36,9 @@ import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECT
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
-
+/**
+ * Test class for sample5.
+ */
 public class Sample5Test implements SampleTest {
 
     private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample5";

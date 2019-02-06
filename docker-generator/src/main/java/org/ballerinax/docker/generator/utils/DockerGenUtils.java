@@ -152,6 +152,8 @@ public class DockerGenUtils {
         } else if (errorMessage.contains("Unable to connect to server")) {
             errorMessage = errorMessage.replace("Unable to connect to server: Timeout: GET",
                     "unable to connect to docker host: ");
+        } else if (errorMessage.contains("tcp protocol is not supported")) {
+            errorMessage = "unexpected error occurred internally";
         }
     
         return errorMessage;

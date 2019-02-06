@@ -39,7 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-
+import java.util.concurrent.atomic.AtomicReference;
 import javax.ws.rs.ext.RuntimeDelegate;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
@@ -121,15 +121,18 @@ public class DockerArtifactHandler {
      */
     public void buildImage(DockerModel dockerModel, String dockerDir) throws
             InterruptedException, IOException, DockerGenException {
-        final DockerError dockerError = new DockerError();
+        final AtomicReference<String> dockerError = new AtomicReference<>();
+        final AtomicReference<String> imageID = new AtomicReference<>();
+        String buildID = null;
+        DockerClient client = null;
         try {
-            DockerClient client;
             client = DefaultDockerClient.builder()
                     .uri(dockerModel.getDockerHost())
                     .dockerCertificates(certs)
                     .build();
     
-            client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
+    
+            buildID = client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
                 String error = message.error();
                 
@@ -139,28 +142,37 @@ public class DockerArtifactHandler {
     
                 // when an image is built successfully.
                 if (null != buildImageId) {
-                    printDebug("Build ID: " + buildImageId);
+                    printDebug("Image ID: " + buildImageId);
+                    imageID.set(buildImageId);
                     buildDone.countDown();
                 }
                 
                 // when there is an error.
                 if (null != error) {
                     printDebug("Error message: " + error);
-                    dockerError.setErrorMsg("Unable to build Docker image: " + error);
+                    dockerError.set("Unable to build Docker image: " + error);
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
+            printDebug("Build ID: " + buildID);
         } catch (DockerException e) {
-            dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
+            dockerError.set("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
         }
         buildDone.await();
-        handleError(dockerError);
-    }
-
-    private void handleError(DockerError dockerError) throws DockerGenException {
-        if (dockerError.isError()) {
-            throw new DockerGenException(dockerError.getErrorMsg());
+        
+        if (null != dockerError.get()) {
+            try {
+                if (null != buildID) {
+                    client.removeImage(buildID, true, false);
+                }
+                if (null != imageID.get()) {
+                    client.removeImage(imageID.get(), true, false);
+                }
+            } catch (DockerException e) {
+                // ignore
+            }
+            throw new DockerGenException(dockerError.get());
         }
     }
     
@@ -171,7 +183,7 @@ public class DockerArtifactHandler {
      * @throws InterruptedException When error with docker build process
      */
     public void pushImage(DockerModel dockerModel) throws InterruptedException, DockerGenException {
-        final DockerError dockerError = new DockerError();
+        final AtomicReference<String> dockerError = new AtomicReference<>();
     
         RegistryAuth auth = RegistryAuth.builder()
                 .username(dockerModel.getUsername())
@@ -202,16 +214,18 @@ public class DockerArtifactHandler {
                 // When error occurs.
                 if (null != error) {
                     printDebug("Error message: " + error);
-                    dockerError.setErrorMsg("Unable to push Docker image: " + error);
+                    dockerError.set("Unable to push Docker image: " + error);
                     pushDone.countDown();
                 }
             }, auth);
         } catch (DockerException e) {
-            dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
+            dockerError.set("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             pushDone.countDown();
         }
         pushDone.await();
-        handleError(dockerError);
+        if (null != dockerError.get()) {
+            throw new DockerGenException(dockerError.get());
+        }
     }
     
     /**
@@ -256,30 +270,5 @@ public class DockerArtifactHandler {
         stringBuilder.append("\n");
         
         return stringBuilder.toString();
-    }
-
-    /**
-     * Class to hold docker errors.
-     */
-    private static class DockerError {
-        private boolean error;
-        private String errorMsg;
-
-        DockerError() {
-            this.error = false;
-        }
-
-        boolean isError() {
-            return error;
-        }
-
-        String getErrorMsg() {
-            return errorMsg;
-        }
-
-        void setErrorMsg(String errorMsg) {
-            this.error = true;
-            this.errorMsg = errorMsg;
-        }
     }
 }

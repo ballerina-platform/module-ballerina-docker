@@ -176,7 +176,7 @@ public class DockerModel {
     }
 
     public void setDockerHost(String dockerHost) {
-        this.dockerHost = dockerHost;
+        this.dockerHost = dockerHost.replace("tcp", "https");
     }
 
     public Set<CopyFileModel> getCopyFiles() {

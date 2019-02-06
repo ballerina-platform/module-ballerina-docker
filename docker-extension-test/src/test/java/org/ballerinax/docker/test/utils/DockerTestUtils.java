@@ -18,9 +18,14 @@
 
 package org.ballerinax.docker.test.utils;
 
+import com.google.common.base.Optional;
+import com.google.common.net.HostAndPort;
 import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerCertificates;
+import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
@@ -37,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -130,11 +136,33 @@ public class DockerTestUtils {
         }
     }
 
-    public static DockerClient getDockerClient() {
+    public static DockerClient getDockerClient() throws DockerTestException {
         RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         String dockerHost = operatingSystem.contains("win") ? WINDOWS_DEFAULT_DOCKER_HOST : UNIX_DEFAULT_DOCKER_HOST;
-        return DefaultDockerClient.builder().uri(dockerHost).build();
+        if (null != System.getenv("DOCKER_HOST")) {
+            dockerHost = System.getenv("DOCKER_HOST").replace("tcp", "https");
+        }
+        DockerClient dockerClient = DefaultDockerClient.builder().uri(dockerHost).build();
+        
+        try {
+            String dockerCertPath = System.getenv("DOCKER_CERT_PATH");
+            if (null != dockerCertPath && !"".equals(dockerCertPath)) {
+                Optional<DockerCertificatesStore> certOptional =
+                        DockerCertificates.builder()
+                                .dockerCertPath(Paths.get(dockerCertPath))
+                                .build();
+                if (certOptional.isPresent()) {
+                    dockerClient = DefaultDockerClient.builder()
+                            .uri(dockerHost)
+                            .dockerCertificates(certOptional.get())
+                            .build();
+                }
+            }
+        } catch (DockerCertificateException e) {
+            throw new DockerTestException(e);
+        }
+        return dockerClient;
     }
 
     /**
@@ -323,6 +351,10 @@ public class DockerTestUtils {
                 if (!System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("mac") &&
                     !"".equals(containerInfo.networkSettings().ipAddress())) {
                     serviceIP = containerInfo.networkSettings().ipAddress();
+                }
+    
+                if (null != System.getenv("DOCKER_HOST")) {
+                    serviceIP = HostAndPort.fromString(System.getenv("DOCKER_HOST").replace("tcp://", "")).getHost();
                 }
                 
                 log.info("Container IP address found as: " + serviceIP);

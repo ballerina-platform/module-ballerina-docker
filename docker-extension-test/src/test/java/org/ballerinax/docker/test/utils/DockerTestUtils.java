@@ -199,7 +199,7 @@ public class DockerTestUtils {
     
         // log ballerina-internal.log content
         Path ballerinaInternalLog = Paths.get(sourceDirectory, "ballerina-internal.log");
-        if (exitCode == 1 && Files.exists(ballerinaInternalLog)) {
+        if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
             log.info(FileUtils.getContentsAsString(ballerinaInternalLog.toFile()));
         }
@@ -242,7 +242,7 @@ public class DockerTestUtils {
     
         // log ballerina-internal.log content
         Path ballerinaInternalLog = Paths.get(sourceDirectory, "ballerina-internal.log");
-        if (exitCode == 1 && Files.exists(ballerinaInternalLog)) {
+        if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
             log.info(FileUtils.getContentsAsString(ballerinaInternalLog.toFile()));
         }

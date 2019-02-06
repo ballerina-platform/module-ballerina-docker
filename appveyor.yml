@@ -1,4 +1,4 @@
-# Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+# Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ environment:
   APPVEYOR: true
   matrix:
     - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
-  nodejs_version: "8"
 install:
   - ps: |
       Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -41,3 +40,6 @@ build_script:
 cache:
   - C:\maven\ -> appveyor.yml
   - C:\Users\appveyor\.m2\ -> pom.xml
+  # Cache Maven and .m2
+  - '%MAVEN_HOME%'
+  - '%M2%'

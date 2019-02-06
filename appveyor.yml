@@ -40,6 +40,4 @@ build_script:
 cache:
   - C:\maven\ -> appveyor.yml
   - C:\Users\appveyor\.m2\ -> pom.xml
-  # Cache Maven and .m2
-  - '%MAVEN_HOME%'
-  - '%M2%'
+

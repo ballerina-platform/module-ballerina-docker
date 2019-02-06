@@ -20,6 +20,7 @@ package org.ballerinax.docker.test.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.net.HostAndPort;
+import com.mchange.io.FileUtils;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
@@ -44,6 +45,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -193,6 +196,14 @@ public class DockerTestUtils {
         log.info(EXIT_CODE + exitCode);
         logOutput(process.getInputStream());
         logOutput(process.getErrorStream());
+    
+        // log ballerina-internal.log content
+        Path ballerinaInternalLog = Paths.get(sourceDirectory, "ballerina-internal.log");
+        if (exitCode == 1 && Files.exists(ballerinaInternalLog)) {
+            log.info("ballerina-internal.log file found. content: ");
+            log.info(FileUtils.getContentsAsString(ballerinaInternalLog.toFile()));
+        }
+        
         return exitCode;
     }
     
@@ -228,6 +239,14 @@ public class DockerTestUtils {
         log.info(EXIT_CODE + exitCode);
         logOutput(process.getInputStream());
         logOutput(process.getErrorStream());
+    
+        // log ballerina-internal.log content
+        Path ballerinaInternalLog = Paths.get(sourceDirectory, "ballerina-internal.log");
+        if (exitCode == 1 && Files.exists(ballerinaInternalLog)) {
+            log.info("ballerina-internal.log file found. content: ");
+            log.info(FileUtils.getContentsAsString(ballerinaInternalLog.toFile()));
+        }
+        
         return exitCode;
     }
     

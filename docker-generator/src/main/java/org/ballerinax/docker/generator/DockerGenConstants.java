@@ -28,7 +28,5 @@ public class DockerGenConstants {
     public static final String TAG_SEPARATOR = ":";
     public static final String PORT = "port";
     public static final String ARTIFACT_DIRECTORY = "docker";
-    public static final String UNIX_DEFAULT_DOCKER_HOST = "unix:///var/run/docker.sock";
-    public static final String WINDOWS_DEFAULT_DOCKER_HOST = "tcp://localhost:2375";
     public static final String BALLERINA_BASE_IMAGE = "ballerina/ballerina-runtime";
 }

@@ -24,6 +24,7 @@ import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerHost;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
@@ -51,9 +52,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import javax.ws.rs.ext.RuntimeDelegate;
-
-import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
-import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
 
 /**
  * Docker test utils.
@@ -144,7 +142,8 @@ public class DockerTestUtils {
     public static DockerClient getDockerClient() throws DockerTestException {
         RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-        String dockerHost = operatingSystem.contains("win") ? WINDOWS_DEFAULT_DOCKER_HOST : UNIX_DEFAULT_DOCKER_HOST;
+        String dockerHost = operatingSystem.contains("win") ? DockerHost.defaultWindowsEndpoint() :
+                            DockerHost.defaultUnixEndpoint();
         if (null != System.getenv("DOCKER_HOST")) {
             dockerHost = System.getenv("DOCKER_HOST");
         }

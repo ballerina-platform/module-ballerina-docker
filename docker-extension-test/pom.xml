@@ -175,7 +175,7 @@
                     <goal>report</goal>
                 </goals>
                 <configuration>
-                    <dataFile>${basedir}/target/coverage-reports/jacoco.exec</dataFile>
+                    <dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
                 </configuration>
             </plugin>
             <plugin>

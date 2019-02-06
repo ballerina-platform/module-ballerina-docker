@@ -59,9 +59,9 @@ public class DockerModel {
 
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         if (operatingSystem.contains("win")) {
-            this.dockerHost = DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
+            this.setDockerHost(DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST);
         } else {
-            this.dockerHost = DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
+            this.setDockerHost(DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST);
         }
         externalFiles = new HashSet<>();
         commandArg = "";

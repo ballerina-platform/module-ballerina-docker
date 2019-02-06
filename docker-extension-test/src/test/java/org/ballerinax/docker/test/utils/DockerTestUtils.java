@@ -146,8 +146,9 @@ public class DockerTestUtils {
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         String dockerHost = operatingSystem.contains("win") ? WINDOWS_DEFAULT_DOCKER_HOST : UNIX_DEFAULT_DOCKER_HOST;
         if (null != System.getenv("DOCKER_HOST")) {
-            dockerHost = System.getenv("DOCKER_HOST").replace("tcp", "https");
+            dockerHost = System.getenv("DOCKER_HOST");
         }
+        dockerHost = dockerHost.replace("tcp", "https");
         DockerClient dockerClient = DefaultDockerClient.builder().uri(dockerHost).build();
         
         try {

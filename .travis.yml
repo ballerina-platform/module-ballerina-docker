@@ -20,6 +20,8 @@ services:
 install:
   - mvn install -B -V
 
+script: echo "Done"
+
 cache:
   directories:
   - $HOME/.m2

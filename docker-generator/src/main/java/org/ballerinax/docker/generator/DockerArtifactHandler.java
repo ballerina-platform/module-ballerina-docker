@@ -155,7 +155,7 @@ public class DockerArtifactHandler {
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm(), new DockerClient.BuildParam(
-                    "platform", "windows"));
+                    "platform", "linux"));
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();

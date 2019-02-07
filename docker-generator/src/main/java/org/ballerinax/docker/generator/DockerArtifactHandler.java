@@ -25,6 +25,7 @@ import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.ProgressDetail;
 import com.spotify.docker.client.messages.RegistryAuth;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
@@ -131,10 +132,10 @@ public class DockerArtifactHandler {
                     .build();
     
             client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
+                outStream.println(message);
                 outStream.println(message.error());
                 String buildImageId = message.buildImageId();
                 String error = message.error();
-    
                 if (null != message.stream()) {
                     printDebug(message.stream());
                 }

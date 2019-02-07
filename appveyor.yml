@@ -34,6 +34,7 @@ install:
   - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%;
   - cmd: mvn --version
   - cmd: java -version
+  - ps: netcfg -d
   - ps: Switch-DockerLinux
   - cmd: docker version
 build_script:

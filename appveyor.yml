@@ -34,9 +34,11 @@ install:
   - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%;
   - cmd: mvn --version
   - cmd: java -version
+  - ps: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+  - ps: bcdedit /set hypervisorlaunchtype Auto
+  - ps: Restart-Computer
   - cmd: net stop vmms
   - cmd: net start vmms
-  - ps: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
   - ps: Switch-DockerLinux
   - cmd: docker version
 build_script:

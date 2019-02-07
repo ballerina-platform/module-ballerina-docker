@@ -39,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.ext.RuntimeDelegate;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
@@ -152,7 +153,6 @@ public class DockerArtifactHandler {
                 if (null != error) {
                     printDebug("Error message: " + error);
                     dockerError.setErrorMsg("Unable to build Docker image: " + error);
-                    buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm(), new DockerClient.BuildParam(
                     "platform", "linux"));
@@ -160,7 +160,7 @@ public class DockerArtifactHandler {
             dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
         }
-        buildDone.await();
+        buildDone.await(20, TimeUnit.SECONDS);
         handleError(dockerError);
     }
 

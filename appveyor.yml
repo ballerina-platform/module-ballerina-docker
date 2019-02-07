@@ -36,6 +36,7 @@ install:
   - cmd: java -version
   - cmd: net stop vmms
   - cmd: net start vmms
+  - ps: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
   - ps: Switch-DockerLinux
   - cmd: docker version
 build_script:

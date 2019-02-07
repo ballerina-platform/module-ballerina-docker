@@ -131,9 +131,13 @@ public class DockerArtifactHandler {
             client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
                 String error = message.error();
+    
+                if (null != message.stream()) {
+                    printDebug(message.stream());
+                }
                 
                 if (null != message.progress()) {
-                    printDebug(message.progress());
+                    printDebug("Progress: " + message.progress());
                 }
     
                 // when an image is built successfully.
@@ -148,7 +152,7 @@ public class DockerArtifactHandler {
                     dockerError.setErrorMsg("Unable to build Docker image: " + error);
                     buildDone.countDown();
                 }
-            }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
+            });
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();

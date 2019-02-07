@@ -93,7 +93,7 @@ public class DockerArtifactHandler {
             }
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
-                buildImage(dockerModel, outputDir, outStream);
+                buildImage(dockerModel, outputDir);
                 outStream.print(logAppender + " - complete 2/3 \r");
                 Files.delete(Paths.get(balxDestination));
                 //push only if image build is enabled.
@@ -115,11 +115,10 @@ public class DockerArtifactHandler {
      *
      * @param dockerModel dockerModel object
      * @param dockerDir   dockerfile directory
-     * @param outStream
      * @throws InterruptedException When error with docker build process
      * @throws IOException          When error with docker build process
      */
-    public void buildImage(DockerModel dockerModel, String dockerDir, PrintStream outStream) throws
+    public void buildImage(DockerModel dockerModel, String dockerDir) throws
             InterruptedException, IOException, DockerGenException {
         final DockerError dockerError = new DockerError();
         try {
@@ -137,7 +136,7 @@ public class DockerArtifactHandler {
                 }
                 
                 if (null != message.progress()) {
-                    printDebug("Progress: " + message.progress());
+                    printDebug(message.progress());
                 }
     
                 // when an image is built successfully.
@@ -150,6 +149,7 @@ public class DockerArtifactHandler {
                 if (null != error) {
                     printDebug("Error message: " + error);
                     dockerError.setErrorMsg("Unable to build Docker image: " + error);
+                    buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {

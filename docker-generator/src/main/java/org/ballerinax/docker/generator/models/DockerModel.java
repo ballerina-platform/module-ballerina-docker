@@ -18,6 +18,7 @@
 
 package org.ballerinax.docker.generator.models;
 
+import com.spotify.docker.client.DockerHost;
 import org.ballerinax.docker.generator.DockerGenConstants;
 
 import java.util.HashSet;
@@ -59,9 +60,9 @@ public class DockerModel {
 
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         if (operatingSystem.contains("win")) {
-            this.dockerHost = DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
+            this.setDockerHost(DockerHost.defaultWindowsEndpoint());
         } else {
-            this.dockerHost = DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
+            this.setDockerHost(DockerHost.defaultUnixEndpoint());
         }
         externalFiles = new HashSet<>();
         commandArg = "";

@@ -20,10 +20,12 @@ package org.ballerinax.docker.test.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.net.HostAndPort;
+import com.mchange.io.FileUtils;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerHost;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
@@ -33,6 +35,7 @@ import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.glassfish.jersey.internal.RuntimeDelegateImpl;
@@ -42,6 +45,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,9 +56,6 @@ import java.util.Map;
 import java.util.Objects;
 import javax.ws.rs.ext.RuntimeDelegate;
 
-import static org.ballerinax.docker.generator.DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
-import static org.ballerinax.docker.generator.DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
-
 /**
  * Docker test utils.
  */
@@ -61,8 +63,12 @@ public class DockerTestUtils {
 
     private static final Log log = LogFactory.getLog(DockerTestUtils.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
-    private static final String DISTRIBUTION_PATH = System.getProperty("ballerina.pack");
-    private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH + File.separator + "ballerina";
+    private static final String DISTRIBUTION_PATH = FilenameUtils.separatorsToSystem(
+            System.getProperty("ballerina.pack"));
+    private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH +
+                                                    File.separator +
+                                                    (System.getProperty("os.name").toLowerCase(Locale.getDefault())
+                                                             .contains("win") ? "ballerina.bat" : "ballerina");
     private static final String BUILD = "build";
     private static final String RUN = "run";
     private static final String EXECUTING_COMMAND = "Executing command: ";
@@ -82,9 +88,9 @@ public class DockerTestUtils {
         }
         return output.toString();
     }
-
+    
     /**
-     * Return a ImageInspect object for a given Docker Image name
+     * Return a ImageInspect object for a given Docker Image name.
      *
      * @param imageName Docker image Name
      * @return ImageInspect object
@@ -121,9 +127,9 @@ public class DockerTestUtils {
         ImageInfo dockerImage = getDockerImage(imageName);
         return dockerImage.config().cmd();
     }
-
+    
     /**
-     * Delete a given Docker image and prune
+     * Delete a given Docker image and prune.
      *
      * @param imageName Docker image Name
      */
@@ -139,10 +145,12 @@ public class DockerTestUtils {
     public static DockerClient getDockerClient() throws DockerTestException {
         RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-        String dockerHost = operatingSystem.contains("win") ? WINDOWS_DEFAULT_DOCKER_HOST : UNIX_DEFAULT_DOCKER_HOST;
+        String dockerHost = operatingSystem.contains("win") ? DockerHost.defaultWindowsEndpoint() :
+                            DockerHost.defaultUnixEndpoint();
         if (null != System.getenv("DOCKER_HOST")) {
-            dockerHost = System.getenv("DOCKER_HOST").replace("tcp", "https");
+            dockerHost = System.getenv("DOCKER_HOST");
         }
+        dockerHost = dockerHost.replace("tcp", "https");
         DockerClient dockerClient = DefaultDockerClient.builder().uri(dockerHost).build();
         
         try {
@@ -164,9 +172,9 @@ public class DockerTestUtils {
         }
         return dockerClient;
     }
-
+    
     /**
-     * Compile a ballerina file in a given directory
+     * Compile a ballerina file in a given directory.
      *
      * @param sourceDirectory Ballerina source directory
      * @param fileName        Ballerina source file name
@@ -188,11 +196,19 @@ public class DockerTestUtils {
         log.info(EXIT_CODE + exitCode);
         logOutput(process.getInputStream());
         logOutput(process.getErrorStream());
+    
+        // log ballerina-internal.log content
+        Path ballerinaInternalLog = Paths.get(sourceDirectory, "ballerina-internal.log");
+        if (Files.exists(ballerinaInternalLog)) {
+            log.info("ballerina-internal.log file found. content: ");
+            log.info(FileUtils.getContentsAsString(ballerinaInternalLog.toFile()));
+        }
+        
         return exitCode;
     }
-
+    
     /**
-     * Compile a ballerina project in a given directory
+     * Compile a ballerina project in a given directory.
      *
      * @param sourceDirectory Ballerina source directory
      * @return Exit code
@@ -223,11 +239,19 @@ public class DockerTestUtils {
         log.info(EXIT_CODE + exitCode);
         logOutput(process.getInputStream());
         logOutput(process.getErrorStream());
+    
+        // log ballerina-internal.log content
+        Path ballerinaInternalLog = Paths.get(sourceDirectory, "ballerina-internal.log");
+        if (Files.exists(ballerinaInternalLog)) {
+            log.info("ballerina-internal.log file found. content: ");
+            log.info(FileUtils.getContentsAsString(ballerinaInternalLog.toFile()));
+        }
+        
         return exitCode;
     }
     
     /**
-     * Run a ballerina file in a given directory
+     * Run a ballerina file in a given directory.
      *
      * @param sourceDirectory Ballerina source directory
      * @param fileName        Ballerina source file name

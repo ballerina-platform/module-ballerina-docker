@@ -35,7 +35,7 @@ import java.nio.file.Paths;
  */
 public class DockerGenUtils {
 
-    private static final boolean debugEnabled = "true".equals(System.getProperty(DockerGenConstants.ENABLE_DEBUG_LOGS));
+    private static final boolean debugEnabled = "true".equals(System.getenv(DockerGenConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
 
     /**

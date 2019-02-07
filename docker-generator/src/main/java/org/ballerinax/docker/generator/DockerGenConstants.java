@@ -22,7 +22,7 @@ package org.ballerinax.docker.generator;
  * Constants used in docker annotation processor.
  */
 public class DockerGenConstants {
-    public static final String ENABLE_DEBUG_LOGS = "debugDocker";
+    public static final String ENABLE_DEBUG_LOGS = "BAL_DOCKER_DEBUG";
     public static final String BALX = ".balx";
     public static final String REGISTRY_SEPARATOR = "/";
     public static final String TAG_SEPARATOR = ":";

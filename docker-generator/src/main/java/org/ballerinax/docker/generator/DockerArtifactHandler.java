@@ -132,7 +132,9 @@ public class DockerArtifactHandler {
                     .build();
     
             client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
+                outStream.println("MESSAGE:");
                 outStream.println(message);
+                outStream.println("ERROR:");
                 outStream.println(message.error());
                 String buildImageId = message.buildImageId();
                 String error = message.error();

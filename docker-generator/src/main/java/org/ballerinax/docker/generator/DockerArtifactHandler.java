@@ -154,7 +154,8 @@ public class DockerArtifactHandler {
                     dockerError.setErrorMsg("Unable to build Docker image: " + error);
                     buildDone.countDown();
                 }
-            }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
+            }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm(), new DockerClient.BuildParam(
+                    "platform", "linux"));
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();

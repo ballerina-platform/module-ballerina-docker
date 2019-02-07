@@ -36,9 +36,9 @@ install:
   - cmd: java -version
   - cmd: docker version
 build_script:
-  - SET MAVEN_OPTS="-Xms1024m"
+  - SET MAVEN_OPTS=-Xms1024m
   - SET BAL_DOCKER_DEBUG=true
-  - SET DOCKER_DEFAULT_PLATFORM=windows
+  - SET DOCKER_DEFAULT_PLATFORM=linux
   - mvn clean install -B -V
 cache:
   - C:\maven\ -> appveyor.yml

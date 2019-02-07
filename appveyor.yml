@@ -36,6 +36,7 @@ install:
   - cmd: java -version
   - cmd: net stop vmms
   - cmd: net start vmms
+  - ps: Switch-DockerLinux
   - cmd: docker version
 build_script:
   - SET MAVEN_OPTS=-Xms1024m

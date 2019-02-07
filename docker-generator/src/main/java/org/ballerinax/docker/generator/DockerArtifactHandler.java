@@ -39,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import javax.ws.rs.ext.RuntimeDelegate;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
@@ -131,10 +130,6 @@ public class DockerArtifactHandler {
                     .build();
     
             client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
-                outStream.println("MESSAGE:");
-                outStream.println(message);
-                outStream.println("ERROR:");
-                outStream.println(message.error());
                 String buildImageId = message.buildImageId();
                 String error = message.error();
                 if (null != message.stream()) {
@@ -156,14 +151,12 @@ public class DockerArtifactHandler {
                     printDebug("Error message: " + error);
                     dockerError.setErrorMsg("Unable to build Docker image: " + error);
                 }
-            }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm(), new DockerClient.BuildParam(
-                    "platform", "linux"));
+            }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
         }
-        boolean await = buildDone.await(20, TimeUnit.SECONDS);
-        outStream.println("AWAIT:" + await);
+        buildDone.await();
         handleError(dockerError);
     }
 

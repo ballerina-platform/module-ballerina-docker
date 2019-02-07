@@ -160,7 +160,8 @@ public class DockerArtifactHandler {
             dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
         }
-        buildDone.await(20, TimeUnit.SECONDS);
+        boolean await = buildDone.await(20, TimeUnit.SECONDS);
+        outStream.println("AWAIT:" + await);
         handleError(dockerError);
     }
 

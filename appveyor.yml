@@ -38,7 +38,7 @@ install:
 build_script:
   - SET MAVEN_OPTS="-Xms1024m"
   - SET BAL_DOCKER_DEBUG=true
-  - SET DOCKER_DEFAULT_PLATFORM=linux
+  - SET DOCKER_DEFAULT_PLATFORM=windows
   - mvn clean install -B -V
 cache:
   - C:\maven\ -> appveyor.yml

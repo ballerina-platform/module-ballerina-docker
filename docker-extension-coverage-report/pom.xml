@@ -21,7 +21,7 @@
     <parent>
         <artifactId>docker-extension-parent</artifactId>
         <groupId>org.ballerinax.docker</groupId>
-        <version>0.990.3-SNAPSHOT</version>
+        <version>0.990.3</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

@@ -20,7 +20,6 @@ package org.ballerinax.docker.test.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.net.HostAndPort;
-import com.mchange.io.FileUtils;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
@@ -35,6 +34,7 @@ import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -182,12 +182,18 @@ public class DockerTestUtils {
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static int compileBallerinaFile(String sourceDirectory, String fileName) throws InterruptedException,
+    public static int compileBallerinaFile(Path sourceDirectory, String fileName) throws InterruptedException,
             IOException {
+        Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
+        if (ballerinaInternalLog.toFile().exists()) {
+            log.warn("Deleting already existing ballerina-internal.log file.");
+            FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
+        }
+        
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, fileName);
         log.info(COMPILING + sourceDirectory);
         log.debug(EXECUTING_COMMAND + pb.command());
-        pb.directory(new File(sourceDirectory));
+        pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
         
@@ -198,10 +204,9 @@ public class DockerTestUtils {
         logOutput(process.getErrorStream());
     
         // log ballerina-internal.log content
-        Path ballerinaInternalLog = Paths.get(sourceDirectory, "ballerina-internal.log");
         if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
-            log.info(FileUtils.getContentsAsString(ballerinaInternalLog.toFile()));
+            log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile()));
         }
         
         return exitCode;
@@ -215,12 +220,18 @@ public class DockerTestUtils {
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static int compileBallerinaProject(String sourceDirectory) throws InterruptedException,
+    public static int compileBallerinaProject(Path sourceDirectory) throws InterruptedException,
             IOException {
+        Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
+        if (ballerinaInternalLog.toFile().exists()) {
+            log.warn("Deleting already existing ballerina-internal.log file.");
+            FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
+        }
+        
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, "init");
         log.info(COMPILING + sourceDirectory);
         log.debug(EXECUTING_COMMAND + pb.command());
-        pb.directory(new File(sourceDirectory));
+        pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
         int exitCode = process.waitFor();
         log.info(EXIT_CODE + exitCode);
@@ -230,7 +241,7 @@ public class DockerTestUtils {
         pb = new ProcessBuilder
                 (BALLERINA_COMMAND, BUILD);
         log.debug(EXECUTING_COMMAND + pb.command());
-        pb.directory(new File(sourceDirectory));
+        pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
     
@@ -241,10 +252,9 @@ public class DockerTestUtils {
         logOutput(process.getErrorStream());
     
         // log ballerina-internal.log content
-        Path ballerinaInternalLog = Paths.get(sourceDirectory, "ballerina-internal.log");
         if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
-            log.info(FileUtils.getContentsAsString(ballerinaInternalLog.toFile()));
+            log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile()));
         }
         
         return exitCode;
@@ -259,13 +269,13 @@ public class DockerTestUtils {
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput runBallerinaFile(String sourceDirectory, String fileName)
+    public static ProcessOutput runBallerinaFile(Path sourceDirectory, String fileName)
             throws InterruptedException,
             IOException {
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, RUN, fileName, serviceIP);
         log.info(RUNNING + sourceDirectory + File.separator + fileName);
         log.debug(EXECUTING_COMMAND + pb.command());
-        pb.directory(new File(sourceDirectory));
+        pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
         int exitCode = process.waitFor();
         

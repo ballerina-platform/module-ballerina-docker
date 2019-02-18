@@ -72,7 +72,7 @@ public class DockerArtifactHandler {
         }
     }
     
-    public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, String outputDir)
+    public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, Path outputDir)
             throws DockerGenException {
         String dockerContent = generateDockerfile();
         try {
@@ -116,10 +116,8 @@ public class DockerArtifactHandler {
      * @param dockerModel dockerModel object
      * @param dockerDir   dockerfile directory
      * @throws InterruptedException When error with docker build process
-     * @throws IOException          When error with docker build process
      */
-    public void buildImage(DockerModel dockerModel, String dockerDir) throws
-            InterruptedException, IOException, DockerGenException {
+    public void buildImage(DockerModel dockerModel, Path dockerDir) throws InterruptedException, DockerGenException {
         final DockerError dockerError = new DockerError();
         try {
             DockerClient client;
@@ -128,13 +126,13 @@ public class DockerArtifactHandler {
                     .dockerCertificates(certs)
                     .build();
     
-            client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
+            client.build(dockerDir, dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
                 String error = message.error();
                 if (null != message.stream()) {
                     printDebug(message.stream());
                 }
-                
+    
                 if (null != message.progress()) {
                     printDebug(message.progress());
                 }
@@ -144,17 +142,22 @@ public class DockerArtifactHandler {
                     printDebug("Build ID: " + buildImageId);
                     buildDone.countDown();
                 }
-                
+    
                 // when there is an error.
                 if (null != error) {
                     printDebug("Error message: " + error);
-                    dockerError.setErrorMsg("Unable to build Docker image: " + error);
+                    dockerError.setErrorMsg("Unable to build Docker image: " + cleanErrorMessage(error));
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
+        } catch (IOException ioEx) {
+            dockerError.setErrorMsg("Unknown I/O error occurred with docker: " + cleanErrorMessage(ioEx.getMessage()));
+            buildDone.countDown();
+        } catch (RuntimeException e) {
+            // ignore, as this error would already be set to the dockerError variable.
         }
         buildDone.await();
         handleError(dockerError);

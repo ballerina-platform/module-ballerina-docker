@@ -21,7 +21,6 @@ package org.ballerinax.docker.test.samples;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
-//import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
@@ -31,21 +30,24 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
+//import org.ballerinax.docker.test.utils.ProcessOutput;
+
 /**
  * Test class for sample6.
  */
 public class Sample6Test implements SampleTest {
 
-    private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample6";
-    private final String targetDirPath = sourceDirPath + File.separator + "target";
-    private final String burgerTargetPath = targetDirPath + File.separator + "burger" + File.separator;
-    private final String pizzaTargetPath = targetDirPath + File.separator + "pizza" + File.separator;
+    private final Path sourceDirPath = SAMPLE_DIR.resolve("sample6");
+    private final Path targetDirPath = sourceDirPath.resolve("target");
+    private final Path burgerTargetPath = targetDirPath.resolve("burger");
+    private final Path pizzaTargetPath = targetDirPath.resolve("pizza");
     private final String burgerDockerImage = "burger:latest";
     private final String burgerContainerName = "ballerinax_docker_burger_" +
                                                this.getClass().getSimpleName().toLowerCase();
@@ -126,8 +128,8 @@ public class Sample6Test implements SampleTest {
         DockerPluginUtils.deleteDirectory(burgerTargetPath);
         DockerTestUtils.deleteDockerImage(burgerDockerImage);
         DockerTestUtils.deleteDockerImage(pizzaDockerImage);
-        DockerPluginUtils.deleteDirectory(sourceDirPath + File.separator + ".ballerina");
-        DockerPluginUtils.deleteDirectory(sourceDirPath + File.separator + ".gitignore");
-        DockerPluginUtils.deleteDirectory(sourceDirPath + File.separator + "Ballerina.toml");
+        DockerPluginUtils.deleteDirectory(sourceDirPath.resolve(".ballerina"));
+        DockerPluginUtils.deleteDirectory(sourceDirPath.resolve(".gitignore"));
+        DockerPluginUtils.deleteDirectory(sourceDirPath.resolve("Ballerina.toml"));
     }
 }

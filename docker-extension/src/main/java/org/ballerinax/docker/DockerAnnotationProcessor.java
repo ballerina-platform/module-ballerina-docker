@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +57,7 @@ class DockerAnnotationProcessor {
      * @param balxFilePath ballerina file name
      * @param outputDir    target output directory
      */
-    void processDockerModel(DockerDataHolder dockerDataHolder, String balxFilePath, String outputDir) throws
+    void processDockerModel(DockerDataHolder dockerDataHolder, String balxFilePath, Path outputDir) throws
             DockerPluginException {
         try {
             DockerModel dockerModel = dockerDataHolder.getDockerModel();

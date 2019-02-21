@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -96,11 +95,10 @@ public class DockerPluginUtils {
     /**
      * Recursively deletes a given directory or a file.
      *
-     * @param path path to directory or file
+     * @param pathToBeDeleted path to directory or file
      * @throws DockerPluginException if an error occurs while deleting
      */
-    public static void deleteDirectory(String path) throws DockerPluginException {
-        Path pathToBeDeleted = Paths.get(path);
+    public static void deleteDirectory(Path pathToBeDeleted) throws DockerPluginException {
         if (!Files.exists(pathToBeDeleted)) {
             return;
         }
@@ -110,7 +108,7 @@ public class DockerPluginUtils {
                     .map(Path::toFile)
                     .forEach(File::delete);
         } catch (IOException e) {
-            throw new DockerPluginException("Unable to delete directory: " + path, e);
+            throw new DockerPluginException("Unable to delete directory: " + pathToBeDeleted.toString(), e);
         }
     }
 

@@ -25,15 +25,16 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
  * Base class for test cases written to test samples.
  */
 public interface SampleTest {
-    String SAMPLE_DIR = FilenameUtils.separatorsToSystem(System.getProperty("sample.dir"));
-    String CLIENT_BAL_FOLDER = Paths.get("src").resolve("test").resolve("resources").resolve("sample-clients")
-            .toAbsolutePath().toString();
+    Path SAMPLE_DIR = Paths.get(FilenameUtils.separatorsToSystem(System.getProperty("sample.dir")));
+    Path CLIENT_BAL_FOLDER = Paths.get("src").resolve("test").resolve("resources").resolve("sample-clients")
+            .toAbsolutePath();
 
     @BeforeClass
     void compileSample() throws IOException, InterruptedException;

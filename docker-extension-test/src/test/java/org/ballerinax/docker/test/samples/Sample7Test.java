@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +44,8 @@ import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
  */
 public class Sample7Test implements SampleTest {
 
-    private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample7";
-    private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
+    private final Path sourceDirPath = SAMPLE_DIR.resolve("sample7");
+    private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
     private final String dockerImage = "hello_world_docker:latest";
     private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
     private String containerID;

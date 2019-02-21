@@ -87,8 +87,10 @@ public class DockerPluginUtilsTest {
         Assert.assertTrue(file.createNewFile());
         File directory = tempDirectory.resolve("subFolder").toFile();
         Assert.assertTrue(directory.mkdirs());
-        DockerPluginUtils.deleteDirectory(file.getPath());
-        DockerPluginUtils.deleteDirectory(directory.getPath());
+        DockerPluginUtils.deleteDirectory(file.toPath());
+        Assert.assertFalse(file.exists(), "myfile.txt not deleted");
+        DockerPluginUtils.deleteDirectory(directory.toPath());
+        Assert.assertFalse(directory.exists(), "subFolder not deleted");
     }
     
     private void setEnv(Map<String, String> newenv) throws Exception {

@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
@@ -151,10 +152,10 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             String filePath = binaryPath.toAbsolutePath().toString();
             String userDir = new File(filePath).getParentFile().getAbsolutePath();
             DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
-            String targetPath = userDir + File.separator + ARTIFACT_DIRECTORY + File.separator;
+            Path targetPath = Paths.get(userDir).resolve(ARTIFACT_DIRECTORY);
             if (userDir.endsWith("target")) {
                 //Compiling package therefore append balx file name to docker artifact dir path
-                targetPath = userDir + File.separator + extractBalxName(filePath);
+                targetPath = Paths.get(userDir).resolve(extractBalxName(filePath));
             }
             try {
                 DockerPluginUtils.deleteDirectory(targetPath);

@@ -190,12 +190,14 @@ public class DockerModel {
     public void setCopyFiles(Set<CopyFileModel> externalFiles) throws DockerGenException {
         this.externalFiles = externalFiles;
         for (CopyFileModel externalFile : externalFiles) {
-            if (externalFile.isBallerinaConf()) {
-                if (Files.isDirectory(Paths.get(externalFile.getSource()))) {
-                    throw new DockerGenException("invalid config file given: " + externalFile.getSource());
-                }
-                addCommandArg(" --config " + externalFile.getTarget());
+            if (!externalFile.isBallerinaConf()) {
+                continue;
             }
+    
+            if (Files.isDirectory(Paths.get(externalFile.getSource()))) {
+                throw new DockerGenException("invalid config file given: " + externalFile.getSource());
+            }
+            addCommandArg(" --config " + externalFile.getTarget());
         }
     }
 

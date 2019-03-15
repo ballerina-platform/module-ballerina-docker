@@ -20,6 +20,7 @@ package org.ballerinax.docker.generator;
 
 import com.google.common.base.Optional;
 import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
@@ -50,6 +51,9 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
+    
+    private static final String DOCKER_API_VERSION = "DOCKER_API_VERSION";
+    
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
@@ -110,6 +114,17 @@ public class DockerArtifactHandler {
         }
     }
     
+    private DockerClient createClient() {
+        Builder builder = DefaultDockerClient.builder()
+                .uri(dockerModel.getDockerHost())
+                .dockerCertificates(certs);
+        String dockerApiVersion = System.getenv(DOCKER_API_VERSION);
+        if (dockerApiVersion != null) {
+            builder = builder.apiVersion(dockerApiVersion);
+        }
+        return builder.build();
+    }
+    
     /**
      * Create docker image.
      *
@@ -121,10 +136,7 @@ public class DockerArtifactHandler {
         final DockerError dockerError = new DockerError();
         try {
             DockerClient client;
-            client = DefaultDockerClient.builder()
-                    .uri(dockerModel.getDockerHost())
-                    .dockerCertificates(certs)
-                    .build();
+            client = this.createClient();
     
             client.build(dockerDir, dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
@@ -185,10 +197,7 @@ public class DockerArtifactHandler {
         
         try {
             DockerClient client;
-            client = DefaultDockerClient.builder()
-                    .uri(dockerModel.getDockerHost())
-                    .dockerCertificates(certs)
-                    .build();
+            client = this.createClient();
             
             client.push(dockerModel.getName(), message -> {
                 String digest = message.digest();

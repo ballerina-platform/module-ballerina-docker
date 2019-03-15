@@ -135,8 +135,7 @@ public class DockerArtifactHandler {
     public void buildImage(DockerModel dockerModel, Path dockerDir) throws InterruptedException, DockerGenException {
         final DockerError dockerError = new DockerError();
         try {
-            DockerClient client;
-            client = this.createClient();
+            DockerClient client = this.createClient();
     
             client.build(dockerDir, dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
@@ -196,8 +195,7 @@ public class DockerArtifactHandler {
                 .build();
         
         try {
-            DockerClient client;
-            client = this.createClient();
+            DockerClient client = this.createClient();
             
             client.push(dockerModel.getName(), message -> {
                 String digest = message.digest();

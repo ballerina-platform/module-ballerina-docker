@@ -270,10 +270,10 @@ public class DockerTestUtils {
      * @throws IOException          if an error occurs while writing file
      */
     public static ProcessOutput runBallerinaFile(Path sourceDirectory, String fileName)
-            throws InterruptedException,
-            IOException {
+            throws InterruptedException, IOException {
+        
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, RUN, fileName, serviceIP);
-        log.info(RUNNING + sourceDirectory + File.separator + fileName);
+        log.info(RUNNING + sourceDirectory.resolve(fileName));
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();

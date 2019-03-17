@@ -17,14 +17,25 @@
 import ballerina/io;
 import ballerina/http;
 
-http:Client helloWorldEP;
-http:Client helloWorldSecuredEP;
-
 public function main(string... args) {
     args = untaint args;
+    testEndpoint(args[0]);
+    testSecuredEndpoint(args[0]);
+}
 
-    helloWorldEP = new("http://" + args[0] + ":9090");
-    helloWorldSecuredEP = new("https://" + args[0] + ":9696", config = {
+function testEndpoint(string host) {
+    http:Client helloWorldEP = new("http://" + host + ":9090");
+
+    var response = helloWorldEP->get("/helloWorld/sayHello");
+    if (response is http:Response) {
+        io:println(response.getTextPayload());
+    } else {
+        io:println(response);
+    }
+}
+
+function testSecuredEndpoint(string host) {
+    http:Client helloWorldSecuredEP = new("https://" + host + ":9696", config = {
             secureSocket: {
                 trustStore: {
                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -33,15 +44,8 @@ public function main(string... args) {
                 verifyHostname: false
             }
         });
-    
-    var response = helloWorldEP->get("/helloWorld/sayHello");
-    if (response is http:Response) {
-        io:println(response.getTextPayload());
-    } else {
-        io:println(response);
-    }
 
-    response = helloWorldSecuredEP->get("/helloWorld/sayHello");
+    var response = helloWorldSecuredEP->get("/helloWorld/sayHello");
     if (response is http:Response) {
         io:println(response.getTextPayload());
     } else {

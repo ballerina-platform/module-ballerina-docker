@@ -37,12 +37,10 @@ import java.util.Map;
 
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
-//import org.ballerinax.docker.test.utils.ProcessOutput;
-
 /**
  * Test class for sample6.
  */
-public class Sample6Test implements SampleTest {
+public class Sample6Test extends SampleTest {
 
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample6");
     private final Path targetDirPath = sourceDirPath.resolve("target");

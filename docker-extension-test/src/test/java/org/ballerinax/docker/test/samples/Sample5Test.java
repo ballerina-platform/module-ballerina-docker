@@ -40,7 +40,7 @@ import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 /**
  * Test class for sample5.
  */
-public class Sample5Test implements SampleTest {
+public class Sample5Test extends SampleTest {
 
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample5");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);

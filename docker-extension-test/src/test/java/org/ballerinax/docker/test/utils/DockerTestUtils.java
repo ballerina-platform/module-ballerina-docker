@@ -66,6 +66,7 @@ public class DockerTestUtils {
     private static final String DISTRIBUTION_PATH = FilenameUtils.separatorsToSystem(
             System.getProperty("ballerina.pack"));
     private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH +
+                                                    File.separator + "bin" +
                                                     File.separator +
                                                     (System.getProperty("os.name").toLowerCase(Locale.getDefault())
                                                              .contains("win") ? "ballerina.bat" : "ballerina");
@@ -238,8 +239,7 @@ public class DockerTestUtils {
         logOutput(process.getInputStream());
         logOutput(process.getErrorStream());
 
-        pb = new ProcessBuilder
-                (BALLERINA_COMMAND, BUILD);
+        pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();

@@ -89,6 +89,13 @@
             <groupId>com.spotify</groupId>
             <artifactId>docker-client</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.12</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -184,11 +191,17 @@
                     <argLine>${jacoco.agent.argLine}</argLine>
                     <systemPropertyVariables>
                         <ballerina.pack>
-                            ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.lang.version}/bin
+                            ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.lang.version}/
                         </ballerina.pack>
                         <sample.dir>
                             ${project.build.directory}/../../samples
                         </sample.dir>
+                        <dockerfile>
+                            ${project.build.directory}/../../base/docker/Dockerfile
+                        </dockerfile>
+                        <docker.image.version>
+                            ${project.version}
+                        </docker.image.version>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
                     </systemPropertyVariables>
                     <suiteXmlFiles>

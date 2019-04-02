@@ -39,7 +39,7 @@ import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 /**
  * Test class for sample1.
  */
-public class Sample1Test implements SampleTest {
+public class Sample1Test extends SampleTest {
 
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample1");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
@@ -84,6 +84,6 @@ public class Sample1Test implements SampleTest {
     public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
-        DockerTestUtils.deleteDockerImage(dockerImage);
+//        DockerTestUtils.deleteDockerImage(dockerImage);
     }
 }

@@ -84,6 +84,6 @@ public class Sample1Test extends SampleTest {
     public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
-//        DockerTestUtils.deleteDockerImage(dockerImage);
+        DockerTestUtils.deleteDockerImage(dockerImage);
     }
 }

@@ -20,6 +20,7 @@ package org.ballerinax.docker.generator;
 
 import com.google.common.base.Optional;
 import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
@@ -39,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-
 import javax.ws.rs.ext.RuntimeDelegate;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
@@ -51,6 +51,9 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
+    
+    private static final String DOCKER_API_VERSION = "DOCKER_API_VERSION";
+    
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
@@ -73,7 +76,7 @@ public class DockerArtifactHandler {
         }
     }
     
-    public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, String outputDir)
+    public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, Path outputDir)
             throws DockerGenException {
         String dockerContent = generateDockerfile();
         try {
@@ -111,28 +114,36 @@ public class DockerArtifactHandler {
         }
     }
     
+    private DockerClient createClient() {
+        Builder builder = DefaultDockerClient.builder()
+                .uri(dockerModel.getDockerHost())
+                .dockerCertificates(certs);
+        String dockerApiVersion = System.getenv(DOCKER_API_VERSION);
+        if (dockerApiVersion != null) {
+            builder = builder.apiVersion(dockerApiVersion);
+        }
+        return builder.build();
+    }
+    
     /**
      * Create docker image.
      *
      * @param dockerModel dockerModel object
      * @param dockerDir   dockerfile directory
      * @throws InterruptedException When error with docker build process
-     * @throws IOException          When error with docker build process
      */
-    public void buildImage(DockerModel dockerModel, String dockerDir) throws
-            InterruptedException, IOException, DockerGenException {
+    public void buildImage(DockerModel dockerModel, Path dockerDir) throws InterruptedException, DockerGenException {
         final DockerError dockerError = new DockerError();
         try {
-            DockerClient client;
-            client = DefaultDockerClient.builder()
-                    .uri(dockerModel.getDockerHost())
-                    .dockerCertificates(certs)
-                    .build();
+            DockerClient client = this.createClient();
     
-            client.build(Paths.get(dockerDir), dockerModel.getName(), message -> {
+            client.build(dockerDir, dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
                 String error = message.error();
-                
+                if (null != message.stream()) {
+                    printDebug(message.stream());
+                }
+    
                 if (null != message.progress()) {
                     printDebug(message.progress());
                 }
@@ -142,17 +153,22 @@ public class DockerArtifactHandler {
                     printDebug("Build ID: " + buildImageId);
                     buildDone.countDown();
                 }
-                
+    
                 // when there is an error.
                 if (null != error) {
                     printDebug("Error message: " + error);
-                    dockerError.setErrorMsg("Unable to build Docker image: " + error);
+                    dockerError.setErrorMsg("Unable to build Docker image: " + cleanErrorMessage(error));
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
             dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
+        } catch (IOException ioEx) {
+            dockerError.setErrorMsg("Unknown I/O error occurred with docker: " + cleanErrorMessage(ioEx.getMessage()));
+            buildDone.countDown();
+        } catch (RuntimeException e) {
+            // ignore, as this error would already be set to the dockerError variable.
         }
         buildDone.await();
         handleError(dockerError);
@@ -179,11 +195,7 @@ public class DockerArtifactHandler {
                 .build();
         
         try {
-            DockerClient client;
-            client = DefaultDockerClient.builder()
-                    .uri(dockerModel.getDockerHost())
-                    .dockerCertificates(certs)
-                    .build();
+            DockerClient client = this.createClient();
             
             client.push(dockerModel.getName(), message -> {
                 String digest = message.digest();

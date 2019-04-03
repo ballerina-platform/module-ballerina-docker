@@ -18,8 +18,12 @@
 
 package org.ballerinax.docker.generator.models;
 
+import com.spotify.docker.client.DockerHost;
 import org.ballerinax.docker.generator.DockerGenConstants;
+import org.ballerinax.docker.generator.exceptions.DockerGenException;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -59,9 +63,9 @@ public class DockerModel {
 
         String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
         if (operatingSystem.contains("win")) {
-            this.dockerHost = DockerGenConstants.WINDOWS_DEFAULT_DOCKER_HOST;
+            this.setDockerHost(DockerHost.defaultWindowsEndpoint());
         } else {
-            this.dockerHost = DockerGenConstants.UNIX_DEFAULT_DOCKER_HOST;
+            this.setDockerHost(DockerHost.defaultUnixEndpoint());
         }
         externalFiles = new HashSet<>();
         commandArg = "";
@@ -183,11 +187,18 @@ public class DockerModel {
         return externalFiles;
     }
 
-    public void setCopyFiles(Set<CopyFileModel> externalFiles) {
+    public void setCopyFiles(Set<CopyFileModel> externalFiles) throws DockerGenException {
         this.externalFiles = externalFiles;
-        externalFiles.stream()
-                .filter(CopyFileModel::isBallerinaConf)
-                .forEach(file -> addCommandArg(" --config " + file.getTarget()));
+        for (CopyFileModel externalFile : externalFiles) {
+            if (!externalFile.isBallerinaConf()) {
+                continue;
+            }
+    
+            if (Files.isDirectory(Paths.get(externalFile.getSource()))) {
+                throw new DockerGenException("invalid config file given: " + externalFile.getSource());
+            }
+            addCommandArg(" --config " + externalFile.getTarget());
+        }
     }
 
     public String getDockerCertPath() {

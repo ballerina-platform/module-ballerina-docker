@@ -29,16 +29,19 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
+/**
+ * Test class for sample4.
+ */
+public class Sample4Test extends SampleTest {
 
-public class Sample4Test implements SampleTest {
-
-    private final String sourceDirPath = SAMPLE_DIR + File.separator + "sample4";
-    private final String targetPath = sourceDirPath + File.separator + ARTIFACT_DIRECTORY;
+    private final Path sourceDirPath = SAMPLE_DIR.resolve("sample4");
+    private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
     private final String dockerImage = "helloworld-debug:latest";
     private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
     private String containerID;

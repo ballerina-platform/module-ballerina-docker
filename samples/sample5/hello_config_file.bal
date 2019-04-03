@@ -1,5 +1,6 @@
 import ballerina/config;
 import ballerina/http;
+import ballerina/log;
 import ballerina/io;
 import ballerinax/docker;
 
@@ -28,7 +29,10 @@ service helloWorld on helloWorldEP {
         string groups = getConfigValue(user, "groups");
         string payload = "{'userId': '" + userId + "', 'groups': '" + groups + "'}";
         response.setTextPayload(payload + "\n");
-        _ = outboundEP->respond(response);
+        var responseResult = outboundEP->respond(response);
+        if (responseResult is error) {
+            log:printError("error responding back to client.", err = responseResult);
+        }
     }
 
     @http:ResourceConfig {
@@ -39,13 +43,16 @@ service helloWorld on helloWorldEP {
         http:Response response = new;
         string payload = readFile("./data/data.txt");
         response.setTextPayload("{'data': '" + untaint payload + "'}\n");
-        _ = outboundEP->respond(response);
+        var responseResult = outboundEP->respond(response);
+        if (responseResult is error) {
+            log:printError("error responding back to client.", err = responseResult);
+        }
     }
 }
 
 function getConfigValue(string instanceId, string property) returns (string) {
     string key = untaint instanceId + "." + untaint property;
-    return config:getAsString(key, default = "Invalid User");
+    return config:getAsString(key, defaultValue = "Invalid User");
 }
 
 function readFile(string filePath) returns (string) {

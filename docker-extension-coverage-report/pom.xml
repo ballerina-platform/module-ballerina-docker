@@ -21,7 +21,7 @@
     <parent>
         <artifactId>docker-extension-parent</artifactId>
         <groupId>org.ballerinax.docker</groupId>
-        <version>0.990.3-SNAPSHOT</version>
+        <version>0.990.4-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -50,8 +50,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                </configuration>
                 <executions>
                     <execution>
                         <id>report-aggregate</id>

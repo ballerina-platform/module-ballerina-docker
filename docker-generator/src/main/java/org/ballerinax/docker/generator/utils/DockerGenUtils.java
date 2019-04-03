@@ -29,13 +29,14 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 /**
  * Util methods used for artifact generation.
  */
 public class DockerGenUtils {
 
-    private static final boolean debugEnabled = "true".equals(System.getProperty(DockerGenConstants.ENABLE_DEBUG_LOGS));
+    private static final boolean debugEnabled = "true".equals(System.getenv(DockerGenConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
 
     /**
@@ -103,7 +104,6 @@ public class DockerGenUtils {
         return null;
     }
     
-    
     /**
      * Copy file or directory.
      *
@@ -145,6 +145,13 @@ public class DockerGenUtils {
      * @return Cleaned error message.
      */
     public static String cleanErrorMessage(String errorMessage) {
+        errorMessage = errorMessage.replace("javax.ws.rs.ProcessingException:", "");
+        errorMessage = errorMessage.replace("java.io.IOException:", "");
+        errorMessage = errorMessage.replace("java.util.concurrent.ExecutionException:", "");
+        errorMessage = errorMessage.replace("java.lang.IllegalArgumentException:", "");
+        errorMessage = errorMessage.replace("org.apache.http.conn.HttpHostConnectException:", "");
+        errorMessage = errorMessage.replace("org.apache.http.client.ClientProtocolException:", "");
+        
         if (errorMessage.contains("unable to find valid certification path")) {
             errorMessage = "unable to find docker cert path.";
         } else if (errorMessage.contains("Connection refused")) {
@@ -152,8 +159,10 @@ public class DockerGenUtils {
         } else if (errorMessage.contains("Unable to connect to server")) {
             errorMessage = errorMessage.replace("Unable to connect to server: Timeout: GET",
                     "unable to connect to docker host: ");
+        } else if (errorMessage.toLowerCase(Locale.getDefault()).contains("permission denied")) {
+            errorMessage = "permission denied for docker";
         }
     
-        return errorMessage;
+        return errorMessage.toLowerCase(Locale.getDefault());
     }
 }

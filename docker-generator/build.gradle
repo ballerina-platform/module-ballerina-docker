@@ -1,0 +1,17 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+    compile 'com.spotify:docker-client:8.15.0'
+    compile 'commons-io:commons-io:2.6'
+    testCompile 'org.testng:testng:6.14.3'
+}
+
+description = 'Ballerinax - Docker Generator'
+
+test {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'src/test/resources/testng.xml'
+//        debug = true
+    }
+}

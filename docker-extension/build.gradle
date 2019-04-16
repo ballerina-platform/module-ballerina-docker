@@ -1,0 +1,19 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+    compile 'org.ballerinalang:ballerina-lang:0.990.4-SNAPSHOT'
+    compile 'org.ballerinalang:ballerina-builtin:0.990.4-SNAPSHOT'
+    compile 'org.ballerinalang:lib-creator:0.990.4-SNAPSHOT'
+    compile project(':docker-generator')
+    compile 'com.spotify:docker-client:8.15.0'
+    testCompile 'org.testng:testng:6.14.3'
+}
+
+description = 'Ballerinax - Docker Extension'
+
+test {
+    useTestNG() {
+        useDefaultListeners = true
+        suites 'src/test/resources/testng.xml'
+    }
+}

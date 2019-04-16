@@ -38,3 +38,10 @@ dependency-reduced-pom.xml
 *.balx
 samples/*/docker
 velocity.log*
+
+# Gradle
+.gradle
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache

@@ -1,0 +1,23 @@
+plugins {
+    id 'base'
+    id 'com.gradle.build-scan' version '2.1'
+    id "com.github.spotbugs" version "1.6.10"
+}
+
+allprojects {
+    group = 'org.ballerinax.docker'
+    version = '0.990.4-SNAPSHOT'
+
+    task printPath {
+        doLast{
+            println projectDir
+        }
+    }
+}
+
+subprojects {}
+
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+}

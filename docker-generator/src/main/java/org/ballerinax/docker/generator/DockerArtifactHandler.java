@@ -28,6 +28,7 @@ import com.spotify.docker.client.DockerHost;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.RegistryAuth;
+import org.apache.commons.io.FilenameUtils;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
@@ -52,6 +53,8 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
+    
+    private static final boolean WINDOWS_BUILD = "true".equals(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
@@ -63,7 +66,12 @@ public class DockerArtifactHandler {
     
     public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, Path outputDir)
             throws DockerGenException {
-        String dockerContent = generateDockerfile();
+        String dockerContent = null;
+        if (!WINDOWS_BUILD) {
+            dockerContent = generateDockerfile();
+        } else {
+            dockerContent = generateDockerfileForWindows();
+        }
         try {
             outStream.print(logAppender + " - complete 0/3 \r");
             DockerGenUtils.writeToFile(dockerContent, outputDir + File.separator + "Dockerfile");
@@ -269,6 +277,45 @@ public class DockerArtifactHandler {
         stringBuilder.append(" ").append(dockerModel.getBalxFileName());
         stringBuilder.append("\n");
         
+        return stringBuilder.toString();
+    }
+
+    private String generateDockerfileForWindows() {
+        String dockerBase = "# Auto Generated Dockerfile\n" +
+                "\n" +
+                "FROM " + dockerModel.getBaseImage() + "\n" +
+                "LABEL maintainer=\"dev@ballerina.io\"\n" +
+                "\n" +
+                "COPY " + dockerModel.getBalxFileName() + " C:\\\\ballerina\\\\home \n\n";
+
+        StringBuilder stringBuilder = new StringBuilder(dockerBase);
+        dockerModel.getCopyFiles().forEach(file -> {
+            // Extract the source filename relative to docker folder.
+            String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
+            stringBuilder.append("COPY ")
+                    .append(FilenameUtils.separatorsToWindows(sourceFileName))
+                    .append(" ")
+                    .append(FilenameUtils.separatorsToWindows(file.getTarget()))
+                    .append("\n");
+        });
+
+        if (dockerModel.isService() && dockerModel.getPorts().size() > 0) {
+            stringBuilder.append("EXPOSE ");
+            dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
+        }
+
+        stringBuilder.append("\nCMD ballerina.bat run ");
+
+        if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
+            stringBuilder.append(dockerModel.getCommandArg());
+        }
+
+        if (dockerModel.isEnableDebug()) {
+            stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
+        }
+        stringBuilder.append(" ").append(dockerModel.getBalxFileName());
+        stringBuilder.append("\n");
+
         return stringBuilder.toString();
     }
 

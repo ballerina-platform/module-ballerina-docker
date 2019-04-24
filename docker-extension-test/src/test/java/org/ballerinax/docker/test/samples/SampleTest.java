@@ -26,6 +26,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.generator.DockerGenConstants;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.testng.Assert;
@@ -50,11 +51,15 @@ import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
 public abstract class SampleTest {
     
     private static final Log log = LogFactory.getLog(SampleTest.class);
+
+    private static final boolean WINDOWS_BUILD = "true".equals(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
+
     /**
      * Location of the ballerina docker base image.
      */
-    private static final Path DOCKER_FILE = Paths.get(FilenameUtils.separatorsToSystem(
-            System.getProperty("dockerfile"))).toAbsolutePath().normalize();
+    private static final Path DOCKER_FILE = WINDOWS_BUILD ?
+            Paths.get(System.getProperty("dockerfile.windows")).toAbsolutePath().normalize() :
+            Paths.get(System.getProperty("dockerfile")).toAbsolutePath().normalize();
     
     /**
      * Location of the extracted ballerina pack.
@@ -97,26 +102,26 @@ public abstract class SampleTest {
     public void buildDockerImage() throws IOException, DockerTestException, DockerException, InterruptedException {
         // copy extracted ballerina distribution to the /docker/base directory.
         FileUtils.copyFile(DOCKER_FILE.toFile(), DOCKER_FILE_COPY.toFile());
-        
+
         // Passing build argument.
         String ballerinaDistBuildArg = "{\"BALLERINA_DIST\":\"" + BALLERINA_RUNTIME_ZIP_NAME + "\"}";
-        
+
         CountDownLatch buildDone = new CountDownLatch(1);
         final AtomicReference<String> errorAtomicReference = new AtomicReference<>();
         builtImageID = DockerTestUtils.getDockerClient().build(DOCKER_FILE_COPY.getParent(), DOCKER_IMAGE, message -> {
             String buildImageId = message.buildImageId();
             String error = message.error();
             String stream = message.stream();
-            
+
             if (stream != null) {
                 log.info(stream.replaceAll("\\n", ". "));
             }
-            
+
             // when an image is built successfully.
             if (null != buildImageId) {
                 buildDone.countDown();
             }
-            
+
             if (error != null) {
                 errorAtomicReference.set(error);
                 buildDone.countDown();
@@ -125,14 +130,14 @@ public abstract class SampleTest {
                 DockerClient.BuildParam.forceRm(),
                 DockerClient.BuildParam.create("buildargs", URLEncoder.encode(ballerinaDistBuildArg,
                         Charsets.UTF_8.displayName())));
-        
+
         buildDone.await();
         String dockerErrorMsg = errorAtomicReference.get();
         if (null != dockerErrorMsg) {
             log.error(dockerErrorMsg);
             Assert.fail();
         }
-        
+
         log.info("Ballerina base image built: " + builtImageID);
         Assert.assertNotNull(DockerTestUtils.getDockerClient().inspectImage(DOCKER_IMAGE));
     }

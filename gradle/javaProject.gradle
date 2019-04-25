@@ -27,6 +27,23 @@ dependencies {
     checkstyle project(':build-config:checkstyle')
     checkstyle 'com.puppycrawl.tools:checkstyle:7.8.2'
     implementation 'org.slf4j:slf4j-api:1.7.22'
+
+    constraints {
+        implementation 'org.ballerinalang:lib-creator:0.991.1-SNAPSHOT'
+        implementation 'org.ballerinalang:ballerina-lang:0.991.1-SNAPSHOT'
+        implementation 'org.ballerinalang:ballerina-builtin:0.991.1-SNAPSHOT'
+        implementation 'org.ballerinalang:ballerina:0.991.1-SNAPSHOT'
+        implementation 'org.ballerinalang:testerina-core:0.991.1-SNAPSHOT'
+        implementation 'org.ballerinalang:ballerina-packerina:0.991.1-SNAPSHOT'
+        implementation 'com.spotify:docker-client:8.15.1'
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.9.8'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
+        implementation 'com.fasterxml.jackson.dataformat:ackson-dataformat-yaml:2.9.8'
+        implementation 'org.testng:testng:6.14.3'
+        implementation 'commons-io:commons-io:2.6'
+        implementation 'commons-codec:commons-codec:1.12'
+    }
 }
 
 sourceCompatibility = '1.8'

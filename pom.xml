@@ -69,8 +69,8 @@
         <dependencies>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <version>${ballerina.lang.version}</version>
                 <artifactId>lib-creator</artifactId>
+                <version>${ballerina.lang.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>

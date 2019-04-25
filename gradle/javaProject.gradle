@@ -59,7 +59,17 @@ spotbugsTest {
 
 test {
     testLogging {
+        showStackTraces = true
+        showStandardStreams = true
+    }
+    testLogging {
         events "failed"
         exceptionFormat "full"
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
     }
 }

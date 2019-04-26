@@ -25,7 +25,6 @@ import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 
@@ -45,9 +44,9 @@ public class DockerModel {
     private boolean enableDebug;
     private int debugPort;
     private String dockerHost;
+    private String dockerCertPath;
     private boolean isService;
     private String balxFileName;
-    private String dockerCertPath;
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
 
@@ -61,12 +60,9 @@ public class DockerModel {
         this.enableDebug = false;
         this.debugPort = 5005;
 
-        String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-        if (operatingSystem.contains("win")) {
-            this.setDockerHost(DockerHost.defaultWindowsEndpoint());
-        } else {
-            this.setDockerHost(DockerHost.defaultUnixEndpoint());
-        }
+        this.setDockerHost(DockerHost.fromEnv().host());
+        this.setDockerCertPath(DockerHost.fromEnv().dockerCertPath());
+        
         externalFiles = new HashSet<>();
         commandArg = "";
     }

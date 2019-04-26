@@ -40,7 +40,6 @@ import java.util.Set;
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
 import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
 import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
-import static org.ballerinax.docker.utils.DockerPluginUtils.isBlank;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerPluginUtils.resolveValue;
 
@@ -145,14 +144,7 @@ class DockerAnnotationProcessor {
                     break;
             }
         }
-        String dockerHost = System.getenv(DockerPluginConstants.DOCKER_HOST);
-        if (!isBlank(dockerHost)) {
-            dockerModel.setDockerHost(dockerHost);
-        }
-        String dockerCertPath = System.getenv(DockerPluginConstants.DOCKER_CERT_PATH);
-        if (!isBlank(dockerCertPath)) {
-            dockerModel.setDockerCertPath(dockerCertPath);
-        }
+        
         dockerModel.setService(true);
         return dockerModel;
     }

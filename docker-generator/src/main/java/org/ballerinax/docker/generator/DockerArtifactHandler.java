@@ -102,6 +102,7 @@ public class DockerArtifactHandler {
     private DockerClient createClient() throws DockerGenException {
         printDebug("docker client host: " + dockerModel.getDockerHost());
         printDebug("docker client certs: " + dockerModel.getDockerCertPath());
+        printDebug("docker API version: " + dockerModel.getDockerAPIVersion());
         Builder builder;
         
         try {
@@ -122,11 +123,6 @@ public class DockerArtifactHandler {
         }
     
         if (dockerModel.getDockerAPIVersion() != null) {
-            if (!dockerModel.getDockerAPIVersion().startsWith("v")) {
-                dockerModel.setDockerAPIVersion("v" + dockerModel.getDockerAPIVersion());
-            }
-            
-            printDebug("docker API version: " + dockerModel.getDockerAPIVersion());
             builder = builder.apiVersion(dockerModel.getDockerAPIVersion());
         }
         return builder.build();

@@ -24,13 +24,14 @@
 # + baseImage - Base image to create the docker image. Default value is `"ballerina/ballerina-runtime:<BALLERINA_VERSION>"`.
 # Use `"ballerina/ballerina-runtime:latest"` to use the latest stable ballerina runtime docker image.
 # + buildImage - Enable building docker image. Default value is `true`.
-# + push - Enable pushing docker image to registry. `field buildImage` must be set to `true`. Default value is "false".
+# + push - Enable pushing docker image to registry. `field buildImage` must be set to `true`. Default value is `false`.
 # + enableDebug - Enable ballerina debug. Default is `false`.
 # + debugPort - Ballerina remote debug port. Default is `5005`.
+# + dockerVersion - Docker API version.
 # + dockerHost - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT).
-# Default is to use DOCKER_HOST value.
-# If DOCKER_HOST value is not set, use `"unix:///var/run/docker.sock"` for unix or use `"npipe:////./pipe/docker_engine"`.
-# + dockerCertPath - Docker certificate path. Default is to use the value from `"DOCKER_CERT_PATH"`.
+# Default is to use DOCKER_HOST environment variable.
+# If DOCKER_HOST is unavailable, use `"unix:///var/run/docker.sock"` for Unix or use `"npipe:////./pipe/docker_engine"` for Windows 10 or use `"localhost:2375"`.
+# + dockerCertPath - Docker certificate path. Default is to use `"DOCKER_CERT_PATH"` environment variable.
 public type DockerConfiguration record {|
     string name?;
     string registry?;
@@ -42,6 +43,7 @@ public type DockerConfiguration record {|
     boolean push = false;
     boolean enableDebug = false;
     int debugPort = 5005;
+    string dockerVersion?;
     string dockerHost?;
     string dockerCertPath?;
 |};

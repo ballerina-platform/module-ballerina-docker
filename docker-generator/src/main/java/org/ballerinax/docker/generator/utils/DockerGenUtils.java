@@ -114,7 +114,7 @@ public class DockerGenUtils {
         File src = new File(source);
         
         if (!src.exists()) {
-            throw new DockerGenException("Error while copying file/folder '" + source + "' as it does not exist");
+            throw new DockerGenException("error while copying file/folder '" + source + "' as it does not exist");
         }
         
         File dst = new File(destination);
@@ -133,7 +133,7 @@ public class DockerGenUtils {
                 FileUtils.copyDirectory(src, dst);
             }
         } catch (IOException e) {
-            throw new DockerGenException("Error while copying file/folder '" + source + "' to '" + destination + "'",
+            throw new DockerGenException("error while copying file/folder '" + source + "' to '" + destination + "'",
                     e);
         }
     }
@@ -163,6 +163,27 @@ public class DockerGenUtils {
             errorMessage = "permission denied for docker";
         }
     
-        return errorMessage.toLowerCase(Locale.getDefault());
+        return firstCharToLowerCase(errorMessage);
+    }
+    
+    /**
+     * Lowercase first character of a {@link String}.
+     *
+     * @param str String variable.
+     * @return Modified String.
+     */
+    private static String firstCharToLowerCase(String str) {
+        if (str == null || str.length() == 0) {
+            return "";
+        }
+    
+        if (str.length() == 1) {
+            return str.toLowerCase(Locale.getDefault());
+        }
+    
+        char[] chArr = str.toCharArray();
+        chArr[0] = Character.toLowerCase(chArr[0]);
+    
+        return new String(chArr);
     }
 }

@@ -51,9 +51,6 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
-    
-    private static final String DOCKER_API_VERSION = "DOCKER_API_VERSION";
-    
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
@@ -72,7 +69,7 @@ public class DockerArtifactHandler {
                 }
             }
         } catch (DockerCertificateException e) {
-            throw new DockerGenException("Unable to create Docker images " + e.getMessage());
+            throw new DockerGenException("unable to create Docker images " + e.getMessage());
         }
     }
     
@@ -108,19 +105,21 @@ public class DockerArtifactHandler {
             }
             outStream.print(logAppender + " - complete 3/3 \r");
         } catch (IOException e) {
-            throw new DockerGenException("Unable to write content to " + outputDir);
+            throw new DockerGenException("unable to write content to " + outputDir);
         } catch (InterruptedException e) {
-            throw new DockerGenException("Unable to create Docker images " + e.getMessage());
+            throw new DockerGenException("unable to create Docker images " + e.getMessage());
         }
     }
     
     private DockerClient createClient() {
+        printDebug("docker client host: " + dockerModel.getDockerHost());
         Builder builder = DefaultDockerClient.builder()
                 .uri(dockerModel.getDockerHost())
                 .dockerCertificates(certs);
-        String dockerApiVersion = System.getenv(DOCKER_API_VERSION);
-        if (dockerApiVersion != null) {
-            builder = builder.apiVersion(dockerApiVersion);
+    
+        if (dockerModel.getDockerAPIVersion() != null) {
+            printDebug("docker API version: " + dockerModel.getDockerAPIVersion());
+            builder = builder.apiVersion(dockerModel.getDockerAPIVersion());
         }
         return builder.build();
     }
@@ -157,15 +156,15 @@ public class DockerArtifactHandler {
                 // when there is an error.
                 if (null != error) {
                     printDebug("Error message: " + error);
-                    dockerError.setErrorMsg("Unable to build Docker image: " + cleanErrorMessage(error));
+                    dockerError.setErrorMsg("unable to build docker image: " + cleanErrorMessage(error));
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
-            dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
+            dockerError.setErrorMsg("unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
         } catch (IOException ioEx) {
-            dockerError.setErrorMsg("Unknown I/O error occurred with docker: " + cleanErrorMessage(ioEx.getMessage()));
+            dockerError.setErrorMsg("unknown I/O error occurred with docker: " + cleanErrorMessage(ioEx.getMessage()));
             buildDone.countDown();
         } catch (RuntimeException e) {
             // ignore, as this error would already be set to the dockerError variable.
@@ -214,12 +213,12 @@ public class DockerArtifactHandler {
                 // When error occurs.
                 if (null != error) {
                     printDebug("Error message: " + error);
-                    dockerError.setErrorMsg("Unable to push Docker image: " + error);
+                    dockerError.setErrorMsg("unable to push Docker image: " + error);
                     pushDone.countDown();
                 }
             }, auth);
         } catch (DockerException e) {
-            dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
+            dockerError.setErrorMsg("unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             pushDone.countDown();
         }
         pushDone.await();

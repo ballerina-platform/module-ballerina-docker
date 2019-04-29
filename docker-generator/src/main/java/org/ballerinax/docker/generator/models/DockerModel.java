@@ -27,6 +27,8 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.ballerinax.docker.generator.DockerGenConstants.DOCKER_API_VERSION;
+
 
 /**
  * Docker annotations model class.
@@ -43,6 +45,7 @@ public class DockerModel {
     private Set<Integer> ports;
     private boolean enableDebug;
     private int debugPort;
+    private String dockerAPIVersion;
     private String dockerHost;
     private String dockerCertPath;
     private boolean isService;
@@ -59,7 +62,7 @@ public class DockerModel {
         this.baseImage = DockerGenConstants.BALLERINA_BASE_IMAGE + ":" + baseImageVersion;
         this.enableDebug = false;
         this.debugPort = 5005;
-
+        this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
         this.setDockerHost(DockerHost.fromEnv().host());
         this.setDockerCertPath(DockerHost.fromEnv().dockerCertPath());
         
@@ -170,7 +173,15 @@ public class DockerModel {
     public void setDebugPort(int debugPort) {
         this.debugPort = debugPort;
     }
-
+    
+    public String getDockerAPIVersion() {
+        return dockerAPIVersion;
+    }
+    
+    public void setDockerAPIVersion(String dockerAPIVersion) {
+        this.dockerAPIVersion = dockerAPIVersion;
+    }
+    
     public String getDockerHost() {
         return dockerHost;
     }
@@ -227,10 +238,11 @@ public class DockerModel {
                ", ports=" + ports +
                ", enableDebug=" + enableDebug +
                ", debugPort=" + debugPort +
+               ", dockerAPIVersion='" + dockerAPIVersion + '\'' +
                ", dockerHost='" + dockerHost + '\'' +
+               ", dockerCertPath='" + dockerCertPath + '\'' +
                ", isService=" + isService +
                ", balxFileName='" + balxFileName + '\'' +
-               ", dockerCertPath='" + dockerCertPath + '\'' +
                ", externalFiles=" + externalFiles +
                ", commandArg='" + commandArg + '\'' +
                '}';

@@ -134,6 +134,9 @@ class DockerAnnotationProcessor {
                 case debugPort:
                     dockerModel.setDebugPort(Integer.parseInt(annotationValue));
                     break;
+                case dockerAPIVersion:
+                    dockerModel.setDockerAPIVersion(annotationValue);
+                    break;
                 case dockerHost:
                     dockerModel.setDockerHost(annotationValue);
                     break;
@@ -220,6 +223,7 @@ class DockerAnnotationProcessor {
         buildImage,
         enableDebug,
         debugPort,
+        dockerAPIVersion,
         dockerHost,
         dockerCertPath
     }

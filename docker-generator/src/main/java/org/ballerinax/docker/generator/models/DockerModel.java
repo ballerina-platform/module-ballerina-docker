@@ -179,7 +179,7 @@ public class DockerModel {
     }
     
     public void setDockerAPIVersion(String dockerAPIVersion) {
-        if (!dockerAPIVersion.startsWith("v")) {
+        if (null != dockerAPIVersion && !dockerAPIVersion.startsWith("v")) {
             dockerAPIVersion = "v" + dockerAPIVersion;
         }
     

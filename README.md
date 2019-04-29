@@ -30,6 +30,7 @@ Annotation based docker extension implementation for ballerina.
 |push|Enable pushing docker image to registry|false|
 |enableDebug|Enable debug for ballerina|false|
 |debugPort|Remote debug port|5005|
+|dockerAPIVersion|Docker API Version|None|
 |dockerHost|Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)|DOCKER_HOST environment variable. If DOCKER_HOST is unavailable, use "unix:///var/run/docker.sock" for Unix or use "npipe:////./pipe/docker_engine" for Windows 10 or use "localhost:2375"|
 |dockerCertPath|Docker certificate path|"DOCKER_CERT_PATH" environment variable|
 

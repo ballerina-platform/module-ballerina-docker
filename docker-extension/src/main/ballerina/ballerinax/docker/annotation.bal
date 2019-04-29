@@ -27,7 +27,7 @@
 # + push - Enable pushing docker image to registry. `field buildImage` must be set to `true`. Default value is `false`.
 # + enableDebug - Enable ballerina debug. Default is `false`.
 # + debugPort - Ballerina remote debug port. Default is `5005`.
-# + dockerVersion - Docker API version.
+# + dockerAPIVersion - Docker API version.
 # + dockerHost - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT).
 # Default is to use DOCKER_HOST environment variable.
 # If DOCKER_HOST is unavailable, use `"unix:///var/run/docker.sock"` for Unix or use `"npipe:////./pipe/docker_engine"` for Windows 10 or use `"localhost:2375"`.
@@ -43,7 +43,7 @@ public type DockerConfiguration record {|
     boolean push = false;
     boolean enableDebug = false;
     int debugPort = 5005;
-    string dockerVersion?;
+    string dockerAPIVersion?;
     string dockerHost?;
     string dockerCertPath?;
 |};

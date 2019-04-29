@@ -24,6 +24,7 @@ import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerHost;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.RegistryAuth;
@@ -54,23 +55,10 @@ public class DockerArtifactHandler {
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
-    private DockerCertificatesStore certs;
     
-    public DockerArtifactHandler(DockerModel dockerModel) throws DockerGenException {
-        try {
+    public DockerArtifactHandler(DockerModel dockerModel) {
             RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
             this.dockerModel = dockerModel;
-            if (!DockerGenUtils.isBlank(dockerModel.getDockerCertPath())) {
-                Optional<DockerCertificatesStore> certsOptional = DockerCertificates.builder()
-                        .dockerCertPath(Paths.get(dockerModel.getDockerCertPath()))
-                        .build();
-                if (certsOptional.isPresent()) {
-                    certs = certsOptional.get();
-                }
-            }
-        } catch (DockerCertificateException e) {
-            throw new DockerGenException("unable to create Docker images " + e.getMessage());
-        }
     }
     
     public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, Path outputDir)
@@ -111,13 +99,33 @@ public class DockerArtifactHandler {
         }
     }
     
-    private DockerClient createClient() {
+    private DockerClient createClient() throws DockerGenException {
         printDebug("docker client host: " + dockerModel.getDockerHost());
-        Builder builder = DefaultDockerClient.builder()
-                .uri(dockerModel.getDockerHost())
-                .dockerCertificates(certs);
+        printDebug("docker client certs: " + dockerModel.getDockerCertPath());
+        Builder builder;
+        
+        try {
+            Optional<DockerCertificatesStore> certsOptional =
+                    DockerCertificates.builder().dockerCertPath(Paths.get(dockerModel.getDockerCertPath())).build();
+        
+            if (certsOptional.isPresent()) {
+                builder = DefaultDockerClient.builder()
+                        .uri(DockerHost.from(dockerModel.getDockerHost(), dockerModel.getDockerCertPath()).uri())
+                        .dockerCertificates(certsOptional.get());
+            } else {
+                builder = DefaultDockerClient.builder()
+                        .uri(DockerHost.from(dockerModel.getDockerHost(), dockerModel.getDockerCertPath()).uri());
+            }
+        
+        } catch (DockerCertificateException e) {
+            throw new DockerGenException("unable to create Docker images " + e.getMessage());
+        }
     
         if (dockerModel.getDockerAPIVersion() != null) {
+            if (!dockerModel.getDockerAPIVersion().startsWith("v")) {
+                dockerModel.setDockerAPIVersion("v" + dockerModel.getDockerAPIVersion());
+            }
+            
             printDebug("docker API version: " + dockerModel.getDockerAPIVersion());
             builder = builder.apiVersion(dockerModel.getDockerAPIVersion());
         }

@@ -106,17 +106,16 @@ public class DockerArtifactHandler {
         Builder builder;
         
         try {
-            Optional<DockerCertificatesStore> certsOptional =
-                    DockerCertificates.builder().dockerCertPath(Paths.get(dockerModel.getDockerCertPath())).build();
-        
-            if (certsOptional.isPresent()) {
-                builder = DefaultDockerClient.builder()
-                        .uri(DockerHost.from(dockerModel.getDockerHost(), dockerModel.getDockerCertPath()).uri())
-                        .dockerCertificates(certsOptional.get());
-            } else {
-                builder = DefaultDockerClient.builder()
-                        .uri(DockerHost.from(dockerModel.getDockerHost(), dockerModel.getDockerCertPath()).uri());
+            Optional<DockerCertificatesStore> certsOptional = Optional.absent();
+            if (null != dockerModel.getDockerCertPath() && Files.exists(Paths.get(dockerModel.getDockerCertPath()))) {
+                certsOptional = DockerCertificates.builder()
+                        .dockerCertPath(Paths.get(dockerModel.getDockerCertPath()))
+                        .build();
             }
+    
+            builder = DefaultDockerClient.builder()
+                    .uri(DockerHost.from(dockerModel.getDockerHost(), dockerModel.getDockerCertPath()).uri())
+                    .dockerCertificates(certsOptional.orNull());
         
         } catch (DockerCertificateException e) {
             throw new DockerGenException("unable to create Docker images " + e.getMessage());

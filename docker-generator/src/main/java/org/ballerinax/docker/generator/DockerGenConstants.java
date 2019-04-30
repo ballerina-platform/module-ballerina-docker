@@ -24,6 +24,7 @@ package org.ballerinax.docker.generator;
 public class DockerGenConstants {
     public static final String ENABLE_DEBUG_LOGS = "BAL_DOCKER_DEBUG";
     public static final String DOCKER_API_VERSION = "DOCKER_API_VERSION";
+    public static final String ENABLE_WINDOWS_BUILD = "BAL_DOCKER_WINDOWS";
     public static final String BALX = ".balx";
     public static final String REGISTRY_SEPARATOR = "/";
     public static final String TAG_SEPARATOR = ":";

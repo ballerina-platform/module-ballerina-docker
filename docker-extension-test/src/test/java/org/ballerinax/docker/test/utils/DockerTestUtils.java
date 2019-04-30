@@ -384,6 +384,12 @@ public class DockerTestUtils {
                     serviceIP = containerInfo.networkSettings().ipAddress();
                 }
     
+                if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") &&
+                    containerInfo.networkSettings().networks().containsKey("nat") &&
+                    !"".equals(containerInfo.networkSettings().networks().get("nat").ipAddress())) {
+                    serviceIP = containerInfo.networkSettings().networks().get("nat").ipAddress();
+                }
+    
                 if (null != System.getenv("DOCKER_HOST")) {
                     serviceIP = HostAndPort.fromString(System.getenv("DOCKER_HOST").replace("tcp://", "")).getHost();
                 }

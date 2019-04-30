@@ -207,6 +207,11 @@
                 </executions>
                 <configuration>
                     <argLine>${jacoco.agent.argLine}</argLine>
+                    <environmentVariables>
+                        <BAL_DOCKER_WINDOWS>
+                            ${env.BAL_DOCKER_WINDOWS}
+                        </BAL_DOCKER_WINDOWS>
+                    </environmentVariables>
                     <systemPropertyVariables>
                         <ballerina.pack>
                             ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.lang.version}/
@@ -217,6 +222,9 @@
                         <dockerfile>
                             ${project.build.directory}/../../base/docker/Dockerfile
                         </dockerfile>
+                        <dockerfile.windows>
+                            ${project.build.directory}\\..\\..\\base\\docker\\DockerfileWindows
+                        </dockerfile.windows>
                         <docker.image.version>
                             ${project.version}
                         </docker.image.version>

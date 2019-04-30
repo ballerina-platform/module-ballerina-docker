@@ -66,7 +66,7 @@ public class DockerArtifactHandler {
     
     public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, Path outputDir)
             throws DockerGenException {
-        String dockerContent = null;
+        String dockerContent;
         if (!WINDOWS_BUILD) {
             dockerContent = generateDockerfile();
         } else {

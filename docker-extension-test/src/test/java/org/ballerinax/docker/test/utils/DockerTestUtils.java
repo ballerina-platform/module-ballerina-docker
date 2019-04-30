@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -145,17 +146,11 @@ public class DockerTestUtils {
 
     public static DockerClient getDockerClient() throws DockerTestException {
         RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
-        String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-        String dockerHost = operatingSystem.contains("win") ? DockerHost.defaultWindowsEndpoint() :
-                            DockerHost.defaultUnixEndpoint();
-        if (null != System.getenv("DOCKER_HOST")) {
-            dockerHost = System.getenv("DOCKER_HOST");
-        }
-        dockerHost = dockerHost.replace("tcp", "https");
-        DockerClient dockerClient = DefaultDockerClient.builder().uri(dockerHost).build();
+        URI dockerURI = DockerHost.fromEnv().uri();
+        DockerClient dockerClient = DefaultDockerClient.builder().uri(dockerURI).build();
         
         try {
-            String dockerCertPath = System.getenv("DOCKER_CERT_PATH");
+            String dockerCertPath = DockerHost.fromEnv().dockerCertPath();
             if (null != dockerCertPath && !"".equals(dockerCertPath)) {
                 Optional<DockerCertificatesStore> certOptional =
                         DockerCertificates.builder()
@@ -163,7 +158,7 @@ public class DockerTestUtils {
                                 .build();
                 if (certOptional.isPresent()) {
                     dockerClient = DefaultDockerClient.builder()
-                            .uri(dockerHost)
+                            .uri(dockerURI)
                             .dockerCertificates(certOptional.get())
                             .build();
                 }
@@ -171,6 +166,8 @@ public class DockerTestUtils {
         } catch (DockerCertificateException e) {
             throw new DockerTestException(e);
         }
+    
+    
         return dockerClient;
     }
     

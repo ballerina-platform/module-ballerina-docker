@@ -24,6 +24,7 @@ import com.spotify.docker.client.DefaultDockerClient.Builder;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerCertificatesStore;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerHost;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.RegistryAuth;
@@ -51,29 +52,13 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
-    
-    private static final String DOCKER_API_VERSION = "DOCKER_API_VERSION";
-    
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
-    private DockerCertificatesStore certs;
     
-    public DockerArtifactHandler(DockerModel dockerModel) throws DockerGenException {
-        try {
+    public DockerArtifactHandler(DockerModel dockerModel) {
             RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
             this.dockerModel = dockerModel;
-            if (!DockerGenUtils.isBlank(dockerModel.getDockerCertPath())) {
-                Optional<DockerCertificatesStore> certsOptional = DockerCertificates.builder()
-                        .dockerCertPath(Paths.get(dockerModel.getDockerCertPath()))
-                        .build();
-                if (certsOptional.isPresent()) {
-                    certs = certsOptional.get();
-                }
-            }
-        } catch (DockerCertificateException e) {
-            throw new DockerGenException("Unable to create Docker images " + e.getMessage());
-        }
     }
     
     public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, Path outputDir)
@@ -108,19 +93,36 @@ public class DockerArtifactHandler {
             }
             outStream.print(logAppender + " - complete 3/3 \r");
         } catch (IOException e) {
-            throw new DockerGenException("Unable to write content to " + outputDir);
+            throw new DockerGenException("unable to write content to " + outputDir);
         } catch (InterruptedException e) {
-            throw new DockerGenException("Unable to create Docker images " + e.getMessage());
+            throw new DockerGenException("unable to create Docker images " + e.getMessage());
         }
     }
     
-    private DockerClient createClient() {
-        Builder builder = DefaultDockerClient.builder()
-                .uri(dockerModel.getDockerHost())
-                .dockerCertificates(certs);
-        String dockerApiVersion = System.getenv(DOCKER_API_VERSION);
-        if (dockerApiVersion != null) {
-            builder = builder.apiVersion(dockerApiVersion);
+    private DockerClient createClient() throws DockerGenException {
+        printDebug("docker client host: " + dockerModel.getDockerHost());
+        printDebug("docker client certs: " + dockerModel.getDockerCertPath());
+        printDebug("docker API version: " + dockerModel.getDockerAPIVersion());
+        Builder builder;
+        
+        try {
+            Optional<DockerCertificatesStore> certsOptional = Optional.absent();
+            if (null != dockerModel.getDockerCertPath() && Files.exists(Paths.get(dockerModel.getDockerCertPath()))) {
+                certsOptional = DockerCertificates.builder()
+                        .dockerCertPath(Paths.get(dockerModel.getDockerCertPath()))
+                        .build();
+            }
+    
+            builder = DefaultDockerClient.builder()
+                    .uri(DockerHost.from(dockerModel.getDockerHost(), dockerModel.getDockerCertPath()).uri())
+                    .dockerCertificates(certsOptional.orNull());
+        
+        } catch (DockerCertificateException e) {
+            throw new DockerGenException("unable to create Docker images " + e.getMessage());
+        }
+    
+        if (dockerModel.getDockerAPIVersion() != null) {
+            builder = builder.apiVersion(dockerModel.getDockerAPIVersion());
         }
         return builder.build();
     }
@@ -157,15 +159,15 @@ public class DockerArtifactHandler {
                 // when there is an error.
                 if (null != error) {
                     printDebug("Error message: " + error);
-                    dockerError.setErrorMsg("Unable to build Docker image: " + cleanErrorMessage(error));
+                    dockerError.setErrorMsg("unable to build docker image: " + cleanErrorMessage(error));
                     buildDone.countDown();
                 }
             }, DockerClient.BuildParam.noCache(), DockerClient.BuildParam.forceRm());
         } catch (DockerException e) {
-            dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
+            dockerError.setErrorMsg("unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             buildDone.countDown();
         } catch (IOException ioEx) {
-            dockerError.setErrorMsg("Unknown I/O error occurred with docker: " + cleanErrorMessage(ioEx.getMessage()));
+            dockerError.setErrorMsg("unknown I/O error occurred with docker: " + cleanErrorMessage(ioEx.getMessage()));
             buildDone.countDown();
         } catch (RuntimeException e) {
             // ignore, as this error would already be set to the dockerError variable.
@@ -214,12 +216,12 @@ public class DockerArtifactHandler {
                 // When error occurs.
                 if (null != error) {
                     printDebug("Error message: " + error);
-                    dockerError.setErrorMsg("Unable to push Docker image: " + error);
+                    dockerError.setErrorMsg("unable to push Docker image: " + error);
                     pushDone.countDown();
                 }
             }, auth);
         } catch (DockerException e) {
-            dockerError.setErrorMsg("Unable to connect to server: " + cleanErrorMessage(e.getMessage()));
+            dockerError.setErrorMsg("unable to connect to server: " + cleanErrorMessage(e.getMessage()));
             pushDone.countDown();
         }
         pushDone.await();

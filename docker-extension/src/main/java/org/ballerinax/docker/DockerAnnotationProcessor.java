@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
-import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
-import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerPluginUtils.resolveValue;
 
@@ -67,11 +65,6 @@ class DockerAnnotationProcessor {
                 String defaultImageName = DockerPluginUtils.extractBalxName(balxFilePath);
                 dockerModel.setName(defaultImageName);
             }
-            String registry = dockerModel.getRegistry();
-            String imageName = dockerModel.getName();
-            imageName = (registry != null) ? registry + REGISTRY_SEPARATOR + imageName + TAG_SEPARATOR
-                    + dockerModel.getTag() : imageName + TAG_SEPARATOR + dockerModel.getTag();
-            dockerModel.setName(imageName);
             dockerModel.setBalxFileName(DockerPluginUtils.extractBalxName(balxFilePath) + BALX);
         
             Set<Integer> ports = dockerModel.getPorts();

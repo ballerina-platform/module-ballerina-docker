@@ -45,8 +45,11 @@ import java.util.concurrent.CountDownLatch;
 import javax.ws.rs.ext.RuntimeDelegate;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
+import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
+import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.cleanErrorMessage;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDirectory;
+import static org.ballerinax.docker.generator.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
 
 /**
@@ -60,8 +63,15 @@ public class DockerArtifactHandler {
     private DockerModel dockerModel;
     
     public DockerArtifactHandler(DockerModel dockerModel) {
-            RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
-            this.dockerModel = dockerModel;
+        RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
+    
+        String registry = dockerModel.getRegistry();
+        String imageName = dockerModel.getName();
+        imageName = !isBlank(registry) ? registry + REGISTRY_SEPARATOR + imageName + TAG_SEPARATOR
+                                         + dockerModel.getTag() : imageName + TAG_SEPARATOR + dockerModel.getTag();
+        dockerModel.setName(imageName);
+        
+        this.dockerModel = dockerModel;
     }
     
     public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, Path outputDir)
@@ -147,26 +157,27 @@ public class DockerArtifactHandler {
         try {
             DockerClient client = this.createClient();
     
+            printDebug("creating docker image `" + dockerModel.getName() + "` from directory `" + dockerDir + "`.");
             client.build(dockerDir, dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
                 String error = message.error();
                 if (null != message.stream()) {
-                    printDebug(message.stream());
+                    printDebug("[stream] " + message.stream());
                 }
     
                 if (null != message.progress()) {
-                    printDebug(message.progress());
+                    printDebug("[progress] " + message.progress());
                 }
     
                 // when an image is built successfully.
                 if (null != buildImageId) {
-                    printDebug("Build ID: " + buildImageId);
+                    printDebug("build ID: " + buildImageId);
                     buildDone.countDown();
                 }
     
                 // when there is an error.
                 if (null != error) {
-                    printDebug("Error message: " + error);
+                    printDebug("[error]: " + error);
                     dockerError.setErrorMsg("unable to build docker image: " + cleanErrorMessage(error));
                     buildDone.countDown();
                 }
@@ -212,18 +223,18 @@ public class DockerArtifactHandler {
                 String error = message.error();
     
                 if (null != message.progress()) {
-                    printDebug(message.progress());
+                    printDebug("[progress] " + message.progress());
                 }
                 
                 // When image is successfully built.
                 if (null != digest) {
-                    printDebug("Digest: " + digest);
+                    printDebug("digest: " + digest);
                     pushDone.countDown();
                 }
                 
                 // When error occurs.
                 if (null != error) {
-                    printDebug("Error message: " + error);
+                    printDebug("[error]: " + error);
                     dockerError.setErrorMsg("unable to push Docker image: " + error);
                     pushDone.countDown();
                 }

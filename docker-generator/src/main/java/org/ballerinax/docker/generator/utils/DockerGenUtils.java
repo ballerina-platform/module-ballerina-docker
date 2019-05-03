@@ -111,6 +111,7 @@ public class DockerGenUtils {
      * @param destination destination file/directory path
      */
     public static void copyFileOrDirectory(String source, String destination) throws DockerGenException {
+        printDebug("copying file(s) from `" + source + "` to `" + destination + "`.");
         File src = new File(source);
         
         if (!src.exists()) {

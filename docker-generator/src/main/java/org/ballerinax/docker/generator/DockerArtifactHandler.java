@@ -177,7 +177,7 @@ public class DockerArtifactHandler {
     
                 // when there is an error.
                 if (null != error) {
-                    printDebug("error message: " + error);
+                    printDebug("[error]: " + error);
                     dockerError.setErrorMsg("unable to build docker image: " + cleanErrorMessage(error));
                     buildDone.countDown();
                 }
@@ -234,7 +234,7 @@ public class DockerArtifactHandler {
                 
                 // When error occurs.
                 if (null != error) {
-                    printDebug("error message: " + error);
+                    printDebug("[error]: " + error);
                     dockerError.setErrorMsg("unable to push Docker image: " + error);
                     pushDone.countDown();
                 }

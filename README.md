@@ -61,6 +61,13 @@ The docker artifacts will be created in a folder called docker with following st
 └── outputfilename.balx
 ```
 
+### Enable building for Windows Platform
+Use the "BAL_DOCKER_WINDOWS=true" environment variable to enable building docker images supporting Windows platform.
+
+### Enabling debug logs
+Use the "BAL_DOCKER_DEBUG=true" environment variable to enable docker related debug logs when building the ballerina
+source file.
+
 ### Annotation Usage Sample:
 ```ballerina
 import ballerina/http;

@@ -127,7 +127,6 @@ public class Sample6Test extends SampleTest {
         DockerTestUtils.deleteDockerImage(burgerDockerImage);
         DockerTestUtils.deleteDockerImage(pizzaDockerImage);
         DockerPluginUtils.deleteDirectory(sourceDirPath.resolve(".ballerina"));
-        DockerPluginUtils.deleteDirectory(sourceDirPath.resolve(".gitignore"));
         DockerPluginUtils.deleteDirectory(sourceDirPath.resolve("Ballerina.toml"));
     }
 }

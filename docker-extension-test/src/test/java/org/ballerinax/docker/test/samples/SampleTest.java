@@ -23,12 +23,12 @@ import com.spotify.docker.client.exceptions.DockerException;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.generator.DockerGenConstants;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
@@ -50,7 +50,7 @@ import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
  */
 public abstract class SampleTest {
     
-    private static final Log log = LogFactory.getLog(SampleTest.class);
+    private final Logger log = LoggerFactory.getLogger(SampleTest.class);
 
     private static final boolean WINDOWS_BUILD = "true".equals(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
 

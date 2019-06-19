@@ -27,8 +27,8 @@ import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.PrintStream;
@@ -159,7 +159,7 @@ class DockerAnnotationProcessor {
         List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
                 ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
-            List<BLangExpression> configAnnotation = ((BLangArrayLiteral) keyValue.valueExpr).exprs;
+            List<BLangExpression> configAnnotation = ((BLangListConstructorExpr) keyValue.valueExpr).exprs;
             for (BLangExpression bLangExpression : configAnnotation) {
                 CopyFileModel fileModel = new CopyFileModel();
                 List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =

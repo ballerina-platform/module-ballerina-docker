@@ -276,7 +276,7 @@ public class DockerArtifactHandler {
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
         
-        stringBuilder.append("\nCMD ballerina run ");
+        stringBuilder.append("\nCMD jballerina run ");
         
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             stringBuilder.append(dockerModel.getCommandArg());
@@ -315,7 +315,7 @@ public class DockerArtifactHandler {
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
 
-        stringBuilder.append("\nCMD ballerina.bat run ");
+        stringBuilder.append("\nCMD jballerina.bat run ");
 
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             stringBuilder.append(dockerModel.getCommandArg());

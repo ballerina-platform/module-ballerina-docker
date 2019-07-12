@@ -31,6 +31,31 @@
     <name>Ballerinax - Docker Extension balo</name>
     <url>https://ballerina.io</url>
 
+    <profiles>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <script.extension>.bat</script.extension>
+            </properties>
+        </profile>
+        <profile>
+            <id>unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <script.extension>.sh</script.extension>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.ballerinax.docker</groupId>
@@ -51,9 +76,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>
-                                ${project.basedir}/scripts/gen-balo.sh
-                            </executable>
+                            <executable>${project.basedir}/scripts/gen-balo${script.extension}</executable>
                             <arguments>
                                 <argument>
                                     ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}
@@ -81,7 +104,8 @@
                                     <artifactId>jballerina-ext-build</artifactId>
                                     <version>${ballerina.lang.version}</version>
                                     <type>zip</type>
-                                    <outputDirectory>${project.build.directory}/extracted-distribution/</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/extracted-distribution/
+                                    </outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -99,7 +123,8 @@
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>
-                                ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/</outputDirectory>
+                                ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/
+                            </outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

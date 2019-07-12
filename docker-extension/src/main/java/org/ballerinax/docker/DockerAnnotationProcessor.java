@@ -66,7 +66,7 @@ class DockerAnnotationProcessor {
                 dockerModel.setName(defaultImageName);
             }
             dockerModel.setBalxFileName(DockerPluginUtils.extractBalxName(balxFilePath) + BALX);
-        
+
             Set<Integer> ports = dockerModel.getPorts();
             if (dockerModel.isEnableDebug()) {
                 ports.add(dockerModel.getDebugPort());
@@ -140,7 +140,7 @@ class DockerAnnotationProcessor {
                     break;
             }
         }
-        
+
         dockerModel.setService(true);
         return dockerModel;
     }
@@ -169,7 +169,7 @@ class DockerAnnotationProcessor {
                             CopyFileConfiguration.valueOf(annotation.getKey().toString());
                     String annotationValue = resolveValue(annotation.getValue().toString());
                     switch (copyFileConfiguration) {
-                        case source:
+                        case sourceFile:
                             fileModel.setSource(annotationValue);
                             break;
                         case target:
@@ -193,7 +193,7 @@ class DockerAnnotationProcessor {
         }
         return copyFileModels;
     }
-    
+
     private void printDockerInstructions(DockerModel dockerModel) {
         out.println();
         out.println("\n\tRun the following command to start a Docker container:");
@@ -222,7 +222,7 @@ class DockerAnnotationProcessor {
     }
 
     private enum CopyFileConfiguration {
-        source,
+        sourceFile,
         target,
         isBallerinaConf
     }

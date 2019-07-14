@@ -77,3 +77,7 @@ public type ExposeConfig record {| |};
 
 # @docker:Expose annotation to expose ballerina ports.
 public const annotation ExposeConfig Expose on source listener;
+
+public function main(string... args){
+
+}

@@ -215,9 +215,9 @@
                         <sample.dir>
                             ${project.build.directory}/../../samples
                         </sample.dir>
-                        <dockerfile>
-                            ${project.build.directory}/../../base/docker/Dockerfile
-                        </dockerfile>
+                        <runtime.dockerfile>
+                            ${project.build.directory}/../../base/docker/runtime.Dockerfile
+                        </runtime.dockerfile>
                         <dockerfile.windows>
                             ${project.build.directory}\\..\\..\\base\\docker\\DockerfileWindows
                         </dockerfile.windows>

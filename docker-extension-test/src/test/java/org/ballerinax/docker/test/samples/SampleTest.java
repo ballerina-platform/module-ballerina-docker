@@ -59,7 +59,7 @@ public abstract class SampleTest {
      */
     private static final Path DOCKER_FILE = WINDOWS_BUILD ?
             Paths.get(System.getProperty("dockerfile.windows")).toAbsolutePath().normalize() :
-            Paths.get(System.getProperty("dockerfile")).toAbsolutePath().normalize();
+            Paths.get(System.getProperty("runtime.dockerfile")).toAbsolutePath().normalize();
     
     /**
      * Location of the extracted ballerina pack.
@@ -80,8 +80,8 @@ public abstract class SampleTest {
     /**
      * The docker base image name.
      */
-    private static final String DOCKER_IMAGE = BALLERINA_BASE_IMAGE + TAG_SEPARATOR +
-                                               System.getProperty("docker.image.version");
+    private static final String DOCKER_IMAGE_NAME = BALLERINA_BASE_IMAGE + TAG_SEPARATOR +
+                                                    System.getProperty("docker.image.version");
     
     /**
      * Location of the samples directory.
@@ -108,7 +108,8 @@ public abstract class SampleTest {
 
         CountDownLatch buildDone = new CountDownLatch(1);
         final AtomicReference<String> errorAtomicReference = new AtomicReference<>();
-        builtImageID = DockerTestUtils.getDockerClient().build(DOCKER_FILE_COPY.getParent(), DOCKER_IMAGE, message -> {
+        builtImageID = DockerTestUtils.getDockerClient().build(DOCKER_FILE_COPY.getParent(), DOCKER_IMAGE_NAME,
+                message -> {
             String buildImageId = message.buildImageId();
             String error = message.error();
             String stream = message.stream();
@@ -139,7 +140,7 @@ public abstract class SampleTest {
         }
 
         log.info("Ballerina base image built: " + builtImageID);
-        Assert.assertNotNull(DockerTestUtils.getDockerClient().inspectImage(DOCKER_IMAGE));
+        Assert.assertNotNull(DockerTestUtils.getDockerClient().inspectImage(DOCKER_IMAGE_NAME));
     }
     
     @BeforeClass
@@ -152,7 +153,7 @@ public abstract class SampleTest {
     public void deleteDockerImage() throws DockerTestException {
         if (null != builtImageID) {
             log.info("Removing built ballerina base image:" + builtImageID);
-            DockerTestUtils.deleteDockerImage(DOCKER_IMAGE);
+            DockerTestUtils.deleteDockerImage(DOCKER_IMAGE_NAME);
         }
     }
 }

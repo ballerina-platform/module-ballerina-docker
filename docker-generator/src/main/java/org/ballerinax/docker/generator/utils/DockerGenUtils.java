@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 
@@ -97,14 +98,17 @@ public class DockerGenUtils {
      * @return output file name of balx
      */
     public static String extractUberJarName(String uberJarFilePath) {
-        if (uberJarFilePath.contains("-executable")) {
-            uberJarFilePath = uberJarFilePath.substring(uberJarFilePath.lastIndexOf(File.separator) + 1,
-                    uberJarFilePath.lastIndexOf("" + "-executable"));
-        }
-    
-        if (uberJarFilePath.contains(".jar")) {
-            return uberJarFilePath.substring(uberJarFilePath.lastIndexOf(File.separator) + 1,
-                    uberJarFilePath.lastIndexOf("" + ".jar"));
+        if (null != uberJarFilePath) {
+            Path path = Paths.get(uberJarFilePath);
+            if (null != path) {
+                Path fileName = path.getFileName();
+                if (null != fileName) {
+                    String s = fileName.toString();
+                    if (null != s) {
+                        return s.replace("-executable", "").replace(".jar", "");
+                    }
+                }
+            }
         }
     
         return null;

@@ -52,7 +52,7 @@ public class DockerGeneratorTests {
         ports.add(9092);
         dockerModel.setPorts(ports);
         dockerModel.setService(true);
-        dockerModel.setBalxFileName("example.balx");
+        dockerModel.setUberJarFileName("example.balx");
         dockerModel.setEnableDebug(true);
         dockerModel.setDebugPort(5005);
 

@@ -70,7 +70,7 @@ public class DockerTestUtils {
             File.separator + "bin" +
             File.separator +
             (System.getProperty("os.name").toLowerCase(Locale.getDefault())
-                    .contains("win") ? "jballerina.bat" : "jballerina");
+                    .contains("win") ? "ballerina.bat" : "ballerina");
     private static final String BUILD = "build";
     private static final String RUN = "run";
     private static final String EXECUTING_COMMAND = "Executing command: ";
@@ -223,25 +223,15 @@ public class DockerTestUtils {
             log.warn("Deleting already existing ballerina-internal.log file.");
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
-
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, "init");
-        log.info(COMPILING + sourceDirectory);
-        log.debug(EXECUTING_COMMAND + pb.command());
-        pb.directory(sourceDirectory.toFile());
-        Process process = pb.start();
-        int exitCode = process.waitFor();
-        log.info(EXIT_CODE + exitCode);
-        logOutput(process.getInputStream());
-        logOutput(process.getErrorStream());
-
-        pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD);
+    
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
-
-        process = pb.start();
-        exitCode = process.waitFor();
+    
+        Process process = pb.start();
+        int exitCode = process.waitFor();
         log.info(EXIT_CODE + exitCode);
         logOutput(process.getInputStream());
         logOutput(process.getErrorStream());

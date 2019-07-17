@@ -93,14 +93,20 @@ public class DockerGenUtils {
     /**
      * Extract the ballerina file name from a given file path.
      *
-     * @param balxFilePath balx file path.
+     * @param uberJarFilePath balx file path.
      * @return output file name of balx
      */
-    public static String extractBalxName(String balxFilePath) {
-        if (balxFilePath.contains(".balx")) {
-            return balxFilePath.substring(balxFilePath.lastIndexOf(File.separator) + 1, balxFilePath.lastIndexOf(
-                    ".balx"));
+    public static String extractUberJarName(String uberJarFilePath) {
+        if (uberJarFilePath.contains("-executable")) {
+            uberJarFilePath = uberJarFilePath.substring(uberJarFilePath.lastIndexOf(File.separator) + 1,
+                    uberJarFilePath.lastIndexOf("" + "-executable"));
         }
+    
+        if (uberJarFilePath.contains(".jar")) {
+            return uberJarFilePath.substring(uberJarFilePath.lastIndexOf(File.separator) + 1,
+                    uberJarFilePath.lastIndexOf("" + ".jar"));
+        }
+    
         return null;
     }
     

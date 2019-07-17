@@ -55,13 +55,13 @@ function getConfigValue(string instanceId, string property) returns (string) {
     return config:getAsString(key, "Invalid User");
 }
 
-function readFile(string filePath) returns (string) {
-    io:ReadableByteChannel bchannel = <@untainted> checkpanic io:openReadableFile(filePath);
+function readFile(string filePath) returns  string {
+    io:ReadableByteChannel bchannel = checkpanic io:openReadableFile(filePath);
     io:ReadableCharacterChannel cChannel = new io:ReadableCharacterChannel(bchannel, "UTF-8");
 
     var readOutput = cChannel.read(50);
     if (readOutput is string) {
-        return readOutput;
+        return <@untainted> readOutput;
     } else {
         return "Error: Unable to read file";
     }

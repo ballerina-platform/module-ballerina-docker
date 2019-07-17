@@ -45,7 +45,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.utils.DockerPluginUtils.extractBalxName;
+import static org.ballerinax.docker.utils.DockerPluginUtils.extractUberJarName;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
 
 /**
@@ -155,7 +155,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             Path targetPath = Paths.get(userDir).resolve(ARTIFACT_DIRECTORY);
             if (userDir.endsWith("target")) {
                 //Compiling package therefore append balx file name to docker artifact dir path
-                targetPath = Paths.get(userDir).resolve(extractBalxName(filePath));
+                targetPath = Paths.get(userDir).resolve(extractUberJarName(filePath));
             }
             try {
                 DockerPluginUtils.deleteDirectory(targetPath);

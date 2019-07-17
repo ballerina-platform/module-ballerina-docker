@@ -19,7 +19,7 @@ service PizzaAPI on pizzaEP {
         response.setTextPayload("Pizza menu \n");
         var responseResult = outboundEP->respond(response);
         if (responseResult is error) {
-            log:printError("error responding back to client.", err = responseResult);
+            log:printError("error responding back to client.", responseResult);
         }
     }
 }

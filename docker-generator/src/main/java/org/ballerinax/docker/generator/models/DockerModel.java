@@ -49,7 +49,7 @@ public class DockerModel {
     private String dockerHost;
     private String dockerCertPath;
     private boolean isService;
-    private String balxFileName;
+    private String uberJarFileName;
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
 
@@ -126,12 +126,12 @@ public class DockerModel {
         this.ports = ports;
     }
 
-    public String getBalxFileName() {
-        return balxFileName;
+    public String getUberJarFileName() {
+        return uberJarFileName;
     }
 
-    public void setBalxFileName(String balxFileName) {
-        this.balxFileName = balxFileName;
+    public void setUberJarFileName(String uberJarFileName) {
+        this.uberJarFileName = uberJarFileName;
     }
 
     public boolean isService() {
@@ -246,7 +246,7 @@ public class DockerModel {
                ", dockerHost='" + dockerHost + '\'' +
                ", dockerCertPath='" + dockerCertPath + '\'' +
                ", isService=" + isService +
-               ", balxFileName='" + balxFileName + '\'' +
+               ", uberJarFileName='" + uberJarFileName + '\'' +
                ", externalFiles=" + externalFiles +
                ", commandArg='" + commandArg + '\'' +
                '}';

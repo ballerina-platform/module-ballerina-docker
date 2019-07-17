@@ -44,7 +44,7 @@ import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 import javax.ws.rs.ext.RuntimeDelegate;
 
-import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
+import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
 import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.cleanErrorMessage;
@@ -74,7 +74,7 @@ public class DockerArtifactHandler {
         this.dockerModel = dockerModel;
     }
     
-    public void createArtifacts(PrintStream outStream, String logAppender, String balxFilePath, Path outputDir)
+    public void createArtifacts(PrintStream outStream, String logAppender, String uberJarFilePath, Path outputDir)
             throws DockerGenException {
         String dockerContent;
         if (!WINDOWS_BUILD) {
@@ -86,8 +86,9 @@ public class DockerArtifactHandler {
             outStream.print(logAppender + " - complete 0/3 \r");
             DockerGenUtils.writeToFile(dockerContent, outputDir + File.separator + "Dockerfile");
             outStream.print(logAppender + " - complete 1/3 \r");
-            String balxDestination = outputDir + File.separator + DockerGenUtils.extractBalxName(balxFilePath) + BALX;
-            copyFileOrDirectory(balxFilePath, balxDestination);
+            String uberJarLocation = outputDir + File.separator + DockerGenUtils.extractUberJarName(uberJarFilePath) +
+                                     EXECUTABLE_JAR;
+            copyFileOrDirectory(uberJarFilePath, uberJarLocation);
             for (CopyFileModel copyFileModel : dockerModel.getCopyFiles()) {
                 // Copy external files to docker folder
                 String target = outputDir + File.separator + Paths.get(copyFileModel.getSource()).getFileName();
@@ -102,7 +103,7 @@ public class DockerArtifactHandler {
             if (dockerModel.isBuildImage()) {
                 buildImage(dockerModel, outputDir);
                 outStream.print(logAppender + " - complete 2/3 \r");
-                Files.delete(Paths.get(balxDestination));
+                Files.delete(Paths.get(uberJarLocation));
                 //push only if image build is enabled.
                 if (dockerModel.isPush()) {
                     pushImage(dockerModel);
@@ -254,11 +255,11 @@ public class DockerArtifactHandler {
      */
     private String generateDockerfile() {
         String dockerBase = "# Auto Generated Dockerfile\n" +
-                "\n" +
-                "FROM " + dockerModel.getBaseImage() + "\n" +
-                "LABEL maintainer=\"dev@ballerina.io\"\n" +
-                "\n" +
-                "COPY " + dockerModel.getBalxFileName() + " /home/ballerina \n\n";
+                            "\n" +
+                            "FROM " + dockerModel.getBaseImage() + "\n" +
+                            "LABEL maintainer=\"dev@ballerina.io\"\n" +
+                            "\n" +
+                            "COPY " + dockerModel.getUberJarFileName() + " /home/ballerina \n\n";
 
         StringBuilder stringBuilder = new StringBuilder(dockerBase);
         dockerModel.getCopyFiles().forEach(file -> {
@@ -276,7 +277,7 @@ public class DockerArtifactHandler {
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
         
-        stringBuilder.append("\nCMD jballerina run ");
+        stringBuilder.append("\nCMD ballerina run ");
         
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             stringBuilder.append(dockerModel.getCommandArg());
@@ -285,7 +286,7 @@ public class DockerArtifactHandler {
         if (dockerModel.isEnableDebug()) {
             stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
         }
-        stringBuilder.append(" ").append(dockerModel.getBalxFileName());
+        stringBuilder.append(" ").append(dockerModel.getUberJarFileName());
         stringBuilder.append("\n");
         
         return stringBuilder.toString();
@@ -293,11 +294,11 @@ public class DockerArtifactHandler {
 
     private String generateDockerfileForWindows() {
         String dockerBase = "# Auto Generated Dockerfile\n" +
-                "\n" +
-                "FROM " + dockerModel.getBaseImage() + "\n" +
-                "LABEL maintainer=\"dev@ballerina.io\"\n" +
-                "\n" +
-                "COPY " + dockerModel.getBalxFileName() + " C:\\\\ballerina\\\\home \n\n";
+                            "\n" +
+                            "FROM " + dockerModel.getBaseImage() + "\n" +
+                            "LABEL maintainer=\"dev@ballerina.io\"\n" +
+                            "\n" +
+                            "COPY " + dockerModel.getUberJarFileName() + " C:\\\\ballerina\\\\home \n\n";
 
         StringBuilder stringBuilder = new StringBuilder(dockerBase);
         dockerModel.getCopyFiles().forEach(file -> {
@@ -315,7 +316,7 @@ public class DockerArtifactHandler {
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
 
-        stringBuilder.append("\nCMD jballerina.bat run ");
+        stringBuilder.append("\nCMD ballerina.bat run ");
 
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             stringBuilder.append(dockerModel.getCommandArg());
@@ -324,7 +325,7 @@ public class DockerArtifactHandler {
         if (dockerModel.isEnableDebug()) {
             stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
         }
-        stringBuilder.append(" ").append(dockerModel.getBalxFileName());
+        stringBuilder.append(" ").append(dockerModel.getUberJarFileName());
         stringBuilder.append("\n");
 
         return stringBuilder.toString();

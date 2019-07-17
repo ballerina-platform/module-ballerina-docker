@@ -18,7 +18,24 @@
 #!/usr/bin/env bash
 
 DISTRIBUTION_PATH=${1}
+DOCKER_BALO_MAVEN_PROJECT_ROOT=${2}
+
+# TEMP
+cp -r /Users/hemikak/ballerina/dev/ballerina/distribution/zip/jballerina-tools/build/distributions/jballerina-tools-0.992.0-m2-SNAPSHOT/* ${DISTRIBUTION_PATH}
+
 EXECUTABLE="${DISTRIBUTION_PATH}/bin/jballerina"
-SOURCE_FILE_PATH="./src/main/ballerina/ballerinax/"
-echo `${EXECUTABLE} compile ${SOURCE_FILE_PATH}`
-mv ./annotation.jar ${DISTRIBUTION_PATH}/bre/lib
+DOCKER_BALLERINA_PROJECT="${DOCKER_BALO_MAVEN_PROJECT_ROOT}/src/main/ballerina/ballerinax"
+BALLERINAX_BIR_CACHE="${DISTRIBUTION_PATH}/bir-cache/ballerinax/"
+BALLERINAX_SYSTEM_LIB="${DISTRIBUTION_PATH}/bre/lib/ballerinax/"
+
+mkdir -p ${BALLERINAX_BIR_CACHE}
+mkdir -p ${BALLERINAX_SYSTEM_LIB}
+
+pushd ${DOCKER_BALLERINA_PROJECT} /dev/null 2>&1
+    ${EXECUTABLE} compile --jvmTarget
+popd > /dev/null 2>&1
+
+cp -r ${DOCKER_BALLERINA_PROJECT}/target/* ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target
+
+cp -r ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/bir_cache/docker ${BALLERINAX_BIR_CACHE}
+cp ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/jar_cache/docker.jar ${BALLERINAX_SYSTEM_LIB}

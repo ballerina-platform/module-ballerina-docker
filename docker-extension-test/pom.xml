@@ -34,37 +34,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina</artifactId>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ballerinalang</groupId>
-                    <artifactId>strip-bouncycastle</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinax.docker</groupId>
-            <artifactId>docker-extension</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ops4j.pax.logging</groupId>
-                    <artifactId>pax-logging-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <scope>test</scope>

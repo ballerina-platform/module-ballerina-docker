@@ -7,8 +7,8 @@ import ballerinax/docker;
 @docker:Config {}
 @docker:CopyFiles {
     files: [
-        { source: "./conf/ballerina.conf", target: "/home/ballerina/conf/ballerina.conf", isBallerinaConf: true },
-        { source: "./conf/data.txt", target: "/home/ballerina/data/data.txt" }
+        { sourceFile: "./conf/ballerina.conf", target: "/home/ballerina/conf/ballerina.conf", isBallerinaConf: true },
+        { sourceFile: "./conf/data.txt", target: "/home/ballerina/data/data.txt" }
     ]
 }
 
@@ -31,7 +31,7 @@ service helloWorld on helloWorldEP {
         response.setTextPayload(payload + "\n");
         var responseResult = outboundEP->respond(response);
         if (responseResult is error) {
-            log:printError("error responding back to client.", err = responseResult);
+            log:printError("error responding back to client.", responseResult);
         }
     }
 
@@ -42,21 +42,21 @@ service helloWorld on helloWorldEP {
     resource function getData(http:Caller outboundEP, http:Request request) {
         http:Response response = new;
         string payload = readFile("./data/data.txt");
-        response.setTextPayload("{'data': '" + untaint payload + "'}\n");
+        response.setTextPayload("{'data': '" + <@untainted> payload + "'}\n");
         var responseResult = outboundEP->respond(response);
         if (responseResult is error) {
-            log:printError("error responding back to client.", err = responseResult);
+            log:printError("error responding back to client.", responseResult);
         }
     }
 }
 
 function getConfigValue(string instanceId, string property) returns (string) {
-    string key = untaint instanceId + "." + untaint property;
-    return config:getAsString(key, defaultValue = "Invalid User");
+    string key = <@untainted> instanceId + "." + <@untainted> property;
+    return config:getAsString(key, "Invalid User");
 }
 
 function readFile(string filePath) returns (string) {
-    io:ReadableByteChannel bchannel = io:openReadableFile(filePath);
+    io:ReadableByteChannel bchannel = <@untainted> checkpanic io:openReadableFile(filePath);
     io:ReadableCharacterChannel cChannel = new io:ReadableCharacterChannel(bchannel, "UTF-8");
 
     var readOutput = cChannel.read(50);

@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension-balo</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerinax - Docker Extension balo</name>
+    <name>Ballerinax - Docker Extension Balo</name>
     <url>https://ballerina.io</url>
 
     <profiles>
@@ -80,6 +80,9 @@
                             <arguments>
                                 <argument>
                                     ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}
+                                </argument>
+                                <argument>
+                                    ${project.basedir}
                                 </argument>
                             </arguments>
                         </configuration>

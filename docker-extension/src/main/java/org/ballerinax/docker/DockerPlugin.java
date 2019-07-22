@@ -145,8 +145,8 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void codeGenerated(PackageID packageID, Path executableJarFile) {
-        DockerContext.getInstance().setCurrentPackage(packageID.toString());
+    public void codeGenerated(PackageID moduleID, Path executableJarFile) {
+        DockerContext.getInstance().setCurrentPackage(moduleID.toString());
         if (DockerContext.getInstance().getDataHolder().isCanProcess()) {
             executableJarFile = executableJarFile.toAbsolutePath();
             if (null != executableJarFile.getParent() && Files.exists(executableJarFile.getParent())) {
@@ -158,8 +158,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                     // if executable came from a ballerina project
                     Path projectRoot = executableJarFile.getParent().getParent().getParent();
                     if (Files.exists(projectRoot.resolve("Ballerina.toml"))) {
-                        dockerOutputPath =
-                                projectRoot.resolve("target")
+                        dockerOutputPath = projectRoot.resolve("target")
                                         .resolve(ARTIFACT_DIRECTORY)
                                         .resolve(extractUberJarName(executableJarFile));
                     }
@@ -170,8 +169,9 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                     dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(),
                             executableJarFile, dockerOutputPath);
                 } catch (DockerPluginException e) {
-                    printError(e.getMessage());
-                    pluginLog.error(e.getMessage(), e);
+                    String errorMessage = "module [" + moduleID + "] " + e.getMessage();
+                    printError(errorMessage);
+                    pluginLog.error(errorMessage, e);
                     try {
                         DockerPluginUtils.deleteDirectory(dockerOutputPath);
                     } catch (DockerPluginException ignored) {

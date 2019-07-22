@@ -44,8 +44,8 @@ public class Sample6Test extends SampleTest {
 
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample6");
     private final Path targetDirPath = sourceDirPath.resolve("target");
-    private final Path burgerTargetPath = targetDirPath.resolve("burger");
-    private final Path pizzaTargetPath = targetDirPath.resolve("pizza");
+    private final Path burgerTargetPath = targetDirPath.resolve("docker").resolve("burger");
+    private final Path pizzaTargetPath = targetDirPath.resolve("docker").resolve("pizza");
     private final String burgerDockerImage = "burger:latest";
     private final String burgerContainerName = "ballerinax_docker_burger_" +
                                                this.getClass().getSimpleName().toLowerCase();
@@ -94,13 +94,13 @@ public class Sample6Test extends SampleTest {
 
     @Test
     public void validateBurgerDockerfile() {
-        File dockerFile = new File(burgerTargetPath + File.separator + "Dockerfile");
+        File dockerFile = burgerTargetPath.resolve("Dockerfile").toFile();
         Assert.assertTrue(dockerFile.exists());
     }
 
     @Test
     public void validatePizzaDockerfile() {
-        File dockerFile = new File(pizzaTargetPath + File.separator + "Dockerfile");
+        File dockerFile = pizzaTargetPath.resolve("Dockerfile").toFile();
         Assert.assertTrue(dockerFile.exists());
     }
 
@@ -119,14 +119,12 @@ public class Sample6Test extends SampleTest {
     }
     
     @AfterClass
-    public void cleanUp() throws DockerPluginException, DockerTestException {
+    public void cleanUp() throws DockerTestException, DockerPluginException {
         DockerTestUtils.stopContainer(burgerContainerID);
         DockerTestUtils.stopContainer(pizzaContainerID);
         DockerPluginUtils.deleteDirectory(pizzaTargetPath);
         DockerPluginUtils.deleteDirectory(burgerTargetPath);
         DockerTestUtils.deleteDockerImage(burgerDockerImage);
         DockerTestUtils.deleteDockerImage(pizzaDockerImage);
-        DockerPluginUtils.deleteDirectory(sourceDirPath.resolve(".ballerina"));
-        DockerPluginUtils.deleteDirectory(sourceDirPath.resolve("Ballerina.toml"));
     }
 }

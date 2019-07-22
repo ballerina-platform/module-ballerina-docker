@@ -17,6 +17,7 @@ package org.ballerinax.docker.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,11 +47,12 @@ public class DockerPluginUtilsTest {
 
     @Test
     public void extractBalxNameTest() {
-        String balxFilePath = "/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/hello_config_file.balx";
+        Path balxFilePath =
+                Paths.get("/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/hello_config_file.balx");
         String baxlFileName = "hello_config_file";
-        Assert.assertEquals(DockerPluginUtils.extractUberJarName(balxFilePath), baxlFileName);
-        balxFilePath = "/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/";
-        Assert.assertNull(DockerPluginUtils.extractUberJarName(balxFilePath));
+        Assert.assertEquals(DockerGenUtils.extractUberJarName(balxFilePath), baxlFileName);
+        balxFilePath = Paths.get("/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/");
+        Assert.assertNull(DockerGenUtils.extractUberJarName(balxFilePath));
     }
 
     @Test

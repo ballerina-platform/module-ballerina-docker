@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -41,14 +42,23 @@ public class DockerPluginUtils {
     /**
      * Extract the ballerina file name from a given file path.
      *
-     * @param balxFilePath balx file path.
+     * @param uberJarFilePath balx file path.
      * @return output file name of balx
      */
-    public static String extractBalxName(String balxFilePath) {
-        if (balxFilePath.contains(".balx")) {
-            return balxFilePath.substring(balxFilePath.lastIndexOf(File.separator) + 1, balxFilePath.lastIndexOf("" +
-                    ".balx"));
+    public static String extractUberJarName(String uberJarFilePath) {
+        if (null != uberJarFilePath) {
+            Path path = Paths.get(uberJarFilePath);
+            if (null != path) {
+                Path fileName = path.getFileName();
+                if (null != fileName) {
+                    String s = fileName.toString();
+                    if (null != s) {
+                        return s.replace("-executable", "").replace(".jar", "");
+                    }
+                }
+            }
         }
+        
         return null;
     }
 

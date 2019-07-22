@@ -16,7 +16,8 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.ballerinax.docker</groupId>
@@ -32,37 +33,6 @@
     <url>https://ballerina.io</url>
 
     <dependencies>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina</artifactId>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ballerinalang</groupId>
-                    <artifactId>strip-bouncycastle</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId> org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinax.docker</groupId>
-            <artifactId>docker-extension</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ops4j.pax.logging</groupId>
-                    <artifactId>pax-logging-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -96,105 +66,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>unpack-dependencies</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>
-                                ballerina
-                            </includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/extracted-distributions
-                            </outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
-                            <stripVersion>true</stripVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-balo</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
-                            <outputDirectory>
-                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.lang.version}/lib
-                            </outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>ballerina-packerina</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.ballerinax.docker</groupId>
-                                    <artifactId>docker-extension</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>testerina-core</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.fasterxml.jackson.core</groupId>
-                                    <artifactId>jackson-core</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                                    <artifactId>jackson-dataformat-yaml</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.fasterxml.jackson.core</groupId>
-                                    <artifactId>jackson-databind</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.fasterxml.jackson.core</groupId>
-                                    <artifactId>jackson-annotations</artifactId>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>
-                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.lang.version}/bre/lib
-                            </outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/test/assembly/bin.xml</descriptor>
-                            </descriptors>
-                            <finalName>ballerina-${ballerina.lang.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <outputDirectory>${project.build.directory}/extracted-distributions/ballerina-zip/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <executions>
                     <execution>
@@ -210,7 +81,7 @@
                     </environmentVariables>
                     <systemPropertyVariables>
                         <ballerina.pack>
-                            ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.lang.version}/
+                            ${project.basedir}/../docker-extension-balo/target/extracted-distribution/jballerina-tools-${ballerina.lang.version}/
                         </ballerina.pack>
                         <sample.dir>
                             ${project.build.directory}/../../samples

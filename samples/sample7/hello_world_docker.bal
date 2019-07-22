@@ -6,7 +6,7 @@ import ballerinax/docker;
 listener http:Listener helloWorldEP = new(9090);
 
 @docker:Expose {}
-listener http:Listener helloWorldEPSecured = new(9696, config = {
+listener http:Listener helloWorldEPSecured = new(9696, {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -25,7 +25,7 @@ service helloWorld on helloWorldEP, helloWorldEPSecured {
         response.setTextPayload("Hello, World from service helloWorld ! \n");
         var responseResult = outboundEP->respond(response);
         if (responseResult is error) {
-            log:printError("error responding back to client.", err = responseResult);
+            log:printError("error responding back to client.", responseResult);
         }
     }
 }

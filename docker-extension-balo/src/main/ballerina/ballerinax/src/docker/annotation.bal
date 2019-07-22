@@ -49,15 +49,15 @@ public type DockerConfiguration record {|
 |};
 
 # @docker:Config annotation to configure docker artifact generation.
-public annotation<service, listener> Config DockerConfiguration;
+public const annotation DockerConfiguration Config on source service, source listener;
 
 # External file type for docker.
 #
-# + source - Source path of the file (in your machine).
+# + sourceFile - Source path of the file (in your machine).
 # + target - Target path (inside container).
 # + isBallerinaConf - Flag to specify ballerina config file. When true, the config is passed as a command argument to the Dockerfile CMD.
 public type FileConfig record {|
-    string source;
+    string sourceFile;
     string target;
     boolean isBallerinaConf = false;
 |};
@@ -70,10 +70,14 @@ public type FileConfigs record {|
 |};
 
 # @docker:CopyFile annotation to copy external files to docker image.
-public annotation<service, listener> CopyFiles FileConfigs;
+public const annotation FileConfigs CopyFiles on source service, source listener;
 
 # Expose ports for docker.
 public type ExposeConfig record {| |};
 
 # @docker:Expose annotation to expose ballerina ports.
-public annotation<listener> Expose ExposeConfig;
+public const annotation ExposeConfig Expose on source listener;
+
+public function main(string... args){
+
+}

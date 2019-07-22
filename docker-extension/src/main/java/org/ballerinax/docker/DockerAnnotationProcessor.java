@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
+import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerPluginUtils.resolveValue;
 
@@ -51,10 +51,10 @@ class DockerAnnotationProcessor {
     /**
      * Process docker annotations for ballerina Service.
      *
-     * @param balxFilePath ballerina file name
+     * @param uberJarFilePath Uber jar file name
      * @param outputDir    target output directory
      */
-    void processDockerModel(DockerDataHolder dockerDataHolder, String balxFilePath, Path outputDir) throws
+    void processDockerModel(DockerDataHolder dockerDataHolder, String uberJarFilePath, Path outputDir) throws
             DockerPluginException {
         try {
             DockerModel dockerModel = dockerDataHolder.getDockerModel();
@@ -62,11 +62,11 @@ class DockerAnnotationProcessor {
             dockerModel.setCopyFiles(dockerDataHolder.getExternalFiles());
             // set docker image name
             if (dockerModel.getName() == null) {
-                String defaultImageName = DockerPluginUtils.extractBalxName(balxFilePath);
+                String defaultImageName = DockerPluginUtils.extractUberJarName(uberJarFilePath);
                 dockerModel.setName(defaultImageName);
             }
-            dockerModel.setBalxFileName(DockerPluginUtils.extractBalxName(balxFilePath) + BALX);
-        
+            dockerModel.setUberJarFileName(DockerPluginUtils.extractUberJarName(uberJarFilePath) + EXECUTABLE_JAR);
+
             Set<Integer> ports = dockerModel.getPorts();
             if (dockerModel.isEnableDebug()) {
                 ports.add(dockerModel.getDebugPort());
@@ -74,7 +74,7 @@ class DockerAnnotationProcessor {
             dockerModel.setPorts(ports);
             printDebug(dockerModel.toString());
             DockerArtifactHandler dockerHandler = new DockerArtifactHandler(dockerModel);
-            dockerHandler.createArtifacts(out, "\t@docker \t\t", balxFilePath, outputDir);
+            dockerHandler.createArtifacts(out, "\t@docker \t\t", uberJarFilePath, outputDir);
             printDockerInstructions(dockerModel);
         } catch (DockerGenException e) {
             throw new DockerPluginException(e.getMessage(), e);
@@ -140,7 +140,7 @@ class DockerAnnotationProcessor {
                     break;
             }
         }
-        
+
         dockerModel.setService(true);
         return dockerModel;
     }
@@ -169,7 +169,7 @@ class DockerAnnotationProcessor {
                             CopyFileConfiguration.valueOf(annotation.getKey().toString());
                     String annotationValue = resolveValue(annotation.getValue().toString());
                     switch (copyFileConfiguration) {
-                        case source:
+                        case sourceFile:
                             fileModel.setSource(annotationValue);
                             break;
                         case target:
@@ -193,7 +193,7 @@ class DockerAnnotationProcessor {
         }
         return copyFileModels;
     }
-    
+
     private void printDockerInstructions(DockerModel dockerModel) {
         out.println();
         out.println("\n\tRun the following command to start a Docker container:");
@@ -222,7 +222,7 @@ class DockerAnnotationProcessor {
     }
 
     private enum CopyFileConfiguration {
-        source,
+        sourceFile,
         target,
         isBallerinaConf
     }

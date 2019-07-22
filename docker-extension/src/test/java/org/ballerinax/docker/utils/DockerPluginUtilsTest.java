@@ -47,9 +47,9 @@ public class DockerPluginUtilsTest {
     public void extractBalxNameTest() {
         String balxFilePath = "/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/hello_config_file.balx";
         String baxlFileName = "hello_config_file";
-        Assert.assertEquals(DockerPluginUtils.extractBalxName(balxFilePath), baxlFileName);
+        Assert.assertEquals(DockerPluginUtils.extractUberJarName(balxFilePath), baxlFileName);
         balxFilePath = "/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/";
-        Assert.assertNull(DockerPluginUtils.extractBalxName(balxFilePath));
+        Assert.assertNull(DockerPluginUtils.extractUberJarName(balxFilePath));
     }
 
     @Test

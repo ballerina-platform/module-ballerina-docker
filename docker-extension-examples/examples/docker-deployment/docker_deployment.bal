@@ -24,7 +24,7 @@ service helloWorld on helloWorldEP {
         var responseResult = outboundEP->respond(response);
         if (responseResult is error) {
             error err = responseResult;
-            log:printError("Error sending response", err = err);
+            log:printError("Error sending response", err);
         }
     }
 }

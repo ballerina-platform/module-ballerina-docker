@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 public function main(string... args) {
-    args = untaint args;
+    args = <@untainted> args;
     testEndpoint(args[0]);
     testSecuredEndpoint(args[0]);
 }
@@ -35,7 +35,7 @@ function testEndpoint(string host) {
 }
 
 function testSecuredEndpoint(string host) {
-    http:Client helloWorldSecuredEP = new("https://" + host + ":9696", config = {
+    http:Client helloWorldSecuredEP = new("https://" + host + ":9696", {
             secureSocket: {
                 trustStore: {
                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

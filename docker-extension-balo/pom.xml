@@ -84,6 +84,9 @@
                                 <argument>
                                     ${project.basedir}
                                 </argument>
+                                <argument>
+                                    ${project.build.directory}/extracted-distribution/
+                                </argument>
                             </arguments>
                         </configuration>
                     </execution>

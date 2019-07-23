@@ -20,8 +20,6 @@
 DISTRIBUTION_PATH=${1}
 DOCKER_BALO_MAVEN_PROJECT_ROOT=${2}
 
-ls -l ${3}
-
 # TEMP
 #rm -rf ${DISTRIBUTION_PATH}/*
 #cp -r /Users/hemikak/ballerina/dev/ballerina/distribution/zip/jballerina-tools/build/distributions/jballerina-tools-0.992.0-m2-SNAPSHOT/* ${DISTRIBUTION_PATH}

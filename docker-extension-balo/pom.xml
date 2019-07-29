@@ -104,7 +104,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.ballerinalang</groupId>
-                                    <artifactId>jballerina-ext-build</artifactId>
+                                    <artifactId>jballerina-tools</artifactId>
                                     <version>${ballerina.lang.version}</version>
                                     <type>zip</type>
                                     <outputDirectory>${project.build.directory}/extracted-distribution/

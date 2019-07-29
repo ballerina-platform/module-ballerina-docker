@@ -31,10 +31,19 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/
+                ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bir-cache/ballerinax/docker
             </directory>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>docker</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
     </fileSets>
+
+    <files>
+        <file>
+            <source>${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/docker.jar</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </file>
+    </files>
 </assembly>

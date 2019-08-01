@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 public function main(string... args) {
-    http:Client helloWorldEP = new("http://" + untaint args[0] + ":9090");
+    http:Client helloWorldEP = new("http://" + <@untainted> args[0] + ":9090");
 
     var johnResp = helloWorldEP->get("/helloWorld/config/john");
     if (johnResp is http:Response) {

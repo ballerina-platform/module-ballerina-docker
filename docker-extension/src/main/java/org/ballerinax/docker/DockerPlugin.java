@@ -39,13 +39,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
-import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.utils.DockerPluginUtils.extractBalxName;
+import static org.ballerinax.docker.generator.utils.DockerGenUtils.extractUberJarName;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
 
 /**
@@ -146,29 +145,42 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void codeGenerated(PackageID packageID, Path binaryPath) {
-        DockerContext.getInstance().setCurrentPackage(packageID.toString());
+    public void codeGenerated(PackageID moduleID, Path executableJarFile) {
+        DockerContext.getInstance().setCurrentPackage(moduleID.toString());
         if (DockerContext.getInstance().getDataHolder().isCanProcess()) {
-            String filePath = binaryPath.toAbsolutePath().toString();
-            String userDir = new File(filePath).getParentFile().getAbsolutePath();
-            DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
-            Path targetPath = Paths.get(userDir).resolve(ARTIFACT_DIRECTORY);
-            if (userDir.endsWith("target")) {
-                //Compiling package therefore append balx file name to docker artifact dir path
-                targetPath = Paths.get(userDir).resolve(extractBalxName(filePath));
-            }
-            try {
-                DockerPluginUtils.deleteDirectory(targetPath);
-                dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(), filePath,
-                        targetPath);
-            } catch (DockerPluginException e) {
-                printError(e.getMessage());
-                pluginLog.error(e.getMessage(), e);
-                try {
-                    DockerPluginUtils.deleteDirectory(targetPath);
-                } catch (DockerPluginException ignored) {
-                    //ignored
+            executableJarFile = executableJarFile.toAbsolutePath();
+            if (null != executableJarFile.getParent() && Files.exists(executableJarFile.getParent())) {
+                // docker folder location for a single bal file.
+                DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
+                Path dockerOutputPath = executableJarFile.getParent().resolve(ARTIFACT_DIRECTORY);
+                if (null != executableJarFile.getParent().getParent().getParent() &&
+                                                Files.exists(executableJarFile.getParent().getParent().getParent())) {
+                    // if executable came from a ballerina project
+                    Path projectRoot = executableJarFile.getParent().getParent().getParent();
+                    if (Files.exists(projectRoot.resolve("Ballerina.toml"))) {
+                        dockerOutputPath = projectRoot.resolve("target")
+                                        .resolve(ARTIFACT_DIRECTORY)
+                                        .resolve(extractUberJarName(executableJarFile));
+                    }
                 }
+    
+                try {
+                    DockerPluginUtils.deleteDirectory(dockerOutputPath);
+                    dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(),
+                            executableJarFile, dockerOutputPath);
+                } catch (DockerPluginException e) {
+                    String errorMessage = "module [" + moduleID + "] " + e.getMessage();
+                    printError(errorMessage);
+                    pluginLog.error(errorMessage, e);
+                    try {
+                        DockerPluginUtils.deleteDirectory(dockerOutputPath);
+                    } catch (DockerPluginException ignored) {
+                        //ignored
+                    }
+                }
+            } else {
+                printError("error in resolving docker generation location.");
+                pluginLog.error("error in resolving docker generation location.");
             }
         }
     }

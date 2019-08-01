@@ -35,6 +35,7 @@ install:
   - cmd: mvn --version
   - cmd: java -version
   - cmd: docker version
+build: off
 build_script:
   - SET MAVEN_OPTS=-Xms1024m
   - mvn clean install -B -V -DskipTests

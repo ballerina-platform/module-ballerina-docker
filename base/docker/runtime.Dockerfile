@@ -14,7 +14,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM openjdk:jre-alpine
+FROM openjdk:8-jre-alpine
 LABEL maintainer="dev@ballerina.io"
 
 # Ballerina runtime distribution filename.
@@ -29,7 +29,7 @@ RUN mkdir -p /ballerina/files \
     && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \
     && apk add --update --no-cache bash \
     && unzip /root/${BALLERINA_DIST} -d /ballerina/ > /dev/null 2>&1 \
-    && mv /ballerina/ballerina* /ballerina/runtime \
+    && mv /ballerina/jballerina* /ballerina/runtime \
     && mkdir -p /ballerina/runtime/logs \
     && chown -R ballerina:troupe /ballerina \
     && rm -rf /root/${BALLERINA_DIST} > /dev/null 2>&1 \
@@ -39,6 +39,5 @@ ENV BALLERINA_HOME /ballerina/runtime
 ENV PATH $BALLERINA_HOME/bin:$PATH
 
 WORKDIR /home/ballerina
-VOLUME /home/ballerina
 
 USER ballerina

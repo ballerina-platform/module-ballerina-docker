@@ -24,11 +24,11 @@ import org.ballerinax.docker.generator.DockerArtifactHandler;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
+import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.ballerinax.docker.models.DockerDataHolder;
-import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.PrintStream;
@@ -37,10 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.ballerinax.docker.generator.DockerGenConstants.BALX;
-import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
-import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
-import static org.ballerinax.docker.utils.DockerPluginUtils.isBlank;
+import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerPluginUtils.resolveValue;
 
@@ -54,10 +51,10 @@ class DockerAnnotationProcessor {
     /**
      * Process docker annotations for ballerina Service.
      *
-     * @param balxFilePath ballerina file name
+     * @param uberJarFilePath Uber jar file name
      * @param outputDir    target output directory
      */
-    void processDockerModel(DockerDataHolder dockerDataHolder, String balxFilePath, Path outputDir) throws
+    void processDockerModel(DockerDataHolder dockerDataHolder, Path uberJarFilePath, Path outputDir) throws
             DockerPluginException {
         try {
             DockerModel dockerModel = dockerDataHolder.getDockerModel();
@@ -65,16 +62,11 @@ class DockerAnnotationProcessor {
             dockerModel.setCopyFiles(dockerDataHolder.getExternalFiles());
             // set docker image name
             if (dockerModel.getName() == null) {
-                String defaultImageName = DockerPluginUtils.extractBalxName(balxFilePath);
+                String defaultImageName = DockerGenUtils.extractUberJarName(uberJarFilePath);
                 dockerModel.setName(defaultImageName);
             }
-            String registry = dockerModel.getRegistry();
-            String imageName = dockerModel.getName();
-            imageName = (registry != null) ? registry + REGISTRY_SEPARATOR + imageName + TAG_SEPARATOR
-                    + dockerModel.getTag() : imageName + TAG_SEPARATOR + dockerModel.getTag();
-            dockerModel.setName(imageName);
-            dockerModel.setBalxFileName(DockerPluginUtils.extractBalxName(balxFilePath) + BALX);
-        
+            dockerModel.setUberJarFileName(DockerGenUtils.extractUberJarName(uberJarFilePath) + EXECUTABLE_JAR);
+
             Set<Integer> ports = dockerModel.getPorts();
             if (dockerModel.isEnableDebug()) {
                 ports.add(dockerModel.getDebugPort());
@@ -82,7 +74,7 @@ class DockerAnnotationProcessor {
             dockerModel.setPorts(ports);
             printDebug(dockerModel.toString());
             DockerArtifactHandler dockerHandler = new DockerArtifactHandler(dockerModel);
-            dockerHandler.createArtifacts(out, "\t@docker \t\t", balxFilePath, outputDir);
+            dockerHandler.createArtifacts(out, "\t@docker \t\t", uberJarFilePath, outputDir);
             printDockerInstructions(dockerModel);
         } catch (DockerGenException e) {
             throw new DockerPluginException(e.getMessage(), e);
@@ -135,6 +127,9 @@ class DockerAnnotationProcessor {
                 case debugPort:
                     dockerModel.setDebugPort(Integer.parseInt(annotationValue));
                     break;
+                case dockerAPIVersion:
+                    dockerModel.setDockerAPIVersion(annotationValue);
+                    break;
                 case dockerHost:
                     dockerModel.setDockerHost(annotationValue);
                     break;
@@ -145,14 +140,7 @@ class DockerAnnotationProcessor {
                     break;
             }
         }
-        String dockerHost = System.getenv(DockerPluginConstants.DOCKER_HOST);
-        if (!isBlank(dockerHost)) {
-            dockerModel.setDockerHost(dockerHost);
-        }
-        String dockerCertPath = System.getenv(DockerPluginConstants.DOCKER_CERT_PATH);
-        if (!isBlank(dockerCertPath)) {
-            dockerModel.setDockerCertPath(dockerCertPath);
-        }
+
         dockerModel.setService(true);
         return dockerModel;
     }
@@ -171,7 +159,7 @@ class DockerAnnotationProcessor {
         List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
                 ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
-            List<BLangExpression> configAnnotation = ((BLangArrayLiteral) keyValue.valueExpr).exprs;
+            List<BLangExpression> configAnnotation = ((BLangListConstructorExpr) keyValue.valueExpr).exprs;
             for (BLangExpression bLangExpression : configAnnotation) {
                 CopyFileModel fileModel = new CopyFileModel();
                 List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
@@ -181,7 +169,7 @@ class DockerAnnotationProcessor {
                             CopyFileConfiguration.valueOf(annotation.getKey().toString());
                     String annotationValue = resolveValue(annotation.getValue().toString());
                     switch (copyFileConfiguration) {
-                        case source:
+                        case sourceFile:
                             fileModel.setSource(annotationValue);
                             break;
                         case target:
@@ -205,7 +193,7 @@ class DockerAnnotationProcessor {
         }
         return copyFileModels;
     }
-    
+
     private void printDockerInstructions(DockerModel dockerModel) {
         out.println();
         out.println("\n\tRun the following command to start a Docker container:");
@@ -228,12 +216,13 @@ class DockerAnnotationProcessor {
         buildImage,
         enableDebug,
         debugPort,
+        dockerAPIVersion,
         dockerHost,
         dockerCertPath
     }
 
     private enum CopyFileConfiguration {
-        source,
+        sourceFile,
         target,
         isBallerinaConf
     }

@@ -22,6 +22,11 @@ package org.ballerinax.docker.test.utils;
  * Exception class for docker test cases.
  */
 public class DockerTestException extends Exception {
+    
+    public DockerTestException(String msg) {
+        super(msg);
+    }
+    
     public DockerTestException(Throwable cause) {
         super(cause);
     }

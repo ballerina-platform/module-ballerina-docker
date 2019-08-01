@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -77,30 +77,33 @@ public class DockerGenUtils {
      * @param targetFilePath target file path
      * @throws IOException If an error occurs when writing to a file
      */
-    public static void writeToFile(String context, String targetFilePath) throws IOException {
-        File newFile = new File(targetFilePath);
+    public static void writeToFile(String context, Path targetFilePath) throws IOException {
+        File newFile = targetFilePath.toFile();
         if (newFile.exists() && newFile.delete()) {
-            Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+            Files.write(targetFilePath, context.getBytes(StandardCharsets.UTF_8));
             return;
         }
         if (newFile.getParentFile().mkdirs()) {
-            Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+            Files.write(targetFilePath, context.getBytes(StandardCharsets.UTF_8));
             return;
         }
-        Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+        Files.write(targetFilePath, context.getBytes(StandardCharsets.UTF_8));
     }
     
     /**
      * Extract the ballerina file name from a given file path.
      *
-     * @param balxFilePath balx file path.
-     * @return output file name of balx
+     * @param uberJarFilePath Uber jar file path.
+     * @return Uber jar file name without "-executable"
      */
-    public static String extractBalxName(String balxFilePath) {
-        if (balxFilePath.contains(".balx")) {
-            return balxFilePath.substring(balxFilePath.lastIndexOf(File.separator) + 1, balxFilePath.lastIndexOf(
-                    ".balx"));
+    public static String extractUberJarName(Path uberJarFilePath) {
+        if (null != uberJarFilePath) {
+            Path fileName = uberJarFilePath.getFileName();
+            if (null != fileName) {
+                return fileName.toString().replace("-executable", "").replace(".jar", "");
+            }
         }
+    
         return null;
     }
     
@@ -110,18 +113,19 @@ public class DockerGenUtils {
      * @param source      source file/directory path
      * @param destination destination file/directory path
      */
-    public static void copyFileOrDirectory(String source, String destination) throws DockerGenException {
-        File src = new File(source);
+    public static void copyFileOrDirectory(Path source, Path destination) throws DockerGenException {
+        printDebug("copying file(s) from `" + source + "` to `" + destination + "`.");
+        File src = source.toFile();
         
         if (!src.exists()) {
-            throw new DockerGenException("Error while copying file/folder '" + source + "' as it does not exist");
+            throw new DockerGenException("error while copying file/folder '" + source + "' as it does not exist");
         }
         
-        File dst = new File(destination);
+        File dst = destination.toFile();
         try {
             
             // if source is file
-            if (Files.isRegularFile(Paths.get(source))) {
+            if (Files.isRegularFile(source)) {
                 if (Files.isDirectory(dst.toPath())) {
                     // if destination is directory
                     FileUtils.copyFileToDirectory(src, dst);
@@ -129,11 +133,11 @@ public class DockerGenUtils {
                     // if destination is file
                     FileUtils.copyFile(src, dst);
                 }
-            } else if (Files.isDirectory(Paths.get(source))) {
+            } else if (Files.isDirectory(source)) {
                 FileUtils.copyDirectory(src, dst);
             }
         } catch (IOException e) {
-            throw new DockerGenException("Error while copying file/folder '" + source + "' to '" + destination + "'",
+            throw new DockerGenException("error while copying file/folder '" + source + "' to '" + destination + "'",
                     e);
         }
     }
@@ -163,6 +167,27 @@ public class DockerGenUtils {
             errorMessage = "permission denied for docker";
         }
     
-        return errorMessage.toLowerCase(Locale.getDefault());
+        return firstCharToLowerCase(errorMessage);
+    }
+    
+    /**
+     * Lowercase first character of a {@link String}.
+     *
+     * @param str String variable.
+     * @return Modified String.
+     */
+    private static String firstCharToLowerCase(String str) {
+        if (str == null || str.length() == 0) {
+            return "";
+        }
+    
+        if (str.length() == 1) {
+            return str.toLowerCase(Locale.getDefault());
+        }
+    
+        char[] chArr = str.toCharArray();
+        chArr[0] = Character.toLowerCase(chArr[0]);
+    
+        return new String(chArr);
     }
 }

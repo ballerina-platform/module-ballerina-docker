@@ -39,20 +39,6 @@ public class DockerPluginUtils {
     private static final PrintStream out = System.out;
 
     /**
-     * Extract the ballerina file name from a given file path.
-     *
-     * @param balxFilePath balx file path.
-     * @return output file name of balx
-     */
-    public static String extractBalxName(String balxFilePath) {
-        if (balxFilePath.contains(".balx")) {
-            return balxFilePath.substring(balxFilePath.lastIndexOf(File.separator) + 1, balxFilePath.lastIndexOf("" +
-                    ".balx"));
-        }
-        return null;
-    }
-
-    /**
      * Prints an Error message.
      *
      * @param msg message to be printed

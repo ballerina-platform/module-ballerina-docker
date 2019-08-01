@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 public function main(string... args) {
-    http:Client helloWorldEP = new("https://" + untaint args[0] + ":9096", config = {
+    http:Client helloWorldEP = new("https://" + <@untainted> args[0] + ":9096", {
             secureSocket: {
                 trustStore: {
                     path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

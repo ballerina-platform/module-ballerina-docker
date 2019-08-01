@@ -2,11 +2,11 @@ import ballerina/http;
 import ballerina/log;
 import ballerinax/docker;
 
-//Adding the `@docker:Expose{}` annotation to a listner endpoint exposes the endpoint port.
+//Adding the `@docker:Expose{}` annotation to a listener endpoint exposes the endpoint port.
 @docker:Expose {}
 listener http:Listener helloWorldEP = new(9090);
 
-//Adding the `@docker:Confing{}` annotation to a service modifies the generated Docker image and Dockerfile.
+//Adding the `@docker:Config{}` annotation to a service modifies the generated Docker image and Dockerfile.
 //This sample generates a Docker image as `helloworld:v1.0.0`.
 @docker:Config {
     //Docker image name should be helloworld.
@@ -24,7 +24,7 @@ service helloWorld on helloWorldEP {
         var responseResult = outboundEP->respond(response);
         if (responseResult is error) {
             error err = responseResult;
-            log:printError("Error sending response", err = err);
+            log:printError("Error sending response", err);
         }
     }
 }

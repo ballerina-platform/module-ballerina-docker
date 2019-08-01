@@ -24,8 +24,8 @@ import org.ballerinax.docker.generator.DockerArtifactHandler;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
+import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.ballerinax.docker.models.DockerDataHolder;
-import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -54,7 +54,7 @@ class DockerAnnotationProcessor {
      * @param uberJarFilePath Uber jar file name
      * @param outputDir    target output directory
      */
-    void processDockerModel(DockerDataHolder dockerDataHolder, String uberJarFilePath, Path outputDir) throws
+    void processDockerModel(DockerDataHolder dockerDataHolder, Path uberJarFilePath, Path outputDir) throws
             DockerPluginException {
         try {
             DockerModel dockerModel = dockerDataHolder.getDockerModel();
@@ -62,10 +62,10 @@ class DockerAnnotationProcessor {
             dockerModel.setCopyFiles(dockerDataHolder.getExternalFiles());
             // set docker image name
             if (dockerModel.getName() == null) {
-                String defaultImageName = DockerPluginUtils.extractUberJarName(uberJarFilePath);
+                String defaultImageName = DockerGenUtils.extractUberJarName(uberJarFilePath);
                 dockerModel.setName(defaultImageName);
             }
-            dockerModel.setUberJarFileName(DockerPluginUtils.extractUberJarName(uberJarFilePath) + EXECUTABLE_JAR);
+            dockerModel.setUberJarFileName(DockerGenUtils.extractUberJarName(uberJarFilePath) + EXECUTABLE_JAR);
 
             Set<Integer> ports = dockerModel.getPorts();
             if (dockerModel.isEnableDebug()) {

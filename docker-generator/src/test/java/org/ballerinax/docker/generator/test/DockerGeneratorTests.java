@@ -52,7 +52,7 @@ public class DockerGeneratorTests {
         ports.add(9092);
         dockerModel.setPorts(ports);
         dockerModel.setService(true);
-        dockerModel.setUberJarFileName("example.balx");
+        dockerModel.setUberJarFileName("example-executable.jar");
         dockerModel.setEnableDebug(true);
         dockerModel.setDebugPort(5005);
 
@@ -80,7 +80,7 @@ public class DockerGeneratorTests {
         File dockerfile = new File("target/docker");
         Assert.assertTrue(dockerfile.mkdirs());
         dockerfile = new File("target/docker/Dockerfile");
-        DockerGenUtils.writeToFile(dockerfileContent, dockerfile.getPath());
+        DockerGenUtils.writeToFile(dockerfileContent, dockerfile.toPath());
         log.info("Dockerfile Content:\n" + dockerfileContent);
         Assert.assertTrue(dockerfile.exists());
         dockerfile.deleteOnExit();

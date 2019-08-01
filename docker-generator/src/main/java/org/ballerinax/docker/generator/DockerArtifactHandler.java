@@ -35,7 +35,6 @@ import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.glassfish.jersey.internal.RuntimeDelegateImpl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -74,7 +73,7 @@ public class DockerArtifactHandler {
         this.dockerModel = dockerModel;
     }
     
-    public void createArtifacts(PrintStream outStream, String logAppender, String uberJarFilePath, Path outputDir)
+    public void createArtifacts(PrintStream outStream, String logAppender, Path uberJarFilePath, Path outputDir)
             throws DockerGenException {
         String dockerContent;
         if (!WINDOWS_BUILD) {
@@ -84,26 +83,26 @@ public class DockerArtifactHandler {
         }
         try {
             outStream.print(logAppender + " - complete 0/3 \r");
-            DockerGenUtils.writeToFile(dockerContent, outputDir + File.separator + "Dockerfile");
+            DockerGenUtils.writeToFile(dockerContent, outputDir.resolve("Dockerfile"));
             outStream.print(logAppender + " - complete 1/3 \r");
-            String uberJarLocation = outputDir + File.separator + DockerGenUtils.extractUberJarName(uberJarFilePath) +
-                                     EXECUTABLE_JAR;
+            Path uberJarLocation = outputDir.resolve(DockerGenUtils.extractUberJarName(uberJarFilePath) +
+                                                     EXECUTABLE_JAR);
             copyFileOrDirectory(uberJarFilePath, uberJarLocation);
             for (CopyFileModel copyFileModel : dockerModel.getCopyFiles()) {
                 // Copy external files to docker folder
-                String target = outputDir + File.separator + Paths.get(copyFileModel.getSource()).getFileName();
+                Path target = outputDir.resolve(Paths.get(copyFileModel.getSource()).getFileName());
                 Path sourcePath = Paths.get(copyFileModel.getSource());
                 if (!sourcePath.isAbsolute()) {
                     sourcePath = sourcePath.toAbsolutePath();
                 }
-                copyFileOrDirectory(sourcePath.toString(), target);
+                copyFileOrDirectory(sourcePath, target);
                 
             }
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
                 buildImage(dockerModel, outputDir);
                 outStream.print(logAppender + " - complete 2/3 \r");
-                Files.delete(Paths.get(uberJarLocation));
+                Files.delete(uberJarLocation);
                 //push only if image build is enabled.
                 if (dockerModel.isPush()) {
                     pushImage(dockerModel);

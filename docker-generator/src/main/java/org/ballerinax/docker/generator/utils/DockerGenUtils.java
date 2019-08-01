@@ -29,7 +29,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 /**
@@ -78,36 +77,30 @@ public class DockerGenUtils {
      * @param targetFilePath target file path
      * @throws IOException If an error occurs when writing to a file
      */
-    public static void writeToFile(String context, String targetFilePath) throws IOException {
-        File newFile = new File(targetFilePath);
+    public static void writeToFile(String context, Path targetFilePath) throws IOException {
+        File newFile = targetFilePath.toFile();
         if (newFile.exists() && newFile.delete()) {
-            Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+            Files.write(targetFilePath, context.getBytes(StandardCharsets.UTF_8));
             return;
         }
         if (newFile.getParentFile().mkdirs()) {
-            Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+            Files.write(targetFilePath, context.getBytes(StandardCharsets.UTF_8));
             return;
         }
-        Files.write(Paths.get(targetFilePath), context.getBytes(StandardCharsets.UTF_8));
+        Files.write(targetFilePath, context.getBytes(StandardCharsets.UTF_8));
     }
     
     /**
      * Extract the ballerina file name from a given file path.
      *
-     * @param uberJarFilePath balx file path.
-     * @return output file name of balx
+     * @param uberJarFilePath Uber jar file path.
+     * @return Uber jar file name without "-executable"
      */
-    public static String extractUberJarName(String uberJarFilePath) {
+    public static String extractUberJarName(Path uberJarFilePath) {
         if (null != uberJarFilePath) {
-            Path path = Paths.get(uberJarFilePath);
-            if (null != path) {
-                Path fileName = path.getFileName();
-                if (null != fileName) {
-                    String s = fileName.toString();
-                    if (null != s) {
-                        return s.replace("-executable", "").replace(".jar", "");
-                    }
-                }
+            Path fileName = uberJarFilePath.getFileName();
+            if (null != fileName) {
+                return fileName.toString().replace("-executable", "").replace(".jar", "");
             }
         }
     
@@ -120,19 +113,19 @@ public class DockerGenUtils {
      * @param source      source file/directory path
      * @param destination destination file/directory path
      */
-    public static void copyFileOrDirectory(String source, String destination) throws DockerGenException {
+    public static void copyFileOrDirectory(Path source, Path destination) throws DockerGenException {
         printDebug("copying file(s) from `" + source + "` to `" + destination + "`.");
-        File src = new File(source);
+        File src = source.toFile();
         
         if (!src.exists()) {
             throw new DockerGenException("error while copying file/folder '" + source + "' as it does not exist");
         }
         
-        File dst = new File(destination);
+        File dst = destination.toFile();
         try {
             
             // if source is file
-            if (Files.isRegularFile(Paths.get(source))) {
+            if (Files.isRegularFile(source)) {
                 if (Files.isDirectory(dst.toPath())) {
                     // if destination is directory
                     FileUtils.copyFileToDirectory(src, dst);
@@ -140,7 +133,7 @@ public class DockerGenUtils {
                     // if destination is file
                     FileUtils.copyFile(src, dst);
                 }
-            } else if (Files.isDirectory(Paths.get(source))) {
+            } else if (Files.isDirectory(source)) {
                 FileUtils.copyDirectory(src, dst);
             }
         } catch (IOException e) {

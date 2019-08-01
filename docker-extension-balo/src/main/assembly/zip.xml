@@ -22,7 +22,7 @@
 
     <id>extracted-test-pack</id>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>docker-artifacts</baseDirectory>
+    <baseDirectory>jballerina-tools-${ballerina.lang.version}</baseDirectory>
 
     <formats>
         <format>zip</format>
@@ -31,19 +31,10 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bir-cache/ballerinax/docker
+                ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/
             </directory>
-            <outputDirectory>docker</outputDirectory>
+            <outputDirectory>.</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
     </fileSets>
-
-    <files>
-        <file>
-            <source>${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/docker.jar</source>
-            <outputDirectory>.</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>755</fileMode>
-        </file>
-    </files>
 </assembly>

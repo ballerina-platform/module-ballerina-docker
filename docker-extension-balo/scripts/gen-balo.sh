@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-#!/usr/bin/env bash
+#!/bin/bash
 
 DISTRIBUTION_PATH=${1}
 DOCKER_BALO_MAVEN_PROJECT_ROOT=${2}
@@ -34,9 +34,16 @@ mkdir -p ${BALLERINAX_SYSTEM_LIB}
 
 rm -rf ${DOCKER_BALLERINA_PROJECT}/target
 
-pushd ${DOCKER_BALLERINA_PROJECT} /dev/null 2>&1
-    ${EXECUTABLE} compile --jvmTarget
-popd > /dev/null 2>&1
+if ! hash pushd 2>/dev/null
+then
+    cd ${DOCKER_BALLERINA_PROJECT}
+    ${EXECUTABLE} compile
+    cd -
+else
+    pushd ${DOCKER_BALLERINA_PROJECT} /dev/null 2>&1
+        ${EXECUTABLE} compile
+    popd > /dev/null 2>&1
+fi
 
 cp -r ${DOCKER_BALLERINA_PROJECT}/target/* ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target
 

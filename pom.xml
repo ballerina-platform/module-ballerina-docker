@@ -80,23 +80,9 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-builtin</artifactId>
-                <version>${ballerina.lang.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina</artifactId>
                 <version>${ballerina.lang.version}</version>
                 <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinax.docker</groupId>
-                <artifactId>docker-extension</artifactId>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinax.docker</groupId>

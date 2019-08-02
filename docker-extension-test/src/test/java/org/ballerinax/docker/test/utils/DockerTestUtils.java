@@ -188,7 +188,7 @@ public class DockerTestUtils {
         }
 
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, fileName);
-        log.info(COMPILING + sourceDirectory);
+        log.info(COMPILING + sourceDirectory.normalize());
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();
@@ -226,6 +226,7 @@ public class DockerTestUtils {
         }
     
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD);
+        log.info(COMPILING + sourceDirectory.normalize());
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();

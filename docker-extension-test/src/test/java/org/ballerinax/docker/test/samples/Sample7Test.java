@@ -55,7 +55,7 @@ public class Sample7Test extends SampleTest {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
     }
     
-    @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws IOException, DockerTestException, InterruptedException {
         Map<Integer, Integer> portBindings = new HashMap<>();
         portBindings.put(9090, 9090);
@@ -63,7 +63,7 @@ public class Sample7Test extends SampleTest {
         
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName, portBindings);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
-                "[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9696"),
+                "[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9696"),
                 "Service did not start properly.");
         
         // send request

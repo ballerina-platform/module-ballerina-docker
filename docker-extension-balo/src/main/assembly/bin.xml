@@ -31,7 +31,7 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bir-cache/ballerinax/docker
+                ${project.build.directory}/caches/bir_cache/ballerinax/docker
             </directory>
             <outputDirectory>docker</outputDirectory>
             <fileMode>755</fileMode>
@@ -40,9 +40,8 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/docker.jar</source>
+            <source>${project.build.directory}/caches/jar_cache/ballerinax/docker/0.0.0/docker.jar</source>
             <outputDirectory>.</outputDirectory>
-            <filtered>true</filtered>
             <fileMode>755</fileMode>
         </file>
     </files>

@@ -25,7 +25,7 @@ DOCKER_BALO_MAVEN_PROJECT_ROOT=${2}
 #cp -r /Users/hemikak/ballerina/dev/ballerina/distribution/zip/jballerina-tools/build/distributions/jballerina-tools-0.992.0-m2-SNAPSHOT/* ${DISTRIBUTION_PATH}
 
 EXECUTABLE="${DISTRIBUTION_PATH}/bin/ballerina"
-DOCKER_BALLERINA_PROJECT="${DOCKER_BALO_MAVEN_PROJECT_ROOT}/src/main/ballerina/ballerina"
+DOCKER_BALLERINA_PROJECT="${DOCKER_BALO_MAVEN_PROJECT_ROOT}/src/main/ballerina/ballerinax"
 DISTRIBUTION_BIR_CACHE="${DISTRIBUTION_PATH}/bir-cache/ballerina/"
 DISTRIBUTION_SYSTEM_LIB="${DISTRIBUTION_PATH}/bre/lib/"
 

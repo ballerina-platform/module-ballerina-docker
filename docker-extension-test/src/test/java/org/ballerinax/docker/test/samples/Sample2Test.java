@@ -52,11 +52,11 @@ public class Sample2Test extends SampleTest {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
     }
     
-    @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws IOException, DockerTestException, InterruptedException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
-                "[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9090"),
+                "[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
         
         // send request

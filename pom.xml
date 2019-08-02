@@ -70,11 +70,6 @@
         <dependencies>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <version>${ballerina.lang.version}</version>
-                <artifactId>lib-creator</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-lang</artifactId>
                 <version>${ballerina.lang.version}</version>
             </dependency>

@@ -51,7 +51,7 @@ public class Sample4Test extends SampleTest {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "docker_debug.bal"), 0);
     }
     
-    @Test(dependsOnMethods = "validateDockerImage", timeOut = 30000)
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID, "Ballerina remote debugger is activated on port"),

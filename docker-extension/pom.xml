@@ -36,26 +36,6 @@
             <artifactId>ballerina-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-builtin</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ops4j.pax.logging</groupId>
-                    <artifactId>pax-logging-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>lib-creator</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ballerinax.docker</groupId>
             <artifactId>docker-generator</artifactId>
         </dependency>
@@ -193,6 +173,7 @@
                                 <excludes>
                                     <exclude>org.slf4j:slf4j-api</exclude>
                                     <exclude>org.slf4j:slf4j-jdk14</exclude>
+                                    <exclude>org.ballerinalang:ballerina-runtime</exclude>
                                     <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</exclude>
                                     <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
                                     <exclude>com.fasterxml.jackson.core:jackson-annotations</exclude>

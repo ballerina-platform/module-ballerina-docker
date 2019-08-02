@@ -60,13 +60,13 @@ public class Sample6Test extends SampleTest {
         Assert.assertEquals(DockerTestUtils.compileBallerinaProject(sourceDirPath), 0);
     }
     
-    @Test(dependsOnMethods = "validateBurgerDockerImage", timeOut = 30000)
+    @Test(dependsOnMethods = "validateBurgerDockerImage", timeOut = 45000)
     public void testBurgerService() throws IOException, InterruptedException, DockerTestException {
         Map<Integer, Integer> portBindings = new HashMap<>();
         portBindings.put(9096, 9096);
         burgerContainerID = DockerTestUtils.createContainer(burgerDockerImage, burgerContainerName, portBindings);
         Assert.assertTrue(DockerTestUtils.startContainer(burgerContainerID,
-                "[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9096"),
+                "[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9096"),
                 "Service did not start properly.");
         
         // send request
@@ -76,13 +76,13 @@ public class Sample6Test extends SampleTest {
         Assert.assertEquals(runOutput.getStdOutput(), "Burger menu ", "Unexpected service response.");
     }
     
-    @Test(dependsOnMethods = "validatePizzaDockerImage", timeOut = 30000)
+    @Test(dependsOnMethods = "validatePizzaDockerImage", timeOut = 45000)
     public void testPizzaService() throws IOException, InterruptedException, DockerTestException {
         Map<Integer, Integer> portBindings = new HashMap<>();
         portBindings.put(9099, 9099);
         pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName, portBindings);
         Assert.assertTrue(DockerTestUtils.startContainer(pizzaContainerID,
-                "[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9099"),
+                "[ballerina/http] started HTTP/WS listener 0.0.0.0:9099"),
                 "Service did not start properly.");
         
         // send request

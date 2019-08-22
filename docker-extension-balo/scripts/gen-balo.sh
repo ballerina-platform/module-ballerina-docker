@@ -48,5 +48,5 @@ fi
 cp -r ${DOCKER_BALLERINA_PROJECT}/target/* ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target
 
 cp -r ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/bir_cache/ballerinax/docker ${BALLERINAX_BIR_CACHE}
-cp ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/jar_cache/ballerinax/docker/0.0.0/docker.jar ${BALLERINAX_SYSTEM_LIB}
+cp ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/jar_cache/ballerinax/docker/0.0.0/ballerinax-docker-0.0.0.jar ${BALLERINAX_SYSTEM_LIB}
 

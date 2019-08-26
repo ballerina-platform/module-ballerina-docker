@@ -276,7 +276,7 @@ public class DockerArtifactHandler {
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
         
-        stringBuilder.append("\nCMD ballerina run ");
+        stringBuilder.append("\nCMD java -jar ").append(dockerModel.getUberJarFileName());
         
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             stringBuilder.append(dockerModel.getCommandArg());
@@ -285,7 +285,7 @@ public class DockerArtifactHandler {
         if (dockerModel.isEnableDebug()) {
             stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
         }
-        stringBuilder.append(" ").append(dockerModel.getUberJarFileName());
+        
         stringBuilder.append("\n");
         
         return stringBuilder.toString();

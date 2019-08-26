@@ -36,7 +36,7 @@ import static org.ballerinax.docker.generator.DockerGenConstants.DOCKER_API_VERS
 public class DockerModel {
     private String name;
     private String registry;
-    private String defaultTag;
+    private String tag;
     private boolean push;
     private String username;
     private String password;
@@ -55,7 +55,7 @@ public class DockerModel {
 
     public DockerModel() {
         // Initialize with default values except for image name
-        this.defaultTag = "latest";
+        this.tag = "latest";
         this.push = false;
         this.buildImage = true;
         this.baseImage = DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
@@ -85,12 +85,12 @@ public class DockerModel {
         this.registry = registry;
     }
 
-    public String getDefaultTag() {
-        return defaultTag;
+    public String getTag() {
+        return tag;
     }
 
-    public void setDefaultTag(String defaultTag) {
-        this.defaultTag = defaultTag;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getUsername() {
@@ -232,7 +232,7 @@ public class DockerModel {
         return "DockerModel{" +
                "name='" + name + '\'' +
                ", registry='" + registry + '\'' +
-               ", tag='" + defaultTag + '\'' +
+               ", tag='" + tag + '\'' +
                ", push=" + push +
                ", username='" + username + '\'' +
                ", password='" + password + '\'' +

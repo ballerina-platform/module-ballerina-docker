@@ -104,7 +104,7 @@ class DockerAnnotationProcessor {
                     dockerModel.setRegistry(annotationValue);
                     break;
                 case tag:
-                    dockerModel.setDefaultTag(annotationValue);
+                    dockerModel.setTag(annotationValue);
                     break;
                 case username:
                     dockerModel.setUsername(annotationValue);
@@ -116,13 +116,13 @@ class DockerAnnotationProcessor {
                     dockerModel.setBaseImage(annotationValue);
                     break;
                 case push:
-                    dockerModel.setPush(Boolean.valueOf(annotationValue));
+                    dockerModel.setPush(Boolean.parseBoolean(annotationValue));
                     break;
                 case buildImage:
-                    dockerModel.setBuildImage(Boolean.valueOf(annotationValue));
+                    dockerModel.setBuildImage(Boolean.parseBoolean(annotationValue));
                     break;
                 case enableDebug:
-                    dockerModel.setEnableDebug(Boolean.valueOf(annotationValue));
+                    dockerModel.setEnableDebug(Boolean.parseBoolean(annotationValue));
                     break;
                 case debugPort:
                     dockerModel.setDebugPort(Integer.parseInt(annotationValue));

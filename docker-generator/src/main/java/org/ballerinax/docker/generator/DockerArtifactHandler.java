@@ -67,7 +67,8 @@ public class DockerArtifactHandler {
         String registry = dockerModel.getRegistry();
         String imageName = dockerModel.getName();
         imageName = !isBlank(registry) ? registry + REGISTRY_SEPARATOR + imageName + TAG_SEPARATOR
-                                         + dockerModel.getTag() : imageName + TAG_SEPARATOR + dockerModel.getTag();
+                                         + dockerModel.getTag() :
+                    imageName + TAG_SEPARATOR + dockerModel.getTag();
         dockerModel.setName(imageName);
         
         this.dockerModel = dockerModel;
@@ -258,9 +259,12 @@ public class DockerArtifactHandler {
                             "FROM " + dockerModel.getBaseImage() + "\n" +
                             "LABEL maintainer=\"dev@ballerina.io\"\n" +
                             "\n" +
+                            "WORKDIR /home/ballerina" +
+                            "\n" +
                             "COPY " + dockerModel.getUberJarFileName() + " /home/ballerina \n\n";
 
         StringBuilder stringBuilder = new StringBuilder(dockerBase);
+        
         dockerModel.getCopyFiles().forEach(file -> {
             // Extract the source filename relative to docker folder.
             String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
@@ -276,7 +280,7 @@ public class DockerArtifactHandler {
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
         
-        stringBuilder.append("\nCMD ballerina run ");
+        stringBuilder.append("\nCMD java -jar ").append(dockerModel.getUberJarFileName());
         
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             stringBuilder.append(dockerModel.getCommandArg());
@@ -285,7 +289,7 @@ public class DockerArtifactHandler {
         if (dockerModel.isEnableDebug()) {
             stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
         }
-        stringBuilder.append(" ").append(dockerModel.getUberJarFileName());
+        
         stringBuilder.append("\n");
         
         return stringBuilder.toString();

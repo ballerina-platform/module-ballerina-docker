@@ -58,8 +58,7 @@ public class DockerModel {
         this.tag = "latest";
         this.push = false;
         this.buildImage = true;
-        String baseImageVersion = getClass().getPackage().getImplementationVersion();
-        this.baseImage = DockerGenConstants.BALLERINA_BASE_IMAGE + ":" + baseImageVersion;
+        this.baseImage = DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
         this.enableDebug = false;
         this.debugPort = 5005;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));

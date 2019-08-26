@@ -29,5 +29,5 @@ public class DockerGenConstants {
     public static final String REGISTRY_SEPARATOR = "/";
     public static final String TAG_SEPARATOR = ":";
     public static final String ARTIFACT_DIRECTORY = "docker";
-    public static final String BALLERINA_BASE_IMAGE = "ballerina/ballerina-runtime";
+    public static final String OPENJDK_8_JRE_ALPINE_BASE_IMAGE = "openjdk:8-jre-alpine";
 }

@@ -259,9 +259,12 @@ public class DockerArtifactHandler {
                             "FROM " + dockerModel.getBaseImage() + "\n" +
                             "LABEL maintainer=\"dev@ballerina.io\"\n" +
                             "\n" +
+                            "WORKDIR /home/ballerina" +
+                            "\n" +
                             "COPY " + dockerModel.getUberJarFileName() + " /home/ballerina \n\n";
 
         StringBuilder stringBuilder = new StringBuilder(dockerBase);
+        
         dockerModel.getCopyFiles().forEach(file -> {
             // Extract the source filename relative to docker folder.
             String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());

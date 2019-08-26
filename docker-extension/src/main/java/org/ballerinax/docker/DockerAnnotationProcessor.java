@@ -104,7 +104,7 @@ class DockerAnnotationProcessor {
                     dockerModel.setRegistry(annotationValue);
                     break;
                 case tag:
-                    dockerModel.setTag(annotationValue);
+                    dockerModel.setDefaultTag(annotationValue);
                     break;
                 case username:
                     dockerModel.setUsername(annotationValue);

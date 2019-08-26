@@ -67,7 +67,8 @@ public class DockerArtifactHandler {
         String registry = dockerModel.getRegistry();
         String imageName = dockerModel.getName();
         imageName = !isBlank(registry) ? registry + REGISTRY_SEPARATOR + imageName + TAG_SEPARATOR
-                                         + dockerModel.getTag() : imageName + TAG_SEPARATOR + dockerModel.getTag();
+                                         + dockerModel.getDefaultTag() :
+                    imageName + TAG_SEPARATOR + dockerModel.getDefaultTag();
         dockerModel.setName(imageName);
         
         this.dockerModel = dockerModel;

@@ -73,6 +73,7 @@ class DockerAnnotationProcessor {
             }
             dockerModel.setPorts(ports);
             printDebug(dockerModel.toString());
+            out.println("\nGenerating docker artifacts...");
             DockerArtifactHandler dockerHandler = new DockerArtifactHandler(dockerModel);
             dockerHandler.createArtifacts(out, "\t@docker \t\t", uberJarFilePath, outputDir);
             printDockerInstructions(dockerModel);

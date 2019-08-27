@@ -83,9 +83,10 @@ public class DockerArtifactHandler {
             dockerContent = generateDockerfileForWindows();
         }
         try {
-            outStream.print(logAppender + " - complete 0/3 \r");
+            String logStepCount = dockerModel.isPush() ? "3" : "2";
+            outStream.print(logAppender + " - complete 0/" + logStepCount + " \r");
             DockerGenUtils.writeToFile(dockerContent, outputDir.resolve("Dockerfile"));
-            outStream.print(logAppender + " - complete 1/3 \r");
+            outStream.print(logAppender + " - complete 1/" + logStepCount + " \r");
             Path uberJarLocation = outputDir.resolve(DockerGenUtils.extractUberJarName(uberJarFilePath) +
                                                      EXECUTABLE_JAR);
             copyFileOrDirectory(uberJarFilePath, uberJarLocation);
@@ -102,15 +103,14 @@ public class DockerArtifactHandler {
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
                 buildImage(dockerModel, outputDir);
-                outStream.print(logAppender + " - complete 2/3 \r");
+                outStream.print(logAppender + " - complete 2/" + logStepCount + " \r");
                 Files.delete(uberJarLocation);
-                //push only if image build is enabled.
+                //push only if image push is enabled.
                 if (dockerModel.isPush()) {
                     pushImage(dockerModel);
+                    outStream.print(logAppender + " - complete 3/" + logStepCount + " \r");
                 }
-                outStream.print(logAppender + " - complete 3/3 \r");
             }
-            outStream.print(logAppender + " - complete 3/3 \r");
         } catch (IOException e) {
             throw new DockerGenException("unable to write content to " + outputDir);
         } catch (InterruptedException e) {

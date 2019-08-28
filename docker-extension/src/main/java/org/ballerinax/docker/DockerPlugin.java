@@ -131,7 +131,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         try {
                             dataHolder.addPort(Integer.parseInt(bListener.argsExpr.get(0).toString()));
                         } catch (NumberFormatException e) {
-                            throw new DockerPluginException("Unable to parse port of the service: " +
+                            throw new DockerPluginException("unable to parse port of the service: " +
                                                             bListener.argsExpr.get(0).toString());
                         }
                         break;

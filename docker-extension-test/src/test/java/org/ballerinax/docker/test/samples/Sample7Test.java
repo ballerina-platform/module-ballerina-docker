@@ -84,7 +84,7 @@ public class Sample7Test extends SampleTest {
     @Test
     public void validateDockerImage() throws DockerTestException {
         Assert.assertEquals(getCommand(this.dockerImage).toString(),
-                "[/bin/sh, -c, ballerina run  hello_world_docker-executable.jar]");
+                "[/bin/sh, -c, java -jar hello_world_docker-executable.jar]");
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 2);
         Assert.assertEquals(ports.get(0), "9090/tcp");

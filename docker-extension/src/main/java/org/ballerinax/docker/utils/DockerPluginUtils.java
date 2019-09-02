@@ -106,15 +106,18 @@ public class DockerPluginUtils {
      */
     public static String resolveValue(String variable) throws DockerPluginException {
         if (variable.contains("$env{")) {
-            //remove white spaces
+            // remove white spaces
             variable = variable.replace(" ", "");
-            //extract variable name
+            // extract variable name
             final String envVariable = variable.substring(variable.lastIndexOf("$env{") + 5,
                     variable.lastIndexOf("}"));
-            //resolve value
-            String value = Optional.ofNullable(System.getenv(envVariable)).orElseThrow(
-                    () -> new DockerPluginException("error resolving value: " + envVariable + " is not set in " +
-                            "the environment."));
+            // resolve value
+            String value = Optional.ofNullable(System.getenv(envVariable))
+                    .orElse(Optional.ofNullable(System.getProperty(envVariable))
+                                    .orElseThrow(() ->
+                                            new DockerPluginException("error resolving value: " + envVariable + " is " +
+                                                                      "not available as an environment variable or a " +
+                                                                      "system property.")));
             // substitute value
             return variable.replace("$env{" + envVariable + "}", value);
         }

@@ -73,6 +73,7 @@ class DockerAnnotationProcessor {
             }
             dockerModel.setPorts(ports);
             printDebug(dockerModel.toString());
+            out.println("\nGenerating docker artifacts...");
             DockerArtifactHandler dockerHandler = new DockerArtifactHandler(dockerModel);
             dockerHandler.createArtifacts(out, "\t@docker \t\t", uberJarFilePath, outputDir);
             printDockerInstructions(dockerModel);
@@ -116,13 +117,13 @@ class DockerAnnotationProcessor {
                     dockerModel.setBaseImage(annotationValue);
                     break;
                 case push:
-                    dockerModel.setPush(Boolean.valueOf(annotationValue));
+                    dockerModel.setPush(Boolean.parseBoolean(annotationValue));
                     break;
                 case buildImage:
-                    dockerModel.setBuildImage(Boolean.valueOf(annotationValue));
+                    dockerModel.setBuildImage(Boolean.parseBoolean(annotationValue));
                     break;
                 case enableDebug:
-                    dockerModel.setEnableDebug(Boolean.valueOf(annotationValue));
+                    dockerModel.setEnableDebug(Boolean.parseBoolean(annotationValue));
                     break;
                 case debugPort:
                     dockerModel.setDebugPort(Integer.parseInt(annotationValue));

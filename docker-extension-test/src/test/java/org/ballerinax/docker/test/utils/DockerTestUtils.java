@@ -69,9 +69,8 @@ public class DockerTestUtils {
             System.getProperty("ballerina.pack"));
     private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH +
             File.separator + "bin" +
-            File.separator +
-            (System.getProperty("os.name").toLowerCase(Locale.getDefault())
-                    .contains("win") ? "ballerina.bat" : "ballerina");
+            File.separator + (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
+                              "ballerina.bat" : "ballerina");
     private static final String BUILD = "build";
     private static final String RUN = "run";
     private static final String EXECUTING_COMMAND = "Executing command: ";
@@ -225,7 +224,7 @@ public class DockerTestUtils {
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
     
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD);
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, "-a");
         log.info(COMPILING + sourceDirectory.normalize());
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
@@ -241,7 +240,7 @@ public class DockerTestUtils {
         // log ballerina-internal.log content
         if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
-            log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile()));
+            log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
         }
 
         return exitCode;

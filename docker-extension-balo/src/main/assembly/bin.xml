@@ -40,7 +40,7 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/caches/jar_cache/ballerina/docker/0.0.0/ballerina-docker-0.0.0.jar</source>
+            <source>${project.build.directory}/caches/jar_cache/ballerina/docker/ballerina-docker-.jar</source>
             <outputDirectory>.</outputDirectory>
             <fileMode>755</fileMode>
         </file>

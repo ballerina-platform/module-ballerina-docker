@@ -22,11 +22,11 @@ DOCKER_BALO_MAVEN_PROJECT_ROOT=${2}
 
 # TEMP
 #rm -rf ${DISTRIBUTION_PATH}/*
-#cp -r /Users/hemikak/ballerina/dev/ballerina/distribution/zip/jballerina-tools/build/distributions/jballerina-tools-0.992.0-m2-SNAPSHOT/* ${DISTRIBUTION_PATH}
+#cp -r /Users/hemikak/ballerina/dev/ballerina/distribution/zip/jballerina-tools/build/distributions/jballerina-tools-1.0.0-beta-SNAPSHOT/* ${DISTRIBUTION_PATH}
 
 EXECUTABLE="${DISTRIBUTION_PATH}/bin/ballerina"
-DOCKER_BALLERINA_PROJECT="${DOCKER_BALO_MAVEN_PROJECT_ROOT}/src/main/ballerina/ballerinax"
-DISTRIBUTION_BIR_CACHE="${DISTRIBUTION_PATH}/bir-cache/ballerina/"
+DOCKER_BALLERINA_PROJECT="${DOCKER_BALO_MAVEN_PROJECT_ROOT}/src/main/ballerina/ballerina"
+DISTRIBUTION_BIR_CACHE="${DISTRIBUTION_PATH}/bir-cache/ballerina/docker/0.0.0/"
 DISTRIBUTION_SYSTEM_LIB="${DISTRIBUTION_PATH}/bre/lib/"
 
 mkdir -p ${DISTRIBUTION_BIR_CACHE}
@@ -37,16 +37,15 @@ rm -rf ${DOCKER_BALLERINA_PROJECT}/target
 if ! hash pushd 2>/dev/null
 then
     cd ${DOCKER_BALLERINA_PROJECT}
-    ${EXECUTABLE} compile
+    JAVA_OPTS="-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true" ${EXECUTABLE} build -c -a --skip-tests
     cd -
 else
     pushd ${DOCKER_BALLERINA_PROJECT} /dev/null 2>&1
-        ${EXECUTABLE} compile
+        JAVA_OPTS="-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true" ${EXECUTABLE} build -c -a --skip-tests
     popd > /dev/null 2>&1
 fi
 
 cp -r ${DOCKER_BALLERINA_PROJECT}/target/* ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target
 
-cp -r ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/bir_cache/ballerina/docker ${DISTRIBUTION_BIR_CACHE}
-cp ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/jar_cache/ballerina/docker/0.0.0/ballerinax-docker-0.0.0.jar ${DISTRIBUTION_SYSTEM_LIB}
-
+cp -r ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/bir_cache/ballerina/docker/docker.bir ${DISTRIBUTION_BIR_CACHE}
+cp ${DOCKER_BALO_MAVEN_PROJECT_ROOT}/target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar ${DISTRIBUTION_SYSTEM_LIB}/docker.jar

@@ -2,7 +2,7 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 import ballerina/io;
-import ballerinax/docker;
+import ballerina/docker;
 
 @docker:Config {}
 @docker:CopyFiles {

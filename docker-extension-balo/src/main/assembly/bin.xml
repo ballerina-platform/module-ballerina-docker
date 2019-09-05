@@ -31,7 +31,7 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/caches/bir_cache/ballerinax/docker
+                ${project.build.directory}/caches/bir_cache/ballerina/docker
             </directory>
             <outputDirectory>docker</outputDirectory>
             <fileMode>755</fileMode>
@@ -40,7 +40,7 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/caches/jar_cache/ballerinax/docker/0.0.0/ballerinax-docker-0.0.0.jar</source>
+            <source>${project.build.directory}/caches/jar_cache/ballerina/docker/ballerina-docker-.jar</source>
             <outputDirectory>.</outputDirectory>
             <fileMode>755</fileMode>
         </file>

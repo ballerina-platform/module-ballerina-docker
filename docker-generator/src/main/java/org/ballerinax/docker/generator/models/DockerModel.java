@@ -207,7 +207,7 @@ public class DockerModel {
             if (Files.isDirectory(Paths.get(externalFile.getSource()))) {
                 throw new DockerGenException("invalid config file given: " + externalFile.getSource());
             }
-            addCommandArg(" --config " + externalFile.getTarget());
+            addCommandArg(" --b7a.config=" + externalFile.getTarget());
         }
     }
 

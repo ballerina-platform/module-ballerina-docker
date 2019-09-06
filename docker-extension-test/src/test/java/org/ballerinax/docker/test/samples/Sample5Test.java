@@ -81,7 +81,7 @@ public class Sample5Test extends SampleTest {
     @Test
     public void validateDockerImage() throws DockerTestException {
         Assert.assertEquals(getCommand(this.dockerImage).toString(), "[/bin/sh, -c, java -jar " +
-                                                                     "hello_config_file-executable.jar " +
+                                                                     "hello_config_file.jar " +
                                                                      "--config /home/ballerina/conf/ballerina.conf]");
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 1);

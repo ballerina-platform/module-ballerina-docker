@@ -51,7 +51,7 @@ import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
  * Compiler plugin to generate docker artifacts.
  */
 @SupportedAnnotationPackages(
-        value = "ballerinax/docker:0.0.0"
+        value = "ballerina/docker"
 )
 public class DockerPlugin extends AbstractCompilerPlugin {
     private static final Logger pluginLog = LoggerFactory.getLogger(DockerPlugin.class);

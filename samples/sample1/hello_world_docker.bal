@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/log;
-import ballerinax/docker;
+import ballerina/docker;
 
 @http:ServiceConfig {
     basePath: "/helloWorld"

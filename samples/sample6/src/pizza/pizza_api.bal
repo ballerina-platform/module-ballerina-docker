@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/log;
-import ballerinax/docker;
+import ballerina/docker;
 
 @docker:Expose {}
 listener http:Listener pizzaEP = new(9099);

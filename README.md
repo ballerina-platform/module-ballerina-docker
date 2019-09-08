@@ -62,7 +62,7 @@ The docker artifacts will be created in a folder called docker with following st
 ### Annotation Usage Sample:
 ```ballerina
 import ballerina/http;
-import ballerinax/docker;
+import ballerina/docker;
 
 @docker:Expose{}
 endpoint http:Listener helloWorldEP {

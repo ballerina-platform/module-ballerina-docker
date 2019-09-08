@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/log;
-import ballerinax/docker;
+import ballerina/docker;
 
 //Adding the `@docker:Expose{}` annotation to a listener endpoint exposes the endpoint port.
 @docker:Expose {}

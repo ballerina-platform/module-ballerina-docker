@@ -72,7 +72,7 @@ source file.
 ```ballerina
 import ballerina/http;
 import ballerina/log;
-import ballerinax/docker;
+import ballerina/docker;
 
 @docker:Expose{}
 listener http:Listener helloWorldEP = new(9090);

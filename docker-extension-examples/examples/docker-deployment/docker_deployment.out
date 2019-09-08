@@ -3,7 +3,7 @@ $ ballerina build docker_deployment.bal
 Compiling source
 	docker_deployment.bal
 Generating executables
-	docker_deployment-executable.jar
+	docker_deployment.jar
 
 Generating docker artifacts...
 	@docker 		 - complete 2/2 

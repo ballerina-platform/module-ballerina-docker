@@ -39,8 +39,6 @@ do
 	fi
 
 	if [[ number -eq 3 ]]; then
-	  export DOCKER_USERNAME=ballerina
-    export DOCKER_PASSWORD=ballerina
 		ballerina build docker_push_sample.bal
 		dockerId=$(docker run -d -p 9090:9090 index.docker.io/$DOCKER_USERNAME/helloworld-push:v2.0.0)
 		sleep 2

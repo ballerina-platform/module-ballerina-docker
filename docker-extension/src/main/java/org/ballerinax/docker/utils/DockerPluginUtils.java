@@ -27,7 +27,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.Optional;
 
 /**
  * Util methods used for artifact generation.
@@ -112,12 +111,13 @@ public class DockerPluginUtils {
             final String envVariable = variable.substring(variable.lastIndexOf("$env{") + 5,
                     variable.lastIndexOf("}"));
             // resolve value
-            String value = Optional.ofNullable(System.getenv(envVariable))
-                    .orElse(Optional.ofNullable(System.getProperty(envVariable))
-                                    .orElseThrow(() ->
-                                            new DockerPluginException("error resolving value: " + envVariable + " is " +
-                                                                      "not available as an environment variable or a " +
-                                                                      "system property.")));
+            String value = System.getenv(envVariable);
+            value = value != null ? value : System.getProperty(envVariable);
+            if (value == null) {
+                throw new DockerPluginException("error resolving value: " + envVariable + " is " +
+                        "not available as an environment variable or a " +
+                        "system property.");
+            }
             // substitute value
             return variable.replace("$env{" + envVariable + "}", value);
         }

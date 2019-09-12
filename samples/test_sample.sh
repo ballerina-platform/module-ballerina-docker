@@ -26,7 +26,7 @@ do
 		ballerina build hello_world_docker.bal
 		dockerId=$(docker run -d -p 9090:9090 hello_world_docker:latest)
 		sleep 2
-		curl http://localhost:9090/HelloWorld/sayHello
+		curl http://localhost:9090/helloWorld/sayHello
 		docker kill $dockerId
 	fi
 
@@ -34,7 +34,7 @@ do
 		ballerina build hello_world_docker.bal
 		dockerId=$(docker run -d -p 9090:9090 docker.abc.com/helloworld:v1.0)
 		sleep 2
-		curl https://localhost:9090/HelloWorld/sayHello -k
+		curl https://localhost:9090/helloWorld/sayHello -k
 		docker kill $dockerId
 	fi
 

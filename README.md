@@ -20,12 +20,12 @@ Annotation based docker extension implementation for ballerina.
 
 |**Annotation Name**|**Description**|**Default value**|
 |--|--|--|
-|name|Name of the docker image|File name of the generated balx file|
+|name|Name of the docker image|File name of the generated .jar file|
 |registry|Docker registry url|None|
 |tag|Docker image tag|latest|
 |username|Username for docker registry|None|
 |password|Password for docker registry|None|
-|baseImage|Base image to create the docker image|ballerina/ballerina-runtime:<BALLERINA_VERSION>|
+|baseImage|Base image to create the docker image|openjdk:8-jre-alpine|
 |buildImage|Enable building docker image|true|
 |push|Enable pushing docker image to registry|false|
 |enableDebug|Enable debug for ballerina|false|

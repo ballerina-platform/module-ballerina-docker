@@ -116,11 +116,14 @@ class DockerAnnotationProcessor {
                 case baseImage:
                     dockerModel.setBaseImage(annotationValue);
                     break;
+                case buildImage:
+                    dockerModel.setBuildImage(Boolean.parseBoolean(annotationValue));
+                    break;
                 case push:
                     dockerModel.setPush(Boolean.parseBoolean(annotationValue));
                     break;
-                case buildImage:
-                    dockerModel.setBuildImage(Boolean.parseBoolean(annotationValue));
+                case cmd:
+                    dockerModel.setCmd(annotationValue.trim());
                     break;
                 case enableDebug:
                     dockerModel.setEnableDebug(Boolean.parseBoolean(annotationValue));
@@ -213,8 +216,9 @@ class DockerAnnotationProcessor {
         username,
         password,
         baseImage,
-        push,
         buildImage,
+        push,
+        cmd,
         enableDebug,
         debugPort,
         dockerAPIVersion,

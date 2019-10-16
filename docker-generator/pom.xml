@@ -32,8 +32,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.spotify</groupId>
-            <artifactId>docker-client</artifactId>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

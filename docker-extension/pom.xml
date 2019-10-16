@@ -40,8 +40,8 @@
             <artifactId>docker-generator</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.spotify</groupId>
-            <artifactId>docker-client</artifactId>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -149,7 +149,7 @@
                                     <include>com.fasterxml.jackson.datatype:jackson-datatype-guava</include>
                                     <include>com.fasterxml.jackson.jaxrs:jackson-jaxrs-base</include>
                                     <include>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</include>
-                                    <incldue>com.spotify:docker-client</incldue>
+                                    <incldue>com.github.docker-java:docker-java</incldue>
                                     <inculde>javax.annotation:javax.annotation-api</inculde>
                                     <include>javax.ws.rs:javax.ws.rs-api</include>
                                     <include>org.apache.commons:commons-compress</include>
@@ -261,7 +261,7 @@
                                     </includes>
                                 </filter>
                                 <filter>
-                                    <artifact>com.spotify:docker-client</artifact>
+                                    <artifact>com.github.docker-java:docker-java</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>

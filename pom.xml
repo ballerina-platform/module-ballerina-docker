@@ -90,9 +90,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-client</artifactId>
-                <version>${spotify.docker.client.version}</version>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java</artifactId>
+                <version>${docker.java.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -277,7 +277,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <slf4j.version>1.7.26</slf4j.version>
-        <spotify.docker.client.version>8.15.1</spotify.docker.client.version>
+        <docker.java.version>3.1.5</docker.java.version>
         <testng.version>6.14.3</testng.version>
         <lombok.version>1.18.10</lombok.version>
     </properties>

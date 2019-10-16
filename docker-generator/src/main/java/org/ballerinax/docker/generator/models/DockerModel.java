@@ -18,7 +18,7 @@
 
 package org.ballerinax.docker.generator.models;
 
-import com.spotify.docker.client.DockerHost;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
 import lombok.Data;
 import org.ballerinax.docker.generator.DockerGenConstants;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
@@ -67,6 +67,7 @@ public class DockerModel {
         this.enableDebug = false;
         this.debugPort = 5005;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
+        DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerHost()
         this.setDockerHost(DockerHost.fromEnv().host());
         this.setDockerCertPath(DockerHost.fromEnv().dockerCertPath());
 

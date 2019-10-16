@@ -279,15 +279,20 @@ public class DockerArtifactHandler {
             stringBuilder.append("EXPOSE ");
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
+        stringBuilder.append("\n");
         
-        stringBuilder.append("\nCMD java -jar ").append(dockerModel.getUberJarFileName());
-        
-        if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
-            stringBuilder.append(dockerModel.getCommandArg());
-        }
-        
-        if (dockerModel.isEnableDebug()) {
-            stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
+        if (null == this.dockerModel.getCmd() || "".equals(this.dockerModel.getCmd())) {
+            stringBuilder.append("\nCMD java -jar ").append(dockerModel.getUberJarFileName());
+    
+            if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
+                stringBuilder.append(dockerModel.getCommandArg());
+            }
+    
+            if (dockerModel.isEnableDebug()) {
+                stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
+            }
+        } else {
+            stringBuilder.append(this.dockerModel.getCmd());
         }
         
         stringBuilder.append("\n");
@@ -318,17 +323,23 @@ public class DockerArtifactHandler {
             stringBuilder.append("EXPOSE ");
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
-
-        stringBuilder.append("\nCMD ballerina.bat run ");
-
-        if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
-            stringBuilder.append(dockerModel.getCommandArg());
+    
+        stringBuilder.append("\n");
+    
+        if (null == this.dockerModel.getCmd() || "".equals(this.dockerModel.getCmd())) {
+            stringBuilder.append("\nCMD java -jar ").append(dockerModel.getUberJarFileName());
+    
+            if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
+                stringBuilder.append(dockerModel.getCommandArg());
+            }
+    
+            if (dockerModel.isEnableDebug()) {
+                stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
+            }
+        } else {
+            stringBuilder.append(this.dockerModel.getCmd());
         }
-
-        if (dockerModel.isEnableDebug()) {
-            stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
-        }
-        stringBuilder.append(" ").append(dockerModel.getUberJarFileName());
+        
         stringBuilder.append("\n");
 
         return stringBuilder.toString();

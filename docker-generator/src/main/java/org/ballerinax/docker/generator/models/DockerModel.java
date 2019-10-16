@@ -34,6 +34,8 @@ import static org.ballerinax.docker.generator.DockerGenConstants.DOCKER_API_VERS
  * Docker annotations model class.
  */
 public class DockerModel {
+    private static final boolean WINDOWS_BUILD = "true".equals(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
+    
     private String name;
     private String registry;
     private String tag;
@@ -52,13 +54,15 @@ public class DockerModel {
     private String uberJarFileName;
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
+    private String cmd;
 
     public DockerModel() {
         // Initialize with default values except for image name
         this.tag = "latest";
         this.push = false;
         this.buildImage = true;
-        this.baseImage = DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
+        this.baseImage = WINDOWS_BUILD ? DockerGenConstants.OPENJDK_8_JRE_WINDOWS_BASE_IMAGE :
+                         DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
         this.enableDebug = false;
         this.debugPort = 5005;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
@@ -227,6 +231,14 @@ public class DockerModel {
         this.commandArg += commandArg;
     }
     
+    public String getCmd() {
+        return this.cmd;
+    }
+    
+    public void setCmd(String cmd) {
+        this.cmd = cmd;
+    }
+    
     @Override
     public String toString() {
         return "DockerModel{" +
@@ -248,6 +260,7 @@ public class DockerModel {
                ", uberJarFileName='" + uberJarFileName + '\'' +
                ", externalFiles=" + externalFiles +
                ", commandArg='" + commandArg + '\'' +
+               ", cmd='" + cmd + '\'' +
                '}';
     }
 }

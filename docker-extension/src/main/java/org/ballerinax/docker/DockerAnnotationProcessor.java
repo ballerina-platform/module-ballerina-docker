@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerPluginUtils.resolveValue;
 
@@ -65,8 +64,12 @@ class DockerAnnotationProcessor {
                 String defaultImageName = DockerGenUtils.extractUberJarName(uberJarFilePath);
                 dockerModel.setName(defaultImageName);
             }
-            dockerModel.setUberJarFileName(DockerGenUtils.extractUberJarName(uberJarFilePath) + EXECUTABLE_JAR);
-
+    
+            Path uberJarFileName = uberJarFilePath.getFileName();
+            if (null != uberJarFileName) {
+                dockerModel.setUberJarFileName(uberJarFileName.toString());
+            }
+    
             Set<Integer> ports = dockerModel.getPorts();
             if (dockerModel.isEnableDebug()) {
                 ports.add(dockerModel.getDebugPort());

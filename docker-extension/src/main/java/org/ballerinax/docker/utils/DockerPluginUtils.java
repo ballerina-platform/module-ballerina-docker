@@ -27,6 +27,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Optional;
 
 /**
  * Util methods used for artifact generation.
@@ -100,27 +101,22 @@ public class DockerPluginUtils {
     /**
      * Resolve variable value from environment variable if $env{} is used. Else return the value.
      *
-     * @param variable variable value
+     * @param value variable value
      * @return Resolved variable
      */
-    public static String resolveValue(String variable) throws DockerPluginException {
-        if (variable.contains("$env{")) {
-            // remove white spaces
-            variable = variable.replace(" ", "");
-            // extract variable name
-            final String envVariable = variable.substring(variable.lastIndexOf("$env{") + 5,
-                    variable.lastIndexOf("}"));
-            // resolve value
-            String value = System.getenv(envVariable);
-            value = value != null ? value : System.getProperty(envVariable);
-            if (value == null) {
-                throw new DockerPluginException("error resolving value: " + envVariable + " is " +
-                        "not available as an environment variable or a " +
-                        "system property.");
+    public static String resolveValue(String value) throws DockerPluginException {
+        int startIndex;
+        if ((startIndex = value.indexOf("$env{")) >= 0) {
+            int endIndex = value.indexOf("}", startIndex);
+            if (endIndex > 0) {
+                String varName = value.substring(startIndex + 5, endIndex).trim();
+                String resolvedVar = Optional.ofNullable(System.getenv(varName)).orElseThrow(() ->
+                        new DockerPluginException("error resolving value: " + varName +
+                                                      " is not set in the environment."));
+                String rest = (value.length() > endIndex + 1) ? resolveValue(value.substring(endIndex + 1)) : "";
+                return value.substring(0, startIndex) + resolvedVar + rest;
             }
-            // substitute value
-            return variable.replace("$env{" + envVariable + "}", value);
         }
-        return variable;
+        return value;
     }
 }

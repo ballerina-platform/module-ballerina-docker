@@ -232,7 +232,21 @@ public class DockerModel {
     }
     
     public String getCmd() {
-        return this.cmd;
+        if (this.cmd == null) {
+            return null;
+        }
+        
+        String configFile = "";
+        for (CopyFileModel externalFile : externalFiles) {
+            if (!externalFile.isBallerinaConf()) {
+                continue;
+            }
+            configFile = externalFile.getTarget();
+        }
+        
+        return this.cmd
+                .replace("${APP}", this.uberJarFileName)
+                .replace("${CONFIG_FILE}", configFile);
     }
     
     public void setCmd(String cmd) {

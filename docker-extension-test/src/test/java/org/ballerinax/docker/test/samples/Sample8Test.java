@@ -22,6 +22,7 @@ import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.test.utils.ProcessOutput;
+import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -87,7 +88,7 @@ public class Sample8Test extends SampleTest {
     @AfterClass
     public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerTestUtils.stopContainer(containerID);
-//        DockerPluginUtils.deleteDirectory(targetPath);
+        DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);
     }
 }

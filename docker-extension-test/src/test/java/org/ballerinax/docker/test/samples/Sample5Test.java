@@ -63,7 +63,6 @@ public class Sample5Test extends SampleTest {
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample5_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
-        Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
         Assert.assertTrue(runOutput.getStdOutput().contains("{'userId': 'john@ballerina.com', 'groups': 'apim,esb'}"),
                 "Unexpected service response.");
         Assert.assertTrue(runOutput.getStdOutput().contains("{'userId': 'jane3@ballerina.com', 'groups': 'esb'}"),

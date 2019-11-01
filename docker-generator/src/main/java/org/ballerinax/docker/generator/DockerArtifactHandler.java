@@ -254,45 +254,65 @@ public class DockerArtifactHandler {
      * @return Dockerfile content as a string
      */
     private String generateDockerfile() {
-        String dockerBase = "# Auto Generated Dockerfile\n" +
-                            "\n" +
-                            "FROM " + dockerModel.getBaseImage() + "\n" +
-                            "LABEL maintainer=\"dev@ballerina.io\"\n" +
-                            "\n" +
-                            "WORKDIR /home/ballerina" +
-                            "\n" +
-                            "COPY " + dockerModel.getUberJarFileName() + " /home/ballerina \n\n";
-
-        StringBuilder stringBuilder = new StringBuilder(dockerBase);
+        StringBuilder dockerfileContent = new StringBuilder();
+        dockerfileContent.append("# Auto Generated Dockerfile\n");
+        dockerfileContent.append("FROM ").append(dockerModel.getBaseImage()).append("\n");
+        dockerfileContent.append("\n");
+        dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
+        dockerfileContent.append("\n");
+        
+        if (!this.dockerModel.isCustomBaseImageSet()) {
+            dockerfileContent.append("RUN addgroup troupe \\").append("\n");
+            dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
+                    .append("\n");
+            dockerfileContent.append("    && apk add --update --no-cache bash \\").append("\n");
+            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\").append("\n");
+            dockerfileContent.append("    && rm -rf /var/cache/apk/*").append("\n");
+            dockerfileContent.append("\n");
+        }
+        
+        dockerfileContent.append("WORKDIR /home/ballerina").append("\n");
+        dockerfileContent.append("\n");
+        dockerfileContent.append("COPY ").append(dockerModel.getUberJarFileName()).append(" /home/ballerina")
+                                                                                                        .append("\n");
         
         dockerModel.getCopyFiles().forEach(file -> {
             // Extract the source filename relative to docker folder.
             String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
-            stringBuilder.append("COPY ")
+            dockerfileContent.append("COPY ")
                     .append(sourceFileName)
                     .append(" ")
                     .append(file.getTarget())
                     .append("\n");
         });
         
+        dockerfileContent.append("\n");
+        
         if (dockerModel.isService() && dockerModel.getPorts().size() > 0) {
-            stringBuilder.append("EXPOSE ");
-            dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
+            dockerfileContent.append("EXPOSE ");
+            dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
+        }
+        dockerfileContent.append("\n");
+        dockerfileContent.append("USER ballerina").append("\n");
+        dockerfileContent.append("\n");
+        
+        if (null == this.dockerModel.getCmd() || "".equals(this.dockerModel.getCmd())) {
+            dockerfileContent.append("CMD java -jar ").append(dockerModel.getUberJarFileName());
+    
+            if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
+                dockerfileContent.append(dockerModel.getCommandArg());
+            }
+    
+            if (dockerModel.isEnableDebug()) {
+                dockerfileContent.append(" --debug ").append(dockerModel.getDebugPort());
+            }
+        } else {
+            dockerfileContent.append(this.dockerModel.getCmd());
         }
         
-        stringBuilder.append("\nCMD java -jar ").append(dockerModel.getUberJarFileName());
+        dockerfileContent.append("\n");
         
-        if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
-            stringBuilder.append(dockerModel.getCommandArg());
-        }
-        
-        if (dockerModel.isEnableDebug()) {
-            stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
-        }
-        
-        stringBuilder.append("\n");
-        
-        return stringBuilder.toString();
+        return dockerfileContent.toString();
     }
 
     private String generateDockerfileForWindows() {
@@ -318,17 +338,23 @@ public class DockerArtifactHandler {
             stringBuilder.append("EXPOSE ");
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
-
-        stringBuilder.append("\nCMD ballerina.bat run ");
-
-        if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
-            stringBuilder.append(dockerModel.getCommandArg());
+    
+        stringBuilder.append("\n");
+    
+        if (null == this.dockerModel.getCmd() || "".equals(this.dockerModel.getCmd())) {
+            stringBuilder.append("\nCMD java -jar ").append(dockerModel.getUberJarFileName());
+    
+            if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
+                stringBuilder.append(dockerModel.getCommandArg());
+            }
+    
+            if (dockerModel.isEnableDebug()) {
+                stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
+            }
+        } else {
+            stringBuilder.append(this.dockerModel.getCmd());
         }
-
-        if (dockerModel.isEnableDebug()) {
-            stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
-        }
-        stringBuilder.append(" ").append(dockerModel.getUberJarFileName());
+        
         stringBuilder.append("\n");
 
         return stringBuilder.toString();

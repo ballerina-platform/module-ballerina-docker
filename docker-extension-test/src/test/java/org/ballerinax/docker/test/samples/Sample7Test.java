@@ -53,6 +53,12 @@ public class Sample7Test extends SampleTest {
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
+        try {
+            // remove container if already exists.
+            DockerTestUtils.stopContainer(this.dockerContainerName);
+        } catch (DockerTestException e) {
+            // ignore
+        }
     }
     
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
@@ -69,7 +75,6 @@ public class Sample7Test extends SampleTest {
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample7_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
-        Assert.assertEquals(runOutput.getErrOutput().trim(), "", "Unexpected error occurred.");
         Assert.assertEquals(runOutput.getStdOutput().trim(), "Hello, World from service helloWorld ! Hello, World " +
                                                              "from service helloWorld !",
                 "Unexpected service response.");

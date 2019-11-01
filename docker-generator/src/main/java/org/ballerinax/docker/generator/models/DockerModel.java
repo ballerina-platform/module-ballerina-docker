@@ -34,6 +34,8 @@ import static org.ballerinax.docker.generator.DockerGenConstants.DOCKER_API_VERS
  * Docker annotations model class.
  */
 public class DockerModel {
+    private static final boolean WINDOWS_BUILD = "true".equals(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
+    
     private String name;
     private String registry;
     private String tag;
@@ -52,15 +54,19 @@ public class DockerModel {
     private String uberJarFileName;
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
+    private String cmd;
+    private boolean customBaseImageSet;
 
     public DockerModel() {
         // Initialize with default values except for image name
         this.tag = "latest";
         this.push = false;
         this.buildImage = true;
-        this.baseImage = DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
+        this.baseImage = WINDOWS_BUILD ? DockerGenConstants.OPENJDK_8_JRE_WINDOWS_BASE_IMAGE :
+                         DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
         this.enableDebug = false;
         this.debugPort = 5005;
+        this.customBaseImageSet = false;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
         this.setDockerHost(DockerHost.fromEnv().host());
         this.setDockerCertPath(DockerHost.fromEnv().dockerCertPath());
@@ -155,6 +161,7 @@ public class DockerModel {
 
     public void setBaseImage(String baseImage) {
         this.baseImage = baseImage;
+        this.customBaseImageSet = true;
     }
 
     public boolean isEnableDebug() {
@@ -227,6 +234,32 @@ public class DockerModel {
         this.commandArg += commandArg;
     }
     
+    public String getCmd() {
+        if (this.cmd == null) {
+            return null;
+        }
+        
+        String configFile = "";
+        for (CopyFileModel externalFile : externalFiles) {
+            if (!externalFile.isBallerinaConf()) {
+                continue;
+            }
+            configFile = externalFile.getTarget();
+        }
+        
+        return this.cmd
+                .replace("${APP}", this.uberJarFileName)
+                .replace("${CONFIG_FILE}", configFile);
+    }
+    
+    public void setCmd(String cmd) {
+        this.cmd = cmd;
+    }
+    
+    public boolean isCustomBaseImageSet() {
+        return this.customBaseImageSet;
+    }
+    
     @Override
     public String toString() {
         return "DockerModel{" +
@@ -248,6 +281,7 @@ public class DockerModel {
                ", uberJarFileName='" + uberJarFileName + '\'' +
                ", externalFiles=" + externalFiles +
                ", commandArg='" + commandArg + '\'' +
+               ", cmd='" + cmd + '\'' +
                '}';
     }
 }

@@ -51,6 +51,12 @@ public class Sample5Test extends SampleTest {
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_config_file.bal"), 0);
+        try {
+            // remove container if already exists.
+            DockerTestUtils.stopContainer(this.dockerContainerName);
+        } catch (DockerTestException e) {
+            // ignore
+        }
     }
     
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)

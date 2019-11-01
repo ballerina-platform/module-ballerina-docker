@@ -8,8 +8,8 @@
 - Mini-kube users should configure following annotations in every sample with valid values: 
 ```ballerina
 @docker:Config {
-    dockerHost:"tcp://192.168.99.100:2376", 
-    dockerCertPath:"/Users/anuruddha/.minikube/certs"
+    dockerHost: "tcp://192.168.99.100:2376", 
+    dockerCertPath: "/Users/anuruddha/.minikube/certs"
 }  
 ```
 - If DOCKER_HOST and DOCKER_CERT_PATH are exported as environment variables, priority will be given to environment variables.
@@ -24,3 +24,4 @@
 1. [Example5: Copy files to Docker image](sample5/)
 1. [Example6: Multiple modules with docker annotation](sample6/)
 1. [Example7: Run ballerina service in http and https with docker](sample7/)
+1. [Example8: Override CMD of the generated Dockerfile](sample8/)

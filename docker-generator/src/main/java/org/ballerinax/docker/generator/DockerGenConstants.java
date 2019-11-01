@@ -30,4 +30,5 @@ public class DockerGenConstants {
     public static final String TAG_SEPARATOR = ":";
     public static final String ARTIFACT_DIRECTORY = "docker";
     public static final String OPENJDK_8_JRE_ALPINE_BASE_IMAGE = "openjdk:8-jre-alpine";
+    public static final String OPENJDK_8_JRE_WINDOWS_BASE_IMAGE = "openjdk:8-windowsservercore";
 }

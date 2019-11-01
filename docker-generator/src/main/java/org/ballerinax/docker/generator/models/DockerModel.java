@@ -55,6 +55,7 @@ public class DockerModel {
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
     private String cmd;
+    private boolean customBaseImageSet;
 
     public DockerModel() {
         // Initialize with default values except for image name
@@ -65,6 +66,7 @@ public class DockerModel {
                          DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
         this.enableDebug = false;
         this.debugPort = 5005;
+        this.customBaseImageSet = false;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
         this.setDockerHost(DockerHost.fromEnv().host());
         this.setDockerCertPath(DockerHost.fromEnv().dockerCertPath());
@@ -159,6 +161,7 @@ public class DockerModel {
 
     public void setBaseImage(String baseImage) {
         this.baseImage = baseImage;
+        this.customBaseImageSet = true;
     }
 
     public boolean isEnableDebug() {
@@ -251,6 +254,10 @@ public class DockerModel {
     
     public void setCmd(String cmd) {
         this.cmd = cmd;
+    }
+    
+    public boolean isCustomBaseImageSet() {
+        return this.customBaseImageSet;
     }
     
     @Override

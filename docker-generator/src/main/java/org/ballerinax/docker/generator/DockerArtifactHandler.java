@@ -261,7 +261,7 @@ public class DockerArtifactHandler {
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
         
-        if (!this.dockerModel.isCustomBaseImageSet()) {
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
             dockerfileContent.append("RUN addgroup troupe \\").append("\n");
             dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
                     .append("\n");
@@ -293,8 +293,10 @@ public class DockerArtifactHandler {
             dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
         }
         dockerfileContent.append("\n");
-        dockerfileContent.append("USER ballerina").append("\n");
-        dockerfileContent.append("\n");
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
+            dockerfileContent.append("USER ballerina").append("\n");
+            dockerfileContent.append("\n");
+        }
         
         if (null == this.dockerModel.getCmd() || "".equals(this.dockerModel.getCmd())) {
             dockerfileContent.append("CMD java -jar ").append(dockerModel.getUberJarFileName());

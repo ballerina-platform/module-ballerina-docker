@@ -253,10 +253,6 @@ public class DockerModel {
         this.cmd = cmd;
     }
     
-    public boolean isDefaultLinuxBaseImage() {
-        return this.baseImage.equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE);
-    }
-    
     @Override
     public String toString() {
         return "DockerModel{" +

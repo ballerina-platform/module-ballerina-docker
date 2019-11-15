@@ -55,18 +55,15 @@ public class DockerModel {
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
     private String cmd;
-    private boolean customBaseImageSet;
 
     public DockerModel() {
         // Initialize with default values except for image name
         this.tag = "latest";
         this.push = false;
         this.buildImage = true;
-        this.baseImage = WINDOWS_BUILD ? DockerGenConstants.OPENJDK_8_JRE_WINDOWS_BASE_IMAGE :
-                         DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
+        this.baseImage = getDefaultBaseImage();
         this.enableDebug = false;
         this.debugPort = 5005;
-        this.customBaseImageSet = false;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
         this.setDockerHost(DockerHost.fromEnv().host());
         this.setDockerCertPath(DockerHost.fromEnv().dockerCertPath());
@@ -74,7 +71,7 @@ public class DockerModel {
         externalFiles = new HashSet<>();
         commandArg = "";
     }
-
+    
     public String getName() {
         return name;
     }
@@ -161,7 +158,6 @@ public class DockerModel {
 
     public void setBaseImage(String baseImage) {
         this.baseImage = baseImage;
-        this.customBaseImageSet = true;
     }
 
     public boolean isEnableDebug() {
@@ -256,8 +252,13 @@ public class DockerModel {
         this.cmd = cmd;
     }
     
-    public boolean isCustomBaseImageSet() {
-        return this.customBaseImageSet;
+    public boolean isDefaultBaseImage() {
+        return this.baseImage.equals(getDefaultBaseImage());
+    }
+    
+    private String getDefaultBaseImage() {
+        return WINDOWS_BUILD ? DockerGenConstants.OPENJDK_8_JRE_WINDOWS_BASE_IMAGE :
+               DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
     }
     
     @Override

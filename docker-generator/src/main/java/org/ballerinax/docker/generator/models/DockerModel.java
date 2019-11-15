@@ -61,7 +61,8 @@ public class DockerModel {
         this.tag = "latest";
         this.push = false;
         this.buildImage = true;
-        this.baseImage = getDefaultBaseImage();
+        this.baseImage = WINDOWS_BUILD ? DockerGenConstants.OPENJDK_8_JRE_WINDOWS_BASE_IMAGE :
+                         DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
         this.enableDebug = false;
         this.debugPort = 5005;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
@@ -252,13 +253,8 @@ public class DockerModel {
         this.cmd = cmd;
     }
     
-    public boolean isDefaultBaseImage() {
-        return this.baseImage.equals(getDefaultBaseImage());
-    }
-    
-    private String getDefaultBaseImage() {
-        return WINDOWS_BUILD ? DockerGenConstants.OPENJDK_8_JRE_WINDOWS_BASE_IMAGE :
-               DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
+    public boolean isDefaultLinuxBaseImage() {
+        return this.baseImage.equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE);
     }
     
     @Override

@@ -38,7 +38,7 @@ function testSecuredEndpoint(string host) {
     http:Client helloWorldSecuredEP = new("https://" + host + ":9696", {
             secureSocket: {
                 trustStore: {
-                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    path: "security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
                 verifyHostname: false

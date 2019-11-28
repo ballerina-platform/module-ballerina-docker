@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -73,8 +74,11 @@ public class Sample1Test extends SampleTest {
     }
     
     @Test
-    public void validateDockerfile() {
+    public void validateDockerfile() throws IOException {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
+        String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
+        Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
+        Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());
     }
 

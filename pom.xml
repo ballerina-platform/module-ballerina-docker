@@ -24,7 +24,7 @@
     </parent>
 
     <groupId>org.ballerinax.docker</groupId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.6-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension-parent</artifactId>
     <packaging>pom</packaging>
@@ -34,7 +34,6 @@
     <modules>
         <module>docker-generator</module>
         <module>docker-extension</module>
-        <module>docker-extension-balo</module>
         <module>docker-extension-test</module>
         <module>docker-extension-examples</module>
         <module>docker-extension-coverage-report</module>
@@ -194,7 +193,7 @@
         <repository>
             <id>wso2.stage</id>
             <name>WSO2 Stage Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1427</url>
+            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1474</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
@@ -259,7 +258,7 @@
     </scm>
 
     <properties>
-        <ballerina.lang.version>1.0.2-SNAPSHOT</ballerina.lang.version>
+        <ballerina.lang.version>1.0.5</ballerina.lang.version>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>

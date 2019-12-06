@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
 import javax.ws.rs.ext.RuntimeDelegate;
 
 /**
@@ -353,7 +354,8 @@ public class DockerTestUtils {
 
             while (logWaitCount < LOG_WAIT_COUNT) {
                 log.info("Waiting for container startup " + (logWaitCount + 1) + "/" + LOG_WAIT_COUNT);
-                LogStream logStream = dockerClient.logs(containerID, DockerClient.LogsParam.stdout());
+                LogStream logStream = dockerClient.logs(containerID, DockerClient.LogsParam.stdout(),
+                        DockerClient.LogsParam.stderr());
                 containerLogs.append(logStream.readFully().trim());
                 if (containerLogs.toString().trim().contains(logToWait)) {
                     containerStarted = true;

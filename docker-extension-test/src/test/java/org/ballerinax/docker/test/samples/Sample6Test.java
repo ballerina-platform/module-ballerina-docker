@@ -58,6 +58,13 @@ public class Sample6Test extends SampleTest {
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaProject(sourceDirPath), 0);
+        try {
+            // remove container if already exists.
+            DockerTestUtils.stopContainer(this.burgerContainerName);
+            DockerTestUtils.stopContainer(this.pizzaContainerName);
+        } catch (DockerTestException e) {
+            // ignore
+        }
     }
     
     @Test(dependsOnMethods = "validateBurgerDockerImage", timeOut = 45000)

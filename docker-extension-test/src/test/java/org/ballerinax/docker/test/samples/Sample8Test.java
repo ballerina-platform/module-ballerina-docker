@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -40,17 +39,17 @@ import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 /**
  * Test class for sample1.
  */
-public class Sample1Test extends SampleTest {
+public class Sample8Test extends SampleTest {
 
-    private final Path sourceDirPath = SAMPLE_DIR.resolve("sample1");
+    private final Path sourceDirPath = SAMPLE_DIR.resolve("sample8");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
-    private final String dockerImage = "hello_world_docker:latest";
+    private final String dockerImage = "hello_world_cmd_docker:latest";
     private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
     private String containerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
+        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_cmd_docker.bal"), 0);
         try {
             // remove container if already exists.
             DockerTestUtils.stopContainer(this.dockerContainerName);
@@ -63,22 +62,19 @@ public class Sample1Test extends SampleTest {
     public void testService() throws IOException, InterruptedException, DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
-                "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
+                "ballerina: HTTP access log enabled\n[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
     
         // send request
-        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample1_client.bal");
+        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample8_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
         Assert.assertEquals(runOutput.getStdOutput(), "Hello, World from service helloWorld ! ",
                 "Unexpected service response.");
     }
     
     @Test
-    public void validateDockerfile() throws IOException {
+    public void validateDockerfile() {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
-        String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
-        Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
-        Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());
     }
 

@@ -18,16 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 public function main(string... args) {
-    http:Client helloWorldEP = new("https://" + <@untainted> args[0] + ":9090", {
-            secureSocket: {
-                trustStore: {
-                    path: "security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname: false
-            }
-        });
-
+    http:Client helloWorldEP = new("http://" + <@untainted> args[0] + ":9090");
     var response = helloWorldEP->get("/helloWorld/sayHello");
     if (response is http:Response) {
         io:println(response.getTextPayload());

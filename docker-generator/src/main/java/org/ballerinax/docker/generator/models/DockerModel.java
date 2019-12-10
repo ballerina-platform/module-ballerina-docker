@@ -261,7 +261,6 @@ public class DockerModel {
                ", tag='" + tag + '\'' +
                ", push=" + push +
                ", username='" + username + '\'' +
-               ", password='" + password + '\'' +
                ", buildImage" + "=" + buildImage +
                ", baseImage='" + baseImage + '\'' +
                ", ports=" + ports +

@@ -8,7 +8,7 @@
     anuruddhal/helloworld-push:v2.0.0
     
     $> tree
-    ├── docker_push_sample.balx
+    ├── docker_push_sample.jar
     └── docker
         └── Dockerfile
     ```
@@ -18,9 +18,11 @@
 ```bash
 @docker:DockerConfig {
     push:true,
-    registry:"index.docker.io/<username>",
+    registry:"index.docker.io/$env{DOCKER_USERNAME},
     name:"helloworld-push",
     tag:"v2.0.0",
+    username: "$env{DOCKER_USERNAME}",
+    password: "$env{DOCKER_PASSWORD}"
 }
 ```
 
@@ -33,18 +35,27 @@ export DOCKER_PASSWORD=<password>
 3. Compile the  docker_push_sample.bal file. 
 ```bash
 $> ballerina build docker_push_sample.bal
-@docker 		 - complete 3/3
-Run following command to start docker container:
-docker run -d -p 9090:9090 index.docker.io/anuruddhal/helloworld-push:v2.0.0
+Compiling source
+        docker_push_sample.bal
+
+Generating executables
+        docker_push_sample.jar
+
+Generating docker artifacts...
+        @docker                  - complete 3/3 
+
+        Run the following command to start a Docker container:
+        docker run -d -p 9090:9090 index.docker.io/anuruddhal/helloworld-push:v2.0.0
+
 ```
 
-4. hello-world-docker.balx, Dockerfile and docker image will be generated: 
+4. hello-world-docker.jar, Dockerfile and docker image will be generated: 
 ```bash
 $> tree
 .
 ├── README.md
 ├── docker_push_sample.bal
-├── docker_push_sample.balx
+├── docker_push_sample.jar
 └── docker
     └── Dockerfile
 ```

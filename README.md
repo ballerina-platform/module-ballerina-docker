@@ -58,7 +58,7 @@ The docker artifacts will be created in a folder called docker with following st
 ```bash
 |── docker
 |    └── Dockerfile
-└── outputfilename.balx
+└── outputfilename.jar
 ```
 
 ### Enable building for Windows Platform

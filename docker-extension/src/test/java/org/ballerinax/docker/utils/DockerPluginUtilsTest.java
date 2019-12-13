@@ -46,13 +46,13 @@ public class DockerPluginUtilsTest {
     }
 
     @Test
-    public void extractBalxNameTest() {
-        Path balxFilePath =
-                Paths.get("/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/hello_config_file.balx");
-        String baxlFileName = "hello_config_file";
-        Assert.assertEquals(DockerGenUtils.extractUberJarName(balxFilePath), baxlFileName);
-        balxFilePath = Paths.get("/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/");
-        Assert.assertNull(DockerGenUtils.extractUberJarName(balxFilePath));
+    public void extractJarNameTest() {
+        Path jarFilePath =
+                Paths.get("/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/hello_config_file.jar");
+        String jarFileName = "hello_config_file";
+        Assert.assertEquals(DockerGenUtils.extractUberJarName(jarFilePath), jarFileName);
+        jarFilePath = Paths.get("/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/");
+        Assert.assertNull(DockerGenUtils.extractUberJarName(jarFilePath));
     }
 
     @Test

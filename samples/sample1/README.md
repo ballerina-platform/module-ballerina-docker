@@ -9,7 +9,7 @@
     hello_world_docker:latest
     
     $> tree
-    ├── hello_world_docker.balx
+    ├── hello_world_docker.jar
     └── docker
         └── Dockerfile
     ```
@@ -19,22 +19,25 @@
 ```bash
 $> ballerina build hello_world_docker.bal
 Compiling source
-    hello_world_docker.bal
-Generating executable
-    hello_world_docker.balx
-	@docker 		 - complete 3/3
+        hello_world_docker.bal
 
-	Run the following command to start a Docker container:
-	docker run -d -p 9090:9090 hello_world_docker:latest
+Generating executables
+        hello_world_docker.jar
+
+Generating docker artifacts...
+        @docker                  - complete 2/2 
+
+        Run the following command to start a Docker container:
+        docker run -d -p 9090:9090 hello_world_docker:latest
 ```
 
-2. hello_world_docker.balx, Dockerfile and docker image will be generated: 
+2. hello_world_docker.jar, Dockerfile and docker image will be generated: 
 ```bash
 $> tree
 .
 ├── README.md
 ├── hello_world_docker.bal
-├── hello_world_docker.balx
+├── hello_world_docker.jar
 └── docker
     └── Dockerfile
 ```
@@ -58,7 +61,6 @@ $> docker run -d -p 9090:9090 hello_world_docker:latest
 $> docker ps
 CONTAINER ID        IMAGE                       COMMAND                  CREATED              STATUS              PORTS                    NAMES
 68eb4160ac76        hello_world_docker:latest   "/bin/sh -c 'balleri…"   About a minute ago   Up About a minute   0.0.0.0:9090->9090/tcp   vigilant_swartz
-
 ```
 
 6. Access the hello world service with curl command:

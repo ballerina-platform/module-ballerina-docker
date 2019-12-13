@@ -35,7 +35,6 @@ dependency-reduced-pom.xml
 *.DS_Store
 
 #Ballerina
-*.balx
 samples/*/docker
 velocity.log*
 *Ballerina.lock

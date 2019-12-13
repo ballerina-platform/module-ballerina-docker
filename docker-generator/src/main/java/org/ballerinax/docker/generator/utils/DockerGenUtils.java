@@ -99,7 +99,7 @@ public class DockerGenUtils {
     public static String extractUberJarName(Path uberJarFilePath) {
         if (null != uberJarFilePath) {
             Path fileName = uberJarFilePath.getFileName();
-            if (null != fileName) {
+            if (null != fileName && fileName.toString().endsWith(".jar")) {
                 return fileName.toString().replace(".jar", "");
             }
         }

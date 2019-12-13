@@ -1,6 +1,6 @@
 ## Sample7: Multiple modules with docker annotation
 
-- This sample contains multiple modules with docker annotation. Each module has simple api  which runs simple ballerina service in a docker container in https.
+- This sample contains multiple modules with docker annotation. Each module has a simple API which runs an HTTPS service in a docker container.
 - Following artifacts will be generated from this sample.
     ``` 
     $> docker images

@@ -9,7 +9,7 @@ change image name, tag and registry.
     docker.abc.com/helloworld:v1.0
     
     $> tree
-    ├── hello_world_docker.balx
+    ├── hello_world_docker.jar
     └── docker
         └── Dockerfile
     ```
@@ -19,22 +19,25 @@ change image name, tag and registry.
 ```bash
 $> ballerina build hello_world_docker.bal
 Compiling source
-    hello_world_docker.bal
-Generating executable
-    hello_world_docker.balx
-	@docker 		 - complete 3/3
+        hello_world_docker.bal
 
-	Run the following command to start a Docker container:
-	docker run -d -p 9090:9090 docker.abc.com/helloworld:v1.0
+Generating executables
+        hello_world_docker.jar
+
+Generating docker artifacts...
+        @docker                  - complete 2/2 
+
+        Run the following command to start a Docker container:
+        docker run -d -p 9090:9090 docker.abc.com/helloworld:v1.0
 ```
 
-2. hello_world_docker.balx, Dockerfile and docker image will be generated: 
+2. hello_world_docker.jar, Dockerfile and docker image will be generated: 
 ```bash
 $> tree
 .
 ├── README.md
 ├── hello_world_docker.bal
-├── hello_world_docker.balx
+├── hello_world_docker.jar
 └── docker
     └── Dockerfile
 ```
@@ -43,7 +46,7 @@ $> tree
 ```bash
 $> docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED              SIZE
-docker.abc.com/helloworld   v1              df83ae43f69b        2 minutes ago        102MB
+docker.abc.com/helloworld   v1.0              df83ae43f69b        2 minutes ago        102MB
 
 ```
 

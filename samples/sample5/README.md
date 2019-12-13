@@ -12,9 +12,9 @@
     ├── docker
     │   ├── Dockerfile
     │   ├── data.txt
-    │   └── sample.toml
+    │   └── ballerina.conf
     ├── hello_config_file.bal
-    └── hello_config_file.balx
+    └── hello_config_file.jar
     ```
 ### How to run:
 
@@ -22,29 +22,32 @@
 ```bash
 $> ballerina build hello_config_file.bal
 Compiling source
-    hello_config_file.bal
-Generating executable
-    hello_config_file.balx
-	@docker 		 - complete 3/3
+        hello_config_file.bal
 
-	Run the following command to start a Docker container:
-	docker run -d -p 9090:9090 hello_config_file:latest
+Generating executables
+        hello_config_file.jar
+
+Generating docker artifacts...
+        @docker                  - complete 2/2 
+
+        Run the following command to start a Docker container:
+        docker run -d -p 9090:9090 hello_config_file:latest
 ```
 
-2. hello_config_file.balx, Dockerfile and docker image will be generated: 
+2. hello_config_file.jar, Dockerfile and docker image will be generated: 
 ```bash
 $> tree
 .
 ├── README.md
 ├── conf
 │   ├── data.txt
-│   └── sample.toml
+│   └── ballerina.conf
 ├── docker
 │   ├── Dockerfile
 │   ├── data.txt
-│   └── sample.toml
+│   └── ballerina.conf
 ├── hello_config_file.bal
-└── hello_config_file.balx
+└── hello_config_file.jar
 ```
 
 3. Verify the docker image is created:

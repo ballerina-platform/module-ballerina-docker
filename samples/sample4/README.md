@@ -8,7 +8,7 @@
     helloworld-debug:latest
     
     $> tree
-    ├── hello-world-docker.balx
+    ├── hello-world-docker.jar
     └── docker
         └── Dockerfile
     ```
@@ -18,23 +18,27 @@
 ```bash
 $> ballerina build docker_debug.bal 
 Compiling source
-    docker_debug.bal
-Generating executable
-    docker_debug.balx
-	@docker 		 - complete 3/3
+        docker_debug.bal
 
-	Run the following command to start a Docker container:
-	docker run -d -p 9090:9090 -p 5005:5005 helloworld-debug:latest
+Generating executables
+        docker_debug.jar
+
+Generating docker artifacts...
+        @docker                  - complete 2/2 
+
+        Run the following command to start a Docker container:
+        docker run -d -p 9090:9090 -p 5005:5005 helloworld-debug:latest
+
 ```
 **_Note that the debug port(5005) is also exposed_**
 
-2. docker_debug.balx, Dockerfile and docker image will be generated: 
+2. docker_debug.jar, Dockerfile and docker image will be generated: 
 ```bash
 $> tree
 .
 ├── README.md
 ├── docker_debug.bal
-├── docker_debug.balx
+├── docker_debug.jar
 └── docker
     └── Dockerfile
 ```
@@ -62,7 +66,7 @@ CONTAINER ID        IMAGE                     COMMAND                  CREATED  
 6. Check the docker logs to verify docker image is in debug mode.
 ```bash
 $> docker logs -f 4c6fbbfe2dac
-ballerina: deploying service(s) in 'docker_debug.balx'
+ballerina: deploying service(s) in 'docker_debug.jar'
 Ballerina remote debugger is activated on port : 5005
 ```
 

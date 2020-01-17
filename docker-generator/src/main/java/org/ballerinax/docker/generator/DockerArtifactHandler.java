@@ -83,7 +83,7 @@ public class DockerArtifactHandler {
             dockerContent = generateDockerfileForWindows();
         }
         try {
-            String logStepCount = dockerModel.isPush() ? "3" : "2";
+            String logStepCount = dockerModel.isBuildImage() ? (dockerModel.isPush() ? "3" : "2") : "1";
             outStream.print(logAppender + " - complete 0/" + logStepCount + " \r");
             DockerGenUtils.writeToFile(dockerContent, outputDir.resolve("Dockerfile"));
             outStream.print(logAppender + " - complete 1/" + logStepCount + " \r");

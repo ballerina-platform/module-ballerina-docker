@@ -11,7 +11,8 @@ listener http:Listener helloWorldEP = new(9090);
     name: "helloworld-push",
     tag: "v2.0.0",
     username: "$env{DOCKER_USERNAME}",
-    password: "$env{DOCKER_PASSWORD}"
+    password: "$env{DOCKER_PASSWORD}",
+    dockerAPIVersion: "ABC"
 }
 @http:ServiceConfig {
     basePath: "/helloWorld"

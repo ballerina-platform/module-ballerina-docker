@@ -18,9 +18,8 @@
 
 package org.ballerinax.docker.generator.models;
 
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import lombok.Data;
 import org.ballerinax.docker.generator.DockerGenConstants;
+import lombok.Data;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 
 import java.nio.file.Files;
@@ -67,10 +66,7 @@ public class DockerModel {
         this.enableDebug = false;
         this.debugPort = 5005;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
-        DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerHost()
-        this.setDockerHost(DockerHost.fromEnv().host());
-        this.setDockerCertPath(DockerHost.fromEnv().dockerCertPath());
-
+        
         externalFiles = new HashSet<>();
         commandArg = "";
     }
@@ -122,8 +118,7 @@ public class DockerModel {
                 .replace("${APP}", this.uberJarFileName)
                 .replace("${CONFIG_FILE}", configFile);
     }
-
-
+    
     public void setCmd(String cmd) {
         this.cmd = cmd;
     }
@@ -151,5 +146,4 @@ public class DockerModel {
                 ", cmd='" + cmd + '\'' +
                 '}';
     }
-
 }

@@ -46,7 +46,7 @@ public class DockerGenUtils {
      */
     public static void printDebug(String msg) {
         if (debugEnabled) {
-            out.println("debug [docker plugin]: " + msg);
+            out.println("debug [docker client]: " + msg);
         }
     }
 

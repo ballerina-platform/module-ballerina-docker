@@ -5,7 +5,8 @@ import ballerina/docker;
 @http:ServiceConfig {
     basePath: "/helloWorld"
 }
-@docker:Config {}
+@docker:Config {
+}
 service helloWorld on new http:Listener(9090) {
     resource function sayHello(http:Caller outboundEP, http:Request request) {
         http:Response response = new;

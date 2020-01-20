@@ -31,9 +31,8 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
@@ -53,21 +52,12 @@ public class Sample7Test extends SampleTest {
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
-        try {
-            // remove container if already exists.
-            DockerTestUtils.stopContainer(this.dockerContainerName);
-        } catch (DockerTestException e) {
-            // ignore
-        }
+        DockerTestUtils.stopContainer(this.dockerContainerName);
     }
     
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws IOException, DockerTestException, InterruptedException {
-        Map<Integer, Integer> portBindings = new HashMap<>();
-        portBindings.put(9090, 9090);
-        portBindings.put(9696, 9696);
-        
-        containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName, portBindings);
+        containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName, Arrays.asList(9090, 9696));
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9696"),
                 "Service did not start properly.");

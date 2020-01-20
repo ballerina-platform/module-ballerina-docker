@@ -18,46 +18,41 @@
 
 package org.ballerinax.docker.test.utils;
 
-import com.google.common.base.Optional;
-import com.google.common.net.HostAndPort;
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerCertificates;
-import com.spotify.docker.client.DockerCertificatesStore;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.DockerHost;
-import com.spotify.docker.client.LogStream;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.ContainerConfig;
-import com.spotify.docker.client.messages.ContainerCreation;
-import com.spotify.docker.client.messages.ContainerInfo;
-import com.spotify.docker.client.messages.HostConfig;
-import com.spotify.docker.client.messages.ImageInfo;
-import com.spotify.docker.client.messages.PortBinding;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.exception.NotModifiedException;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.command.LogContainerResultCallback;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.glassfish.jersey.internal.RuntimeDelegateImpl;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-
-import javax.ws.rs.ext.RuntimeDelegate;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Docker test utils.
@@ -91,6 +86,11 @@ public class DockerTestUtils {
         }
         return output.toString();
     }
+    
+    public static DockerClient getDockerClient() {
+        DefaultDockerClientConfig.Builder dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder();
+        return DockerClientBuilder.getInstance(dockerClientConfig.build()).build();
+    }
 
     /**
      * Return a ImageInspect object for a given Docker Image name.
@@ -98,13 +98,8 @@ public class DockerTestUtils {
      * @param imageName Docker image Name
      * @return ImageInspect object
      */
-    public static ImageInfo getDockerImage(String imageName) throws DockerTestException {
-        try {
-            DockerClient client = getDockerClient();
-            return client.inspectImage(imageName);
-        } catch (DockerException | InterruptedException ex) {
-            throw new DockerTestException(ex);
-        }
+    public static InspectImageResponse getDockerImage(String imageName) {
+        return getDockerClient().inspectImageCmd(imageName).exec();
     }
 
     /**
@@ -112,11 +107,15 @@ public class DockerTestUtils {
      *
      * @param imageName The docker image name.
      * @return Exposed ports.
-     * @throws DockerTestException If issue occurs inspecting docker image
      */
-    public static List<String> getExposedPorts(String imageName) throws DockerTestException {
-        ImageInfo dockerImage = getDockerImage(imageName);
-        return Objects.requireNonNull(dockerImage.config().exposedPorts()).asList();
+    public static List<String> getExposedPorts(String imageName) {
+        InspectImageResponse dockerImage = getDockerImage(imageName);
+        if (null == dockerImage.getConfig()) {
+            return new ArrayList<>();
+        }
+    
+        ExposedPort[] exposedPorts = dockerImage.getConfig().getExposedPorts();
+        return Arrays.stream(exposedPorts).map(ExposedPort::toString).collect(Collectors.toList());
     }
 
     /**
@@ -124,11 +123,14 @@ public class DockerTestUtils {
      *
      * @param imageName The docker image name.
      * @return The list of commands.
-     * @throws DockerTestException If issue occurs inspecting docker image
      */
-    public static List<String> getCommand(String imageName) throws DockerTestException {
-        ImageInfo dockerImage = getDockerImage(imageName);
-        return dockerImage.config().cmd();
+    public static List<String> getCommand(String imageName) {
+        InspectImageResponse dockerImage = getDockerImage(imageName);
+        if (null == dockerImage.getConfig() || null == dockerImage.getConfig().getCmd()) {
+            return new ArrayList<>();
+        }
+        
+        return Arrays.asList(dockerImage.getConfig().getCmd());
     }
 
     /**
@@ -136,38 +138,8 @@ public class DockerTestUtils {
      *
      * @param imageName Docker image Name
      */
-    public static void deleteDockerImage(String imageName) throws DockerTestException {
-        try {
-            DockerClient client = getDockerClient();
-            client.removeImage(imageName, true, false);
-        } catch (DockerException | InterruptedException ex) {
-            throw new DockerTestException(ex);
-        }
-    }
-
-    public static DockerClient getDockerClient() throws DockerTestException {
-        RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
-        URI dockerURI = DockerHost.fromEnv().uri();
-        DockerClient dockerClient = DefaultDockerClient.builder().uri(dockerURI).build();
-
-        try {
-            String dockerCertPath = DockerHost.fromEnv().dockerCertPath();
-            if (null != dockerCertPath && !"".equals(dockerCertPath)) {
-                Optional<DockerCertificatesStore> certOptional =
-                        DockerCertificates.builder()
-                                .dockerCertPath(Paths.get(dockerCertPath))
-                                .build();
-                if (certOptional.isPresent()) {
-                    dockerClient = DefaultDockerClient.builder()
-                            .uri(dockerURI)
-                            .dockerCertificates(certOptional.get())
-                            .build();
-                }
-            }
-        } catch (DockerCertificateException e) {
-            throw new DockerTestException(e);
-        }
-        return dockerClient;
+    public static void deleteDockerImage(String imageName) {
+        getDockerClient().removeImageCmd(imageName).withForce(true).withNoPrune(false).exec();
     }
 
     /**
@@ -280,19 +252,17 @@ public class DockerTestUtils {
      * @param dockerPortBindings Ports needed exposed. Key is docker instance port and value is host port.
      * @return The configuration.
      */
-    private static HostConfig getPortMappingForHost(Map<Integer, Integer> dockerPortBindings) {
-
-        Map<String, List<PortBinding>> portBinding = new HashMap<>();
-
-        for (Map.Entry<Integer, Integer> dockerPortBinding : dockerPortBindings.entrySet()) {
-            ArrayList<PortBinding> hostPortList = new ArrayList<>();
-            hostPortList.add(PortBinding.of("0.0.0.0", dockerPortBinding.getValue()));
-            portBinding.put(dockerPortBinding.getKey().toString() + "/tcp", hostPortList);
+    private static HostConfig getPortMappingForHost(List<Integer> dockerPortBindings) {
+        List<PortBinding> portBindings = new ArrayList<>();
+        
+        for (Integer dockerPortBinding : dockerPortBindings) {
+            PortBinding portBinding = new PortBinding(
+                    Ports.Binding.bindIpAndPort("0.0.0.0", Integer.parseInt(dockerPortBinding.toString())),
+                    ExposedPort.parse(dockerPortBinding.toString()));
+            portBindings.add(portBinding);
         }
-
-        return HostConfig.builder()
-                .portBindings(portBinding)
-                .build();
+        
+        return HostConfig.newHostConfig().withPortBindings(portBindings);
     }
 
     /**
@@ -303,22 +273,14 @@ public class DockerTestUtils {
      * @param portBindings  Ports to be exposed. Key is docker instance port and value is host port.
      * @return The container ID.
      */
-    public static String createContainer(String dockerImage, String containerName, Map<Integer, Integer> portBindings)
-            throws DockerTestException {
-        try {
-            ContainerConfig containerConfig =
-                    ContainerConfig.builder()
-                            .hostConfig(getPortMappingForHost(portBindings))
-                            .image(dockerImage)
-                            .attachStderr(true)
-                            .attachStdout(true)
-                            .build();
-
-            ContainerCreation container = getDockerClient().createContainer(containerConfig, containerName);
-            return container.id();
-        } catch (DockerException | InterruptedException ex) {
-            throw new DockerTestException(ex);
-        }
+    public static String createContainer(String dockerImage, String containerName, List<Integer> portBindings) {
+        return getDockerClient().createContainerCmd(dockerImage)
+            .withHostConfig(getPortMappingForHost(portBindings))
+            .withAttachStderr(true)
+            .withAttachStdout(true)
+            .withName(containerName)
+            .exec()
+            .getId();
     }
 
     /**
@@ -328,10 +290,8 @@ public class DockerTestUtils {
      * @param containerName The name of the container.
      * @return The container ID.
      */
-    public static String createContainer(String dockerImage, String containerName) throws DockerTestException {
-        Map<Integer, Integer> defaultPortBindings = new HashMap<>();
-        defaultPortBindings.put(9090, 9090);
-        return createContainer(dockerImage, containerName, defaultPortBindings);
+    public static String createContainer(String dockerImage, String containerName) {
+        return createContainer(dockerImage, containerName, Collections.singletonList(9090));
     }
 
     /**
@@ -344,9 +304,9 @@ public class DockerTestUtils {
     public static boolean startContainer(String containerID, String logToWait) throws DockerTestException {
         try {
             DockerClient dockerClient = getDockerClient();
-            log.debug("Starting container: " + containerID);
+            log.info("Starting container: " + containerID);
 
-            dockerClient.startContainer(containerID);
+            dockerClient.startContainerCmd(containerID).exec();
 
             int logWaitCount = 0;
             boolean containerStarted = false;
@@ -354,35 +314,40 @@ public class DockerTestUtils {
 
             while (logWaitCount < LOG_WAIT_COUNT) {
                 log.info("Waiting for container startup " + (logWaitCount + 1) + "/" + LOG_WAIT_COUNT);
-                LogStream logStream = dockerClient.logs(containerID, DockerClient.LogsParam.stdout(),
-                        DockerClient.LogsParam.stderr());
-                containerLogs.append(logStream.readFully().trim());
+                dockerClient.logContainerCmd(containerID)
+                        .withStdErr(true)
+                        .withStdOut(true)
+                        .withFollowStream(true)
+                        .withTailAll()
+                        .exec(new LogContainerResultCallback() {
+                            @Override
+                            public void onNext(Frame item) {
+                                containerLogs.append((new String(item.getPayload())).trim()).append("\n");
+                                super.onNext(item);
+                            }
+                        }).awaitCompletion(3, TimeUnit.SECONDS);
+                
                 if (containerLogs.toString().trim().contains(logToWait)) {
                     containerStarted = true;
                     break;
                 }
                 logWaitCount++;
-                Thread.sleep(2000);
             }
 
             if (containerStarted) {
                 log.info("Container started: " + containerID);
 
                 // Find docker container IP address if such exists
-                ContainerInfo containerInfo = getDockerClient().inspectContainer(containerID);
+                InspectContainerResponse containerInfo = getDockerClient().inspectContainerCmd(containerID).exec();
                 if (!System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("mac") &&
-                        !"".equals(containerInfo.networkSettings().ipAddress())) {
-                    serviceIP = containerInfo.networkSettings().ipAddress();
+                        !"".equals(containerInfo.getNetworkSettings().getIpAddress())) {
+                    serviceIP = containerInfo.getNetworkSettings().getIpAddress();
                 }
 
                 if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") &&
-                        containerInfo.networkSettings().networks().containsKey("nat") &&
-                        !"".equals(containerInfo.networkSettings().networks().get("nat").ipAddress())) {
-                    serviceIP = containerInfo.networkSettings().networks().get("nat").ipAddress();
-                }
-
-                if (null != System.getenv("DOCKER_HOST")) {
-                    serviceIP = HostAndPort.fromString(System.getenv("DOCKER_HOST").replace("tcp://", "")).getHost();
+                        containerInfo.getNetworkSettings().getNetworks().containsKey("nat") &&
+                        !"".equals(containerInfo.getNetworkSettings().getNetworks().get("nat").getIpAddress())) {
+                    serviceIP = containerInfo.getNetworkSettings().getNetworks().get("nat").getIpAddress();
                 }
 
                 log.info("Container IP address found as: " + serviceIP);
@@ -392,7 +357,7 @@ public class DockerTestUtils {
                 log.error("Container did not start: " + containerLogs);
                 return false;
             }
-        } catch (DockerException | InterruptedException ex) {
+        } catch (InterruptedException ex) {
             throw new DockerTestException(ex);
         }
     }
@@ -402,15 +367,19 @@ public class DockerTestUtils {
      *
      * @param containerID The container ID.
      */
-    public static void stopContainer(String containerID) throws DockerTestException {
+    public static void stopContainer(String containerID) {
         try {
-            if (null != containerID) {
-                // remove container
-                log.info("Removing container: " + containerID);
-                getDockerClient().removeContainer(containerID, DockerClient.RemoveContainerParam.forceKill());
+            InspectContainerResponse containerInfo = getDockerClient().inspectContainerCmd(containerID).exec();
+            if ((null != containerInfo.getState().getRestarting() && containerInfo.getState().getRestarting()) ||
+                (null != containerInfo.getState().getPaused() && containerInfo.getState().getPaused()) ||
+                (null != containerInfo.getState().getRunning() && containerInfo.getState().getRunning())) {
+                log.info("Stopping container: " + containerID);
+                getDockerClient().stopContainerCmd(containerID).exec();
             }
-        } catch (DockerException | InterruptedException ex) {
-            throw new DockerTestException(ex);
+            log.info("Removing container: " + containerID);
+            getDockerClient().removeContainerCmd(containerID).exec();
+        } catch (NotFoundException | NotModifiedException e) {
+            // ignore
         }
     }
 

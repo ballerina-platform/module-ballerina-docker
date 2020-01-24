@@ -20,12 +20,25 @@ jdk:
 services:
   - docker
 
-os:
-  - linux
-  - windows
-
-install:
-  - mvn install -B -V
+jobs:
+  include:
+    - stage: "win-build"
+      name: "Windows Build"
+      os: windows
+      language: minimal
+      install:
+        - choco install jdk8 -params 'installdir=c:\\java8'
+        - export JAVA_HOME="c:\\java8"
+        - export PATH="$PATH;$JAVA_HOME\\bin"
+      script:
+        - mvn install -B -V
+    - stage: "linux-build"
+      name:  "Linux Build"
+      os: linux
+      language: java
+      jdk: openjdk8
+      script:
+        - mvn install -B -V
 
 script: echo "Done"
 

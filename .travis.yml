@@ -30,17 +30,17 @@ jobs:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
         - export PATH="$PATH;$JAVA_HOME\\bin"
-        - choco install maven -params 'installdir=c:\\maven'
-        - export M2_HOME="c:\\maven"
-        - export PATH="$PATH;M2_HOME\\bin"
-        - echo "export PATH=\"${PATH}\"" >> ~/.env
+      script:
+        - ./mvnw install -B -V
     - stage: "linux-build"
       name:  "Linux Build"
       os: linux
       language: java
       jdk: openjdk8
+      script:
+        - mvn install -B -V
 
-script: mvn install -B -V
+script: echo "Done"
 
 cache:
   directories:

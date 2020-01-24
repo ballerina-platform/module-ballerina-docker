@@ -34,6 +34,7 @@
     <modules>
         <module>docker-generator</module>
         <module>docker-extension</module>
+        <module>docker-extension-annotations</module>
         <module>docker-extension-test</module>
         <module>docker-extension-examples</module>
         <module>docker-extension-coverage-report</module>

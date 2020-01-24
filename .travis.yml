@@ -33,6 +33,7 @@ jobs:
         - choco install maven -params 'installdir=c:\\maven'
         - export M2_HOME="c:\\maven"
         - export PATH="$PATH;M2_HOME\\bin"
+        - echo "export PATH=\"${PATH}\"" >> ~/.env
       script:
         - mvn install -B -V
     - stage: "linux-build"

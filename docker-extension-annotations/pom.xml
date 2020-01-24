@@ -69,13 +69,13 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <executions>
                     <execution>
-                        <id>GenerateBalo</id>
+                        <id>build-annotations</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${project.basedir}/scripts/gen-balo${script.extension}</executable>
+                            <executable>${project.basedir}/scripts/annotation-build${script.extension}</executable>
                             <arguments>
                                 <argument>
                                     ${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}

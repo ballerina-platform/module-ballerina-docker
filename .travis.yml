@@ -14,15 +14,14 @@
 
 language: java
 
+sudo: required
+
 services:
   - docker
 
-install:
-  - mvn -N io.takari:maven:0.7.7:wrapper
-
 jobs:
   include:
-    - stage: "win-build"
+    - stage: "build"
       name: "Windows Build"
       os: windows
       language: bash
@@ -30,19 +29,19 @@ jobs:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"\\
         - export PATH="$PATH;$JAVA_HOME\\bin"
-      script:
-        - cmd.exe .\mvnw.cmd install -B -V
-    - stage: "linux-build"
-      name:  "Linux Build"
+        - choco install maven -params 'installdir=c:\\maven'
+        - export M2_HOME="c:\\maven"
+        - export PATH="$PATH;M2_HOME\\bin"
+        - echo "export PATH=\"${PATH}\"" >> ~/.env
+    - name:  "Linux Build"
       os: linux
       language: java
       jdk: openjdk8
-      script:
-        - mvn install -B -V
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then mvn clean install; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then powershell .\mvnw.cmd clean install; f
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mvn clean install -B -V; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then cmd.exe /C '"C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" amd64'; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then cmd.exe /C '.\mvnw.cmd clean install -B -V'; fi
 
 cache:
   directories:

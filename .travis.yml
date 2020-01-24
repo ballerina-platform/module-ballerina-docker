@@ -14,11 +14,11 @@
 
 language: java
 
-jdk:
-  - openjdk8
-
 services:
   - docker
+
+install:
+  - mvn -N io.takari:maven:0.7.7:wrapper
 
 jobs:
   include:
@@ -28,10 +28,10 @@ jobs:
       language: bash
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
-        - export JAVA_HOME="c:\\java8"
+        - export JAVA_HOME="c:\\java8"\\
         - export PATH="$PATH;$JAVA_HOME\\bin"
       script:
-        - mvnw.cmd install -B -V
+        - cmd.exe .\mvnw.cmd install -B -V
     - stage: "linux-build"
       name:  "Linux Build"
       os: linux
@@ -40,7 +40,9 @@ jobs:
       script:
         - mvn install -B -V
 
-script: echo "Done"
+script:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then mvn clean install; fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then powershell .\mvnw.cmd clean install; f
 
 cache:
   directories:

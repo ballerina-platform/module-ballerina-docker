@@ -20,6 +20,10 @@ jdk:
 services:
   - docker
 
+os:
+  - linux
+  - windows
+
 install:
   - mvn install -B -V
 

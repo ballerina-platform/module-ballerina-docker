@@ -25,13 +25,13 @@ jobs:
     - stage: "win-build"
       name: "Windows Build"
       os: windows
-      language: minimal
+      language: bash
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
         - export PATH="$PATH;$JAVA_HOME\\bin"
       script:
-        - ./mvnw install -B -V
+        - mvnw.cmd install -B -V
     - stage: "linux-build"
       name:  "Linux Build"
       os: linux

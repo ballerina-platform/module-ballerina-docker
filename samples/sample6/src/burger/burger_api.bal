@@ -2,16 +2,11 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/docker;
 
-@docker:CopyFiles {
-    files: [
-        { sourceFile: "./src/pizza/resources/ballerinaKeystore.p12", target: "/home/ballerina/" }
-    ]
-}
 @docker:Expose {}
 listener http:Listener burgerEP = new(9096, config = {
     secureSocket: {
         keyStore: {
-            path: "/home/ballerina//ballerinaKeystore.p12",
+            path: "./src/burger/resources/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }

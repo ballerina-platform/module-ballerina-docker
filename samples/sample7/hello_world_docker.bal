@@ -5,16 +5,11 @@ import ballerina/docker;
 @docker:Expose {}
 listener http:Listener helloWorldEP = new(9090);
 
-@docker:CopyFiles {
-    files: [
-        { sourceFile: "./ballerinaKeystore.p12", target: "/home/ballerina/" }
-    ]
-}
 @docker:Expose {}
 listener http:Listener helloWorldEPSecured = new(9696, {
     secureSocket: {
         keyStore: {
-            path: "/home/ballerina/ballerinaKeystore.p12",
+            path: "./ballerinaKeystore.p12",
             password: "ballerina"
         }
     }

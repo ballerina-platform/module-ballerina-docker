@@ -108,7 +108,7 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 ```bash
 $>  curl -k https://localhost:9096/burger/menu
 Burger menu
-$>  curl -k https://localhost:9099/pizza/menu
+$>  curl -k http://localhost:9099/pizza/menu
 Pizza menu
 ```
 

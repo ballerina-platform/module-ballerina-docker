@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.models.DockerContext;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.utils.DockerPluginUtils;
@@ -37,11 +38,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.extractUberJarName;
@@ -100,7 +105,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         dataHolder.addPort(Integer.parseInt(bListener.argsExpr.get(0).toString()));
                     } catch (NumberFormatException e) {
                         throw new DockerPluginException("Unable to parse port of the listener: " +
-                                                        bListener.argsExpr.get(0).toString());
+                                bListener.argsExpr.get(0).toString());
                     }
                 }
             }
@@ -130,9 +135,10 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         BLangTypeInit bListener = (BLangTypeInit) ((BLangSimpleVariable) variableNode).expr;
                         try {
                             dataHolder.addPort(Integer.parseInt(bListener.argsExpr.get(0).toString()));
+                            processListener(bListener, dataHolder);
                         } catch (NumberFormatException e) {
                             throw new DockerPluginException("unable to parse port of the service: " +
-                                                            bListener.argsExpr.get(0).toString());
+                                    bListener.argsExpr.get(0).toString());
                         }
                         break;
                     default:
@@ -142,6 +148,67 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         } catch (DockerPluginException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, variableNode.getPosition(), e.getMessage());
         }
+    }
+
+    private void processListener(BLangTypeInit bListener, DockerDataHolder dataHolder) {
+        List<BLangRecordLiteral.BLangRecordKeyValue> listenerConfig;
+        if (bListener.argsExpr.size() == 2) {
+            if (bListener.argsExpr.get(1) instanceof BLangRecordLiteral) {
+                BLangRecordLiteral bConfigRecordLiteral = (BLangRecordLiteral) bListener.argsExpr.get(1);
+                listenerConfig = bConfigRecordLiteral.getKeyValuePairs();
+            } else {
+                // expression is in config = {} format.
+                listenerConfig = ((BLangRecordLiteral) ((BLangNamedArgsExpression) bListener.argsExpr.get(1)).expr)
+                        .getKeyValuePairs();
+            }
+            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : listenerConfig) {
+                String key = keyValue.getKey().toString();
+                if ("secureSocket".equals(key)) {
+                    List<BLangRecordLiteral.BLangRecordKeyValue> sslKeyValues =
+                            ((BLangRecordLiteral) keyValue.valueExpr).getKeyValuePairs();
+                    dataHolder.addExternalFiles(processSecureSocket(sslKeyValues));
+                }
+            }
+        }
+    }
+
+    private Set<CopyFileModel> processSecureSocket(List<BLangRecordLiteral.BLangRecordKeyValue> secureSocketKeyValues) {
+        Set<CopyFileModel> copyFileModels = new HashSet<>();
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : secureSocketKeyValues) {
+            //extract file paths.
+            String key = keyValue.getKey().toString();
+            if ("keyStore".equals(key)) {
+                String keyStoreFile = extractFilePath(keyValue);
+                if (keyStoreFile != null) {
+                    CopyFileModel copyFileModel = new CopyFileModel();
+                    copyFileModel.setSource(keyStoreFile);
+                    copyFileModel.setTarget(keyStoreFile);
+                    copyFileModels.add(copyFileModel);
+                }
+            } else if ("trustStore".equals(key)) {
+                String trustStoreFile = extractFilePath(keyValue);
+                if (trustStoreFile != null) {
+                    CopyFileModel copyFileModel = new CopyFileModel();
+                    copyFileModel.setSource(trustStoreFile);
+                    copyFileModel.setTarget(trustStoreFile);
+                    copyFileModels.add(copyFileModel);
+                }
+            }
+        }
+        return copyFileModels;
+
+    }
+
+    private String extractFilePath(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyStoreConfigs = ((BLangRecordLiteral) keyValue
+                .valueExpr).getKeyValuePairs();
+        for (BLangRecordLiteral.BLangRecordKeyValue keyStoreConfig : keyStoreConfigs) {
+            String configKey = keyStoreConfig.getKey().toString();
+            if ("path".equals(configKey)) {
+                return keyStoreConfig.getValue().toString();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -154,16 +221,16 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 DockerAnnotationProcessor dockerAnnotationProcessor = new DockerAnnotationProcessor();
                 Path dockerOutputPath = executableJarFile.getParent().resolve(ARTIFACT_DIRECTORY);
                 if (null != executableJarFile.getParent().getParent().getParent() &&
-                                                Files.exists(executableJarFile.getParent().getParent().getParent())) {
+                        Files.exists(executableJarFile.getParent().getParent().getParent())) {
                     // if executable came from a ballerina project
                     Path projectRoot = executableJarFile.getParent().getParent().getParent();
                     if (Files.exists(projectRoot.resolve("Ballerina.toml"))) {
                         dockerOutputPath = projectRoot.resolve("target")
-                                        .resolve(ARTIFACT_DIRECTORY)
-                                        .resolve(extractUberJarName(executableJarFile));
+                                .resolve(ARTIFACT_DIRECTORY)
+                                .resolve(extractUberJarName(executableJarFile));
                     }
                 }
-    
+
                 try {
                     DockerPluginUtils.deleteDirectory(dockerOutputPath);
                     dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(),

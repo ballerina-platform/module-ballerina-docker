@@ -33,12 +33,19 @@
             <directory>
                 ${project.basedir}/src/main/ballerina/target/caches/bir_cache/ballerina/docker
             </directory>
-            <outputDirectory>docker</outputDirectory>
+            <outputDirectory>docker/0.0.0</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
     </fileSets>
 
     <files>
+        <!--    Copy Ballerina.toml-->
+        <file>
+            <source>${project.basedir}/src/main/ballerina/Ballerina.toml</source>
+            <outputDirectory>docker/0.0.0</outputDirectory>
+            <fileMode>755</fileMode>
+        </file>
+        <!--    Copy jars-->
         <file>
             <source>${project.basedir}/src/main/ballerina/target/caches/jar_cache/ballerina/docker/docker.jar</source>
             <outputDirectory>.</outputDirectory>

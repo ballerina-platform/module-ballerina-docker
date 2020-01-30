@@ -18,9 +18,12 @@
 
 package org.ballerinax.docker.generator.models;
 
+import lombok.Data;
+
 /**
  * Docker:CopyFiles annotation model class.
  */
+@Data
 public class CopyFileModel {
     private String source;
     private String target;
@@ -28,38 +31,5 @@ public class CopyFileModel {
 
     public CopyFileModel() {
         this.isBallerinaConf = false;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getTarget() {
-        return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
-    }
-
-    public boolean isBallerinaConf() {
-        return isBallerinaConf;
-    }
-
-    public void setBallerinaConf(boolean ballerinaConf) {
-        isBallerinaConf = ballerinaConf;
-    }
-
-    @Override
-    public String toString() {
-        return "CopyFileModel{" +
-                "source='" + source + '\'' +
-                ", target='" + target + '\'' +
-                ", isBallerinaConf=" + isBallerinaConf +
-                '}';
     }
 }

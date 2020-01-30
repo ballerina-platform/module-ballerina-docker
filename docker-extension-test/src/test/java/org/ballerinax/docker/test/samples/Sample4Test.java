@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
 /**
@@ -56,28 +57,32 @@ public class Sample4Test extends SampleTest {
             // ignore
         }
     }
-    
+
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID, "Ballerina remote debugger is activated on port"),
                 "Service did not start properly.");
     }
-    
+
     @Test
     public void validateDockerfile() {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         Assert.assertTrue(dockerFile.exists());
     }
-    
+
     @Test
     public void validateDockerImage() throws DockerTestException {
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 2);
         Assert.assertEquals(ports.get(0), "5005/tcp");
         Assert.assertEquals(ports.get(1), "9090/tcp");
+        List<String> commands = getCommand(this.dockerImage);
+        Assert.assertEquals(commands.size(), 3);
+        Assert.assertEquals(commands.get(2), "java -Xdebug -Xnoagent -Djava.compiler=NONE " +
+                "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 -jar docker_debug.jar");
     }
-    
+
     @AfterClass
     public void cleanUp() throws DockerPluginException, DockerTestException {
         DockerTestUtils.stopContainer(containerID);

@@ -61,8 +61,8 @@ public class Sample4Test extends SampleTest {
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
-        Assert.assertTrue(DockerTestUtils.startContainer(containerID, "Ballerina remote debugger is activated on port"),
-                "Service did not start properly.");
+        Assert.assertTrue(DockerTestUtils.startContainer(containerID, "Listening for transport dt_socket at address: " +
+                "5005"), "Service did not start properly.");
     }
 
     @Test

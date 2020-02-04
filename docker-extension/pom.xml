@@ -125,8 +125,9 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>${mvn.shaded.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -134,16 +135,41 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-<!--                            <minimizeJar>true</minimizeJar>-->
+                            <minimizeJar>true</minimizeJar>
                             <artifactSet>
+                                <includes>
+                                    <include>org.glassfish.jersey.core:jersey-client</include>
+                                    <include>org.ballerinax.docker:docker-generator</include>
+                                    <include>com.github.docker-java:docker-java</include>
+                                    <include>commons-lang:commons-lang</include>
+                                    <include>org.apache.httpcomponents:httpclient</include>
+                                    <include>org.apache.httpcomponents:httpcore</include>
+                                    <include>javax.ws.rs:javax.ws.rs-api</include>
+                                    <include>org.glassfish.jersey.core:jersey-common</include>
+                                    <include>org.glassfish.jersey.connectors:jersey-apache-connector</include>
+                                    <include>javax.inject:javax.inject</include>
+                                    <include>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</include>
+                                    <include>com.fasterxml.jackson.jaxrs:jackson-jaxrs-base</include>
+                                    <include>javax.annotation:javax.annotation-api</include>
+                                    <include>com.kohlschutter.junixsocket:junixsocket-common</include>
+                                </includes>
                                 <excludes>
-                                    <exclude>org.slf4j:slf4j-api</exclude>
-                                    <exclude>org.slf4j:slf4j-jdk14</exclude>
-                                    <exclude>org.ballerinalang:ballerina-runtime</exclude>
+<!--                                    <exclude>org.apache.httpcomponents:httpcore</exclude>-->
                                 </excludes>
                             </artifactSet>
                             <filters>
+                                <filter>
+                                    <artifact>org.glassfish.jersey.core:jersey-client</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.glassfish.jersey.core:jersey-common</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>

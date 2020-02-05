@@ -136,6 +136,7 @@
                         </goals>
                         <configuration>
                             <minimizeJar>true</minimizeJar>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <artifactSet>
                                 <includes>
                                     <include>org.glassfish.jersey.core:jersey-client</include>
@@ -152,12 +153,44 @@
                                     <include>com.fasterxml.jackson.jaxrs:jackson-jaxrs-base</include>
                                     <include>javax.annotation:javax.annotation-api</include>
                                     <include>com.kohlschutter.junixsocket:junixsocket-common</include>
+                                    <include>org.glassfish.jersey.inject:jersey-hk2</include>
+                                    <include>com.kohlschutter.junixsocket:junixsocket-native-common</include>
+                                    <include>org.glassfish.hk2:hk2-locator</include>
+                                    <include>org.glassfish.hk2:hk2-api</include>
+                                    <include>org.glassfish.hk2:hk2-utils</include>
                                 </includes>
-                                <excludes>
-<!--                                    <exclude>org.apache.httpcomponents:httpcore</exclude>-->
-                                </excludes>
                             </artifactSet>
                             <filters>
+                                <filter>
+                                    <artifact>org.glassfish.hk2:hk2-locator</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.glassfish.hk2:hk2-api</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.glassfish.hk2:hk2-utils</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.glassfish.jersey.inject:jersey-hk2</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>com.github.docker-java:docker-java</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
                                 <filter>
                                     <artifact>org.glassfish.jersey.core:jersey-client</artifact>
                                     <includes>
@@ -166,6 +199,12 @@
                                 </filter>
                                 <filter>
                                     <artifact>org.glassfish.jersey.core:jersey-common</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>com.kohlschutter.junixsocket:*</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>

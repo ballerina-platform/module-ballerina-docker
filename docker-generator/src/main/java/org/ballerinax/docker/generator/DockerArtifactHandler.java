@@ -41,10 +41,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Locale;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
 import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
+import static org.ballerinax.docker.generator.utils.DockerGenUtils.cleanErrorMessage;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDirectory;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
@@ -152,7 +154,7 @@ public class DockerArtifactHandler {
     
         this.dockerClientConfig = dockerClientConfig.build();
         printDebug("docker client host: " + this.dockerClientConfig.getDockerHost());
-        printDebug(this.dockerClientConfig.toString());
+        
         if (!this.dockerClientConfig.getApiVersion().equals(RemoteApiVersion.unknown())) {
             printDebug("docker client API version: " + this.dockerClientConfig.getApiVersion().getVersion());
         } else {
@@ -184,15 +186,18 @@ public class DockerArtifactHandler {
     
         try {
             this.dockerClient.buildImageCmd(dockerDir.toFile())
-                    .withNoCache(true)
-                    .withForcerm(true)
-                    .withTags(Collections.singleton(this.dockerModel.getName()))
-                    .exec(new DockerBuildImageCallback())
-                    .awaitImageId();
-        } catch (RuntimeException rEx) {
-            if (rEx.getMessage().contains("java.net.SocketException: Connection refused")) {
+                .withNoCache(true)
+                .withForcerm(true)
+                .withTags(Collections.singleton(this.dockerModel.getName()))
+                .exec(new DockerBuildImageCallback())
+                .awaitImageId();
+        } catch (RuntimeException ex) {
+            if (ex.getMessage().contains("java.net.SocketException: Connection refused")) {
                 this.dockerBuildError.setErrorMsg("unable to connect to docker host: " +
                                                   this.dockerClientConfig.getDockerHost());
+            } else {
+                this.dockerBuildError.setErrorMsg("unable to build docker image: " +
+                                                  cleanErrorMessage(ex.getMessage()));
             }
         }
     

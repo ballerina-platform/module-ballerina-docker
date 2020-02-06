@@ -41,7 +41,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.Locale;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
@@ -248,14 +247,11 @@ public class DockerArtifactHandler {
 
         dockerfileContent.append("WORKDIR /home/ballerina").append("\n");
         dockerfileContent.append("\n");
+    
         dockerfileContent.append("COPY ").append(this.dockerModel.getUberJarFileName()).append(" /home/ballerina")
-                                                                                                        .append("\n");
+                .append("\n");
     
         this.dockerModel.getCopyFiles().forEach(file -> {
-        dockerfileContent.append("COPY ").append(dockerModel.getUberJarFileName()).append(" /home/ballerina")
-                .append("\n");
-
-        dockerModel.getCopyFiles().forEach(file -> {
             // Extract the source filename relative to docker folder.
             String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
             dockerfileContent.append("COPY ")

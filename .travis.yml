@@ -38,7 +38,7 @@ jobs:
 
 script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mvn clean install -B -V; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then powershell -C 'mvn clean install -Dmaven.test.skip=true -B -V'; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then powershell -C 'mvn clean install "-Dmaven.test.skip=true" -B -V'; fi
 
 cache:
   directories:

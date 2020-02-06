@@ -77,7 +77,7 @@ public class DockerImageName {
     private String user;
     
     /**
-     * Create an image name
+     * Create an image name.
      *
      * @param fullName The fullname of the image in Docker format.
      */

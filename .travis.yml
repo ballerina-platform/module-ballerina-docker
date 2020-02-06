@@ -31,9 +31,6 @@ jobs:
         - export PATH="$PATH;$JAVA_HOME\\bin"
         - choco install maven -version 3.6.3
         - export PATH="$PATH;C:\\ProgramData\\chocolatey\\lib\\maven\\apache-maven-3.6.3\\bin"
-        - docker-machine ls
-        - docker-machine env
-        - export DOCKER_HOST="tcp://localhost:2375"
     - name:  "Linux Build"
       os: linux
       language: java

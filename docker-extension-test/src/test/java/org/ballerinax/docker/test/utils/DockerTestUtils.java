@@ -374,13 +374,17 @@ public class DockerTestUtils {
                         !"".equals(containerInfo.networkSettings().ipAddress())) {
                     serviceIP = containerInfo.networkSettings().ipAddress();
                 }
-
-                if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") &&
-                        containerInfo.networkSettings().networks().containsKey("nat") &&
+    
+                if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win")) {
+                    if (containerInfo.networkSettings().networks().containsKey("nat") &&
                         !"".equals(containerInfo.networkSettings().networks().get("nat").ipAddress())) {
-                    serviceIP = containerInfo.networkSettings().networks().get("nat").ipAddress();
+                        serviceIP = containerInfo.networkSettings().networks().get("nat").ipAddress();
+                    } else if (containerInfo.networkSettings().ports().containsKey("9090/tcp") &&
+                               containerInfo.networkSettings().ports().get("9090/tcp").size() > 0) {
+                        serviceIP = containerInfo.networkSettings().ports().get("9090/tcp").get(0).hostIp();
+                    }
                 }
-
+                
                 if (null != System.getenv("DOCKER_HOST")) {
                     serviceIP = HostAndPort.fromString(System.getenv("DOCKER_HOST").replace("tcp://", "")).getHost();
                 }

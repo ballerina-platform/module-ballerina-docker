@@ -261,15 +261,14 @@ public class DockerImageName {
         List<String> errors = new ArrayList<>();
         // Strip off user from repository name
         String image = user != null ? repository.substring(user.length() + 1) : repository;
-        Object[] checks = new Object[]{"registry", domainPattern, registry, "image", imageNamePattern, image, "user",
-                                       nameComponentPattern, user, "tag", tagPattern, tag, "digest", digestPattern,
-                                       digest};
+        Object[] checks = new Object[]{"registry url", domainPattern, registry, "image name", imageNamePattern, image,
+                                       "user", nameComponentPattern, user, "tag", tagPattern, tag, "digest",
+                                       digestPattern, digest};
         for (int i = 0; i < checks.length; i += 3) {
             String value = (String) checks[i + 2];
             Pattern checkPattern = (Pattern) checks[i + 1];
             if (value != null && !checkPattern.matcher(value).matches()) {
-                errors.add(String.format("%s part '%s' doesn't match allowed pattern '%s'", checks[i], value,
-                        checkPattern.pattern()));
+                errors.add(checks[i] + " '" + value + "' is invalid");
             }
         }
         if (errors.size() > 0) {

@@ -23,6 +23,7 @@ import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
+import org.ballerinax.docker.generator.utils.DockerImageName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -84,5 +85,13 @@ public class DockerGeneratorTests {
         log.info("Dockerfile Content:\n" + dockerfileContent);
         Assert.assertTrue(dockerfile.exists());
         dockerfile.deleteOnExit();
+    }
+    
+    @Test(expectedExceptions = DockerGenException.class,
+          expectedExceptionsMessageRegExp = "given docker name 'dockerName:latest' is invalid: image name " +
+                                            "'dockerName' is invalid"
+    )
+    public void invalidDockerImageNameTest() throws DockerGenException {
+        DockerImageName.validate("dockerName:latest");
     }
 }

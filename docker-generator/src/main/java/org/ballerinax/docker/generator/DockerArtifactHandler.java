@@ -84,14 +84,14 @@ public class DockerArtifactHandler {
             dockerContent = generateDockerfileForWindows();
         }
         try {
-            String logStepCount = dockerModel.isBuildImage() ? (dockerModel.isPush() ? "3" : "2") : "1";
+            String logStepCount = this.dockerModel.isBuildImage() ? (this.dockerModel.isPush() ? "3" : "2") : "1";
             outStream.print(logAppender + " - complete 0/" + logStepCount + " \r");
             DockerGenUtils.writeToFile(dockerContent, outputDir.resolve("Dockerfile"));
             outStream.print(logAppender + " - complete 1/" + logStepCount + " \r");
             Path uberJarLocation = outputDir.resolve(DockerGenUtils.extractUberJarName(uberJarFilePath) +
                     EXECUTABLE_JAR);
             copyFileOrDirectory(uberJarFilePath, uberJarLocation);
-            for (CopyFileModel copyFileModel : dockerModel.getCopyFiles()) {
+            for (CopyFileModel copyFileModel : this.dockerModel.getCopyFiles()) {
                 // Copy external files to docker folder
                 Path target = outputDir.resolve(Paths.get(copyFileModel.getSource()).getFileName());
                 Path sourcePath = Paths.get(copyFileModel.getSource());

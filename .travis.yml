@@ -36,7 +36,7 @@ jobs:
         - powershell -C "Stop-Service docker"
         - powershell -C "Start-Service docker"
         - docker version
-        - powershell -C "ism.exe /Online /Enable-Feature:Microsoft-Hyper-V /All"
+        - powershell -C "dism.exe /Online /Enable-Feature:Microsoft-Hyper-V /All"
         - docker run -d --name nginx -p 4444:80 nginx
         - docker inspect nginx
         - export DOCKER_HOST="127.0.0.1"

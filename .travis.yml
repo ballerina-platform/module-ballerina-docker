@@ -37,12 +37,20 @@ jobs:
       jdk: openjdk8
 
 script:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mvn clean install -B -V; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then powershell -C 'mvn clean install "-Dmaven.test.skip=true" -B -V'; fi
-
+  - |
+    if [ "$TRAVIS_OS_NAME" = "linux" ]
+    then
+      docker build --squash --no-cache=true -t ballerina/jre8:v1 ./base/base-image
+      trivy --exit-code 1 --severity HIGH --no-progress ballerina/jre8:v1
+      mvn clean install -B -V
+    fi
+    if [ "$TRAVIS_OS_NAME" = "windows" ]
+    then
+      powershell -C 'mvn clean install "-Dmaven.test.skip=true" -B -V'
+    fi
 cache:
   directories:
-  - $HOME/.m2
+    - $HOME/.m2
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

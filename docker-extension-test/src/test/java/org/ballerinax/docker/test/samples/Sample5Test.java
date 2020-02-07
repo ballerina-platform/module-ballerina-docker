@@ -51,12 +51,7 @@ public class Sample5Test extends SampleTest {
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_config_file.bal"), 0);
-        try {
-            // remove container if already exists.
-            DockerTestUtils.stopContainer(this.dockerContainerName);
-        } catch (DockerTestException e) {
-            // ignore
-        }
+        DockerTestUtils.stopContainer(this.dockerContainerName);
     }
     
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
@@ -95,7 +90,7 @@ public class Sample5Test extends SampleTest {
     }
     
     @AfterClass
-    public void cleanUp() throws DockerPluginException, DockerTestException {
+    public void cleanUp() throws DockerPluginException {
         DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);

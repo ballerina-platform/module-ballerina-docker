@@ -31,9 +31,8 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
@@ -58,20 +57,14 @@ public class Sample6Test extends SampleTest {
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaProject(sourceDirPath), 0);
-        try {
-            // remove container if already exists.
-            DockerTestUtils.stopContainer(this.burgerContainerName);
-            DockerTestUtils.stopContainer(this.pizzaContainerName);
-        } catch (DockerTestException e) {
-            // ignore
-        }
+        DockerTestUtils.stopContainer(this.burgerContainerName);
+        DockerTestUtils.stopContainer(this.pizzaContainerName);
     }
     
     @Test(dependsOnMethods = "validateBurgerDockerImage", timeOut = 45000)
     public void testBurgerService() throws IOException, InterruptedException, DockerTestException {
-        Map<Integer, Integer> portBindings = new HashMap<>();
-        portBindings.put(9096, 9096);
-        burgerContainerID = DockerTestUtils.createContainer(burgerDockerImage, burgerContainerName, portBindings);
+        burgerContainerID = DockerTestUtils.createContainer(burgerDockerImage, burgerContainerName,
+                Collections.singletonList(9096));
         Assert.assertTrue(DockerTestUtils.startContainer(burgerContainerID,
                 "[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9096"),
                 "Service did not start properly.");
@@ -84,9 +77,8 @@ public class Sample6Test extends SampleTest {
     
     @Test(dependsOnMethods = "validatePizzaDockerImage", timeOut = 45000)
     public void testPizzaService() throws IOException, InterruptedException, DockerTestException {
-        Map<Integer, Integer> portBindings = new HashMap<>();
-        portBindings.put(9099, 9099);
-        pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName, portBindings);
+        pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName,
+                Collections.singletonList(9099));
         Assert.assertTrue(DockerTestUtils.startContainer(pizzaContainerID,
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9099"),
                 "Service did not start properly.");

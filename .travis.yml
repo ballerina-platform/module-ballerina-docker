@@ -33,9 +33,10 @@ jobs:
         - export PATH="$PATH;C:\\ProgramData\\chocolatey\\lib\\maven\\apache-maven-3.6.3\\bin"
         - docker version
         - echo '{"experimental":true}' | tee C:\\ProgramData\\Docker\\config\\daemon.json
-        - powershell -c "Stop-Service docker"
-        - powershell -c "Start-Service docker"
+        - powershell -C "Stop-Service docker"
+        - powershell -C "Start-Service docker"
         - docker version
+        - powershell -C "ism.exe /Online /Enable-Feature:Microsoft-Hyper-V /All"
         - docker run -d --name nginx -p 4444:80 nginx
         - docker inspect nginx
         - export DOCKER_HOST="127.0.0.1"

@@ -55,25 +55,25 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
-    
+
     private static final boolean WINDOWS_BUILD = "true".equals(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
     private final CountDownLatch pushDone = new CountDownLatch(1);
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private DockerModel dockerModel;
-    
+
     public DockerArtifactHandler(DockerModel dockerModel) {
         RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
-    
+
         String registry = dockerModel.getRegistry();
         String imageName = dockerModel.getName();
         imageName = !isBlank(registry) ? registry + REGISTRY_SEPARATOR + imageName + TAG_SEPARATOR
-                                         + dockerModel.getTag() :
-                    imageName + TAG_SEPARATOR + dockerModel.getTag();
+                + dockerModel.getTag() :
+                imageName + TAG_SEPARATOR + dockerModel.getTag();
         dockerModel.setName(imageName);
-        
+
         this.dockerModel = dockerModel;
     }
-    
+
     public void createArtifacts(PrintStream outStream, String logAppender, Path uberJarFilePath, Path outputDir)
             throws DockerGenException {
         String dockerContent;
@@ -88,7 +88,7 @@ public class DockerArtifactHandler {
             DockerGenUtils.writeToFile(dockerContent, outputDir.resolve("Dockerfile"));
             outStream.print(logAppender + " - complete 1/" + logStepCount + " \r");
             Path uberJarLocation = outputDir.resolve(DockerGenUtils.extractUberJarName(uberJarFilePath) +
-                                                     EXECUTABLE_JAR);
+                    EXECUTABLE_JAR);
             copyFileOrDirectory(uberJarFilePath, uberJarLocation);
             for (CopyFileModel copyFileModel : dockerModel.getCopyFiles()) {
                 // Copy external files to docker folder
@@ -98,7 +98,7 @@ public class DockerArtifactHandler {
                     sourcePath = sourcePath.toAbsolutePath();
                 }
                 copyFileOrDirectory(sourcePath, target);
-                
+
             }
             //check image build is enabled.
             if (dockerModel.isBuildImage()) {
@@ -117,13 +117,13 @@ public class DockerArtifactHandler {
             throw new DockerGenException("unable to create Docker images " + e.getMessage());
         }
     }
-    
+
     private DockerClient createClient() throws DockerGenException {
         printDebug("docker client host: " + dockerModel.getDockerHost());
         printDebug("docker client certs: " + dockerModel.getDockerCertPath());
         printDebug("docker API version: " + dockerModel.getDockerAPIVersion());
         Builder builder;
-        
+
         try {
             Optional<DockerCertificatesStore> certsOptional = Optional.absent();
             if (null != dockerModel.getDockerCertPath() && Files.exists(Paths.get(dockerModel.getDockerCertPath()))) {
@@ -131,21 +131,21 @@ public class DockerArtifactHandler {
                         .dockerCertPath(Paths.get(dockerModel.getDockerCertPath()))
                         .build();
             }
-    
+
             builder = DefaultDockerClient.builder()
                     .uri(DockerHost.from(dockerModel.getDockerHost(), dockerModel.getDockerCertPath()).uri())
                     .dockerCertificates(certsOptional.orNull());
-        
+
         } catch (DockerCertificateException e) {
             throw new DockerGenException("unable to create Docker images " + e.getMessage());
         }
-    
+
         if (dockerModel.getDockerAPIVersion() != null) {
             builder = builder.apiVersion(dockerModel.getDockerAPIVersion());
         }
         return builder.build();
     }
-    
+
     /**
      * Create docker image.
      *
@@ -157,7 +157,7 @@ public class DockerArtifactHandler {
         final DockerError dockerError = new DockerError();
         try {
             DockerClient client = this.createClient();
-    
+
             printDebug("creating docker image `" + dockerModel.getName() + "` from directory `" + dockerDir + "`.");
             client.build(dockerDir, dockerModel.getName(), message -> {
                 String buildImageId = message.buildImageId();
@@ -165,17 +165,17 @@ public class DockerArtifactHandler {
                 if (null != message.stream()) {
                     printDebug("[stream] " + message.stream());
                 }
-    
+
                 if (null != message.progress()) {
                     printDebug("[progress] " + message.progress());
                 }
-    
+
                 // when an image is built successfully.
                 if (null != buildImageId) {
                     printDebug("build ID: " + buildImageId);
                     buildDone.countDown();
                 }
-    
+
                 // when there is an error.
                 if (null != error) {
                     printDebug("[error]: " + error);
@@ -201,7 +201,7 @@ public class DockerArtifactHandler {
             throw new DockerGenException(dockerError.getErrorMsg());
         }
     }
-    
+
     /**
      * Push docker image.
      *
@@ -210,29 +210,29 @@ public class DockerArtifactHandler {
      */
     public void pushImage(DockerModel dockerModel) throws InterruptedException, DockerGenException {
         final DockerError dockerError = new DockerError();
-    
+
         RegistryAuth auth = RegistryAuth.builder()
                 .username(dockerModel.getUsername())
                 .password(dockerModel.getPassword())
                 .build();
-        
+
         try {
             DockerClient client = this.createClient();
-            
+
             client.push(dockerModel.getName(), message -> {
                 String digest = message.digest();
                 String error = message.error();
-    
+
                 if (null != message.progress()) {
                     printDebug("[progress] " + message.progress());
                 }
-                
+
                 // When image is successfully built.
                 if (null != digest) {
                     printDebug("digest: " + digest);
                     pushDone.countDown();
                 }
-                
+
                 // When error occurs.
                 if (null != error) {
                     printDebug("[error]: " + error);
@@ -247,7 +247,7 @@ public class DockerArtifactHandler {
         pushDone.await();
         handleError(dockerError);
     }
-    
+
     /**
      * Generate Dockerfile content.
      *
@@ -260,7 +260,7 @@ public class DockerArtifactHandler {
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
-        
+
         if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
             dockerfileContent.append("RUN addgroup troupe \\").append("\n");
             dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
@@ -270,12 +270,12 @@ public class DockerArtifactHandler {
             dockerfileContent.append("    && rm -rf /var/cache/apk/*").append("\n");
             dockerfileContent.append("\n");
         }
-        
+
         dockerfileContent.append("WORKDIR /home/ballerina").append("\n");
         dockerfileContent.append("\n");
         dockerfileContent.append("COPY ").append(dockerModel.getUberJarFileName()).append(" /home/ballerina")
-                                                                                                        .append("\n");
-        
+                .append("\n");
+
         dockerModel.getCopyFiles().forEach(file -> {
             // Extract the source filename relative to docker folder.
             String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
@@ -285,9 +285,9 @@ public class DockerArtifactHandler {
                     .append(file.getTarget())
                     .append("\n");
         });
-        
+
         dockerfileContent.append("\n");
-        
+
         if (dockerModel.isService() && dockerModel.getPorts().size() > 0) {
             dockerfileContent.append("EXPOSE ");
             dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
@@ -297,33 +297,17 @@ public class DockerArtifactHandler {
             dockerfileContent.append("USER ballerina").append("\n");
             dockerfileContent.append("\n");
         }
-        
-        if (null == this.dockerModel.getCmd() || "".equals(this.dockerModel.getCmd())) {
-            dockerfileContent.append("CMD java -jar ").append(dockerModel.getUberJarFileName());
-    
-            if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
-                dockerfileContent.append(dockerModel.getCommandArg());
-            }
-    
-            if (dockerModel.isEnableDebug()) {
-                dockerfileContent.append(" --debug ").append(dockerModel.getDebugPort());
-            }
-        } else {
-            dockerfileContent.append(this.dockerModel.getCmd());
-        }
-        
-        dockerfileContent.append("\n");
-        
-        return dockerfileContent.toString();
+
+        return appendCMD(dockerfileContent);
     }
 
     private String generateDockerfileForWindows() {
         String dockerBase = "# Auto Generated Dockerfile\n" +
-                            "\n" +
-                            "FROM " + dockerModel.getBaseImage() + "\n" +
-                            "LABEL maintainer=\"dev@ballerina.io\"\n" +
-                            "\n" +
-                            "COPY " + dockerModel.getUberJarFileName() + " C:\\\\ballerina\\\\home \n\n";
+                "\n" +
+                "FROM " + dockerModel.getBaseImage() + "\n" +
+                "LABEL maintainer=\"dev@ballerina.io\"\n" +
+                "\n" +
+                "COPY " + dockerModel.getUberJarFileName() + " C:\\\\ballerina\\\\home \n\n";
 
         StringBuilder stringBuilder = new StringBuilder(dockerBase);
         dockerModel.getCopyFiles().forEach(file -> {
@@ -340,23 +324,29 @@ public class DockerArtifactHandler {
             stringBuilder.append("EXPOSE ");
             dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
         }
-    
+
         stringBuilder.append("\n");
-    
+
+        return appendCMD(stringBuilder);
+    }
+
+    private String appendCMD(StringBuilder stringBuilder) {
+
         if (null == this.dockerModel.getCmd() || "".equals(this.dockerModel.getCmd())) {
-            stringBuilder.append("\nCMD java -jar ").append(dockerModel.getUberJarFileName());
-    
+            if (dockerModel.isEnableDebug()) {
+                stringBuilder.append("CMD java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket," +
+                        "server=y,suspend=y,address=").append(dockerModel.getDebugPort())
+                        .append(" -jar ").append(dockerModel.getUberJarFileName());
+            } else {
+                stringBuilder.append("CMD java -jar ").append(dockerModel.getUberJarFileName());
+            }
             if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
                 stringBuilder.append(dockerModel.getCommandArg());
-            }
-    
-            if (dockerModel.isEnableDebug()) {
-                stringBuilder.append(" --debug ").append(dockerModel.getDebugPort());
             }
         } else {
             stringBuilder.append(this.dockerModel.getCmd());
         }
-        
+
         stringBuilder.append("\n");
 
         return stringBuilder.toString();

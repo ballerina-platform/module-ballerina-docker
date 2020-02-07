@@ -33,8 +33,6 @@ jobs:
         - export PATH="$PATH;C:\\ProgramData\\chocolatey\\lib\\maven\\apache-maven-3.6.3\\bin"
         - docker version
         - echo '{"experimental":true}' | tee C:\\ProgramData\\Docker\\config\\daemon.json
-        - docker-machine restart
-        - docker version
         - powershell -c "Stop-Service docker"
         - powershell -c "Start-Service docker"
         - docker version

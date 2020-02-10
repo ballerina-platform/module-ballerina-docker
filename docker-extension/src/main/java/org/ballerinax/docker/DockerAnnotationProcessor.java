@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -80,7 +81,7 @@ class DockerAnnotationProcessor {
             out.println("\nGenerating docker artifacts...");
             DockerArtifactHandler dockerHandler = new DockerArtifactHandler(dockerModel);
             dockerHandler.createArtifacts(out, "\t@docker \t\t", uberJarFilePath, outputDir);
-            printDockerInstructions(dockerModel);
+            printDockerInstructions(dockerModel, outputDir);
         } catch (DockerGenException e) {
             throw new DockerPluginException(e.getMessage(), e);
         }
@@ -202,9 +203,20 @@ class DockerAnnotationProcessor {
         return copyFileModels;
     }
 
-    private void printDockerInstructions(DockerModel dockerModel) {
+    private void printDockerInstructions(DockerModel dockerModel, Path outputDir) {
         out.println();
-        out.println("\n\tRun the following command to start a Docker container:");
+
+        if (!dockerModel.isBuildImage()) {
+            out.println();
+            out.println("\tRun the following command to build the docker image:");
+            String command = "docker build --force-rm --no-cache -t " + dockerModel.getName();
+            Path currentDir = Paths.get(System.getProperty("user.dir"));
+            command += " " + currentDir.relativize(outputDir);
+            out.println("\t" + command);
+        }
+        
+        out.println();
+        out.println("\tRun the following command to start a Docker container:");
         StringBuilder command = new StringBuilder("docker run -d ");
         dockerModel.getPorts().forEach((Integer port) -> command.append("-p ").append(port).append(":").append(port)
                 .append(" "));

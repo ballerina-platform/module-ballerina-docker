@@ -51,7 +51,8 @@ public class Sample7Test extends SampleTest {
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
+        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal").getExitCode(),
+                0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
     
@@ -77,7 +78,7 @@ public class Sample7Test extends SampleTest {
     }
 
     @Test
-    public void validateDockerImage() throws DockerTestException {
+    public void validateDockerImage() {
         Assert.assertEquals(getCommand(this.dockerImage).toString(),
                 "[/bin/sh, -c, java -jar hello_world_docker.jar]");
         List<String> ports = getExposedPorts(this.dockerImage);
@@ -87,7 +88,7 @@ public class Sample7Test extends SampleTest {
     }
 
     @AfterClass
-    public void cleanUp() throws DockerPluginException, DockerTestException {
+    public void cleanUp() throws DockerPluginException {
         DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);

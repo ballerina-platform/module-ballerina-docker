@@ -50,7 +50,8 @@ public class Sample5Test extends SampleTest {
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_config_file.bal"), 0);
+        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_config_file.bal").getExitCode(),
+                0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
     
@@ -79,7 +80,7 @@ public class Sample5Test extends SampleTest {
     }
     
     @Test
-    public void validateDockerImage() throws DockerTestException {
+    public void validateDockerImage() {
         Assert.assertEquals(getCommand(this.dockerImage).toString(), "[/bin/sh, -c, java -jar " +
                                                                      "hello_config_file.jar " +
                                                                      "--b7a.config.file=" +

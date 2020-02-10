@@ -16,10 +16,9 @@
  * under the License.
  */
 
-package org.ballerinax.docker.test.samples;
+package org.ballerinax.docker.test;
 
 import org.ballerinax.docker.exceptions.DockerPluginException;
-import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.utils.DockerPluginUtils;
@@ -32,48 +31,36 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 
 /**
- * Test class for sample9.
+ * Build with `buildImage` field set to false and check whether build command is shown.
  */
-public class Sample9Test extends SampleTest {
-
-    private final Path sourceDirPath = SAMPLE_DIR.resolve("sample9");
+public class NoImageBuildTest {
+    private final Path sourceDirPath = Paths.get("src", "test", "resources", "docker-tests");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
-    private final String dockerImage = "hello_world_function:latest";
-    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
-    private String containerID;
-
+    
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        ProcessOutput buildOutput = DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_function.bal");
-        Assert.assertEquals(buildOutput.getExitCode(), 0);
-        DockerTestUtils.stopContainer(this.dockerContainerName);
+        ProcessOutput buildProcess = DockerTestUtils.compileBallerinaFile(sourceDirPath, "build_image_false.bal");
+        Assert.assertEquals(buildProcess.getExitCode(), 0);
+        Assert.assertTrue(buildProcess.getStdOutput().contains(
+                "docker build --force-rm --no-cache -t build_image_false:latest docker"));
     }
-
-    @Test(timeOut = 45000)
-    public void testService() throws DockerTestException {
-        containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
-        Assert.assertTrue(DockerTestUtils.startContainer(containerID,
-                "Hello, World!"),
-                "Container did not start properly.");
-    }
-
+    
     @Test
     public void validateDockerfile() throws IOException {
-        File dockerFile = new File(targetPath + File.separator + "Dockerfile");
+        File dockerFile = this.targetPath.resolve("Dockerfile").toFile();
+        Assert.assertTrue(dockerFile.exists());
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
         Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
-        Assert.assertTrue(dockerFile.exists());
     }
-
+    
     @AfterClass
     public void cleanUp() throws DockerPluginException {
-        DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
-        DockerTestUtils.deleteDockerImage(dockerImage);
     }
 }

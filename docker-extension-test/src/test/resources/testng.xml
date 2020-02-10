@@ -33,4 +33,10 @@
         </classes>
     </test>
 
+    <test name="ballerinax-docker-integration-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinax.docker.test.NoImageBuildTest"/>
+        </classes>
+    </test>
+
 </suite>

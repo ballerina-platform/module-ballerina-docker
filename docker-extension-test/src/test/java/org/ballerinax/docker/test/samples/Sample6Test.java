@@ -102,21 +102,21 @@ public class Sample6Test extends SampleTest {
     }
 
     @Test
-    public void validateBurgerDockerImage() throws DockerTestException {
+    public void validateBurgerDockerImage() {
         List<String> ports = getExposedPorts(burgerDockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9096/tcp");
     }
 
     @Test
-    public void validatePizzaDockerImage() throws DockerTestException {
+    public void validatePizzaDockerImage() {
         List<String> ports = getExposedPorts(pizzaDockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9099/tcp");
     }
     
     @AfterClass
-    public void cleanUp() throws DockerTestException, DockerPluginException {
+    public void cleanUp() throws DockerPluginException {
         DockerTestUtils.stopContainer(burgerContainerID);
         DockerTestUtils.stopContainer(pizzaContainerID);
         DockerPluginUtils.deleteDirectory(pizzaTargetPath);

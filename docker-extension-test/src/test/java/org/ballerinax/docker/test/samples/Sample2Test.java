@@ -49,7 +49,8 @@ public class Sample2Test extends SampleTest {
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal"), 0);
+        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_docker.bal").getExitCode(),
+                0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
     

@@ -49,7 +49,8 @@ public class Sample8Test extends SampleTest {
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_cmd_docker.bal"), 0);
+        Assert.assertEquals(
+                DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_cmd_docker.bal").getExitCode(), 0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
     
@@ -74,14 +75,14 @@ public class Sample8Test extends SampleTest {
     }
 
     @Test
-    public void validateDockerImage() throws DockerTestException {
+    public void validateDockerImage() {
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9090/tcp");
     }
 
     @AfterClass
-    public void cleanUp() throws DockerPluginException, DockerTestException {
+    public void cleanUp() throws DockerPluginException {
         DockerTestUtils.stopContainer(containerID);
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImage);

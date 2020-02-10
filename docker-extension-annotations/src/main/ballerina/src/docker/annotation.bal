@@ -50,7 +50,7 @@ public type DockerConfiguration record {|
 |};
 
 # @docker:Config annotation to configure docker artifact generation.
-public const annotation DockerConfiguration Config on source service, source listener;
+public const annotation DockerConfiguration Config on source service, source listener, source function;
 
 # External file type for docker.
 #
@@ -71,7 +71,7 @@ public type FileConfigs record {|
 |};
 
 # @docker:CopyFile annotation to copy external files to docker image.
-public const annotation FileConfigs CopyFiles on source service, source listener;
+public const annotation FileConfigs CopyFiles on source service, source listener, source function;
 
 # Expose ports for docker.
 public type ExposeConfig record {| |};

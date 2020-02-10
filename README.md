@@ -16,7 +16,7 @@ Annotation based docker extension implementation for ballerina.
 ## Supported Annotations:
 
 ### @docker:Config{}
-- Supported with ballerina services or listeners.
+- Supported with ballerina services, listeners or functions.
 
 |**Annotation Name**|**Description**|**Default value**|
 |--|--|--|
@@ -35,7 +35,7 @@ Annotation based docker extension implementation for ballerina.
 |dockerCertPath|Docker certificate path|"DOCKER_CERT_PATH" environment variable|
 
 ### @docker:CopyFiles{}
-- Supported with ballerina services or listeners.
+- Supported with ballerina services, listeners or functions.
 
 |**Annotation Name**|**Description**|**Default value**|
 |--|--|--|

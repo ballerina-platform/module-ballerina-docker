@@ -47,9 +47,11 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.extractUberJarName;
+import static org.ballerinax.docker.utils.DockerPluginUtils.getKeyValuePairs;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
 
 /**
@@ -151,30 +153,33 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     }
 
     private void processListener(BLangTypeInit bListener, DockerDataHolder dataHolder) {
-        List<BLangRecordLiteral.BLangRecordKeyValue> listenerConfig;
+        List<BLangRecordLiteral.BLangRecordKeyValueField> listenerConfig;
         if (bListener.argsExpr.size() == 2) {
             if (bListener.argsExpr.get(1) instanceof BLangRecordLiteral) {
                 BLangRecordLiteral bConfigRecordLiteral = (BLangRecordLiteral) bListener.argsExpr.get(1);
-                listenerConfig = bConfigRecordLiteral.getKeyValuePairs();
+                listenerConfig = bConfigRecordLiteral.getFields().stream().map(x ->
+                        (BLangRecordLiteral.BLangRecordKeyValueField) x).collect(Collectors.toList());
             } else {
                 // expression is in config = {} format.
-                listenerConfig = ((BLangRecordLiteral) ((BLangNamedArgsExpression) bListener.argsExpr.get(1)).expr)
-                        .getKeyValuePairs();
+                listenerConfig = getKeyValuePairs((BLangRecordLiteral) ((BLangNamedArgsExpression)
+                        bListener.argsExpr.get(1)).expr);
+
             }
-            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : listenerConfig) {
+            for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : listenerConfig) {
                 String key = keyValue.getKey().toString();
                 if ("secureSocket".equals(key)) {
-                    List<BLangRecordLiteral.BLangRecordKeyValue> sslKeyValues =
-                            ((BLangRecordLiteral) keyValue.valueExpr).getKeyValuePairs();
+                    List<BLangRecordLiteral.BLangRecordKeyValueField> sslKeyValues =
+                            getKeyValuePairs((BLangRecordLiteral) keyValue.valueExpr);
                     dataHolder.addExternalFiles(processSecureSocket(sslKeyValues));
                 }
             }
         }
     }
 
-    private Set<CopyFileModel> processSecureSocket(List<BLangRecordLiteral.BLangRecordKeyValue> secureSocketKeyValues) {
+    private Set<CopyFileModel> processSecureSocket(List<BLangRecordLiteral.BLangRecordKeyValueField>
+                                                           secureSocketKeyValues) {
         Set<CopyFileModel> copyFileModels = new HashSet<>();
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : secureSocketKeyValues) {
+        for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : secureSocketKeyValues) {
             //extract file paths.
             String key = keyValue.getKey().toString();
             if ("keyStore".equals(key)) {
@@ -199,10 +204,10 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     }
 
-    private String extractFilePath(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
-        List<BLangRecordLiteral.BLangRecordKeyValue> keyStoreConfigs = ((BLangRecordLiteral) keyValue
-                .valueExpr).getKeyValuePairs();
-        for (BLangRecordLiteral.BLangRecordKeyValue keyStoreConfig : keyStoreConfigs) {
+    private String extractFilePath(BLangRecordLiteral.BLangRecordKeyValueField keyValue) {
+        List<BLangRecordLiteral.BLangRecordKeyValueField> keyStoreConfigs =
+                getKeyValuePairs((BLangRecordLiteral) keyValue.valueExpr);
+        for (BLangRecordLiteral.BLangRecordKeyValueField keyStoreConfig : keyStoreConfigs) {
             String configKey = keyStoreConfig.getKey().toString();
             if ("path".equals(configKey)) {
                 return keyStoreConfig.getValue().toString();

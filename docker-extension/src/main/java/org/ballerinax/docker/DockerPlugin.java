@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
@@ -83,22 +84,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         DockerDataHolder dataHolder = DockerContext.getInstance().getDataHolder();
         dataHolder.setCanProcess(true);
         try {
-            for (AnnotationAttachmentNode attachmentNode : annotations) {
-                DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()
-                        .getValue());
-                switch (dockerAnnotation) {
-                    case Config:
-                        dataHolder.setDockerModel(
-                                dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
-                        break;
-                    case CopyFiles:
-                        dataHolder.addExternalFiles(
-                                dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
-                        break;
-                    default:
-                        break;
-                }
-            }
+            processCommonAnnotations(annotations, dataHolder);
             BLangService bService = (BLangService) serviceNode;
             for (BLangExpression attachedExpr : bService.getAttachedExprs()) {
                 if (attachedExpr instanceof BLangTypeInit) {
@@ -149,6 +135,35 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             }
         } catch (DockerPluginException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, variableNode.getPosition(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
+        DockerDataHolder dataHolder = DockerContext.getInstance().getDataHolder();
+        dataHolder.setCanProcess(true);
+        try {
+            processCommonAnnotations(annotations, dataHolder);
+        } catch (DockerPluginException e) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, functionNode.getPosition(), e.getMessage());
+        }
+    }
+
+    private void processCommonAnnotations(List<AnnotationAttachmentNode> annotations, DockerDataHolder dataHolder)
+            throws DockerPluginException {
+        for (AnnotationAttachmentNode attachmentNode : annotations) {
+            DockerAnnotation dockerAnnotation = DockerAnnotation.valueOf(attachmentNode.getAnnotationName()
+                    .getValue());
+            switch (dockerAnnotation) {
+                case Config:
+                    dataHolder.setDockerModel(dockerAnnotationProcessor.processConfigAnnotation(attachmentNode));
+                    break;
+                case CopyFiles:
+                    dataHolder.addExternalFiles(dockerAnnotationProcessor.processCopyFileAnnotation(attachmentNode));
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

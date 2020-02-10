@@ -21,6 +21,7 @@ package org.ballerinax.docker.test.samples;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
+import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -47,7 +48,8 @@ public class Sample10Test extends SampleTest {
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "copy_file_function.bal"), 0);
+        ProcessOutput buildOutput = DockerTestUtils.compileBallerinaFile(sourceDirPath, "copy_file_function.bal");
+        Assert.assertEquals(buildOutput.getExitCode(), 0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
 

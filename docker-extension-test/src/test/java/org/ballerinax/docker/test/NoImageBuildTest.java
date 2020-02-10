@@ -46,6 +46,8 @@ public class NoImageBuildTest {
     public void compileSample() throws IOException, InterruptedException {
         ProcessOutput buildProcess = DockerTestUtils.compileBallerinaFile(sourceDirPath, "build_image_false.bal");
         Assert.assertEquals(buildProcess.getExitCode(), 0);
+        Assert.assertTrue(buildProcess.getStdOutput().contains(
+                "docker build --force-rm --no-cache -t build_image_false:latest docker"));
     }
     
     @Test

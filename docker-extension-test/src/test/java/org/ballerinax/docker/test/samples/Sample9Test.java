@@ -21,6 +21,7 @@ package org.ballerinax.docker.test.samples;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
+import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -47,12 +48,13 @@ public class Sample9Test extends SampleTest {
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_function.bal"), 0);
+        ProcessOutput buildOutput = DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_function.bal");
+        Assert.assertEquals(buildOutput.getExitCode(), 0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
 
     @Test(timeOut = 45000)
-    public void testService() throws IOException, InterruptedException, DockerTestException {
+    public void testService() throws DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "Hello, World!"),

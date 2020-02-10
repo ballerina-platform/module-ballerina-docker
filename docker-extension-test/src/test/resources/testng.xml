@@ -28,6 +28,8 @@
             <class name="org.ballerinax.docker.test.samples.Sample6Test"/>
             <class name="org.ballerinax.docker.test.samples.Sample7Test"/>
             <class name="org.ballerinax.docker.test.samples.Sample8Test"/>
+            <class name="org.ballerinax.docker.test.samples.Sample9Test"/>
+            <class name="org.ballerinax.docker.test.samples.Sample10Test"/>
         </classes>
     </test>
 

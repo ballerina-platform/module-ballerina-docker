@@ -25,4 +25,5 @@
 1. [Example6: Multiple modules with docker annotation](sample6/)
 1. [Example7: Run ballerina service in http and https with docker](sample7/)
 1. [Example8: Override CMD of the generated Dockerfile](sample8/)
-1. [Example9: Docker Hello World Function](sample9/)
+1. [Example9: Docker Hello World Main function](sample9/)
+1. [Example10: Copy files with Main function](sample10/)

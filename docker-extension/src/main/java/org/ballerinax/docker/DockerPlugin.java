@@ -140,6 +140,11 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
+        if (!"main".equals(functionNode.getName().getValue())) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, functionNode.getPosition(), "@docker annotations are " +
+                    "only supported with main function. ");
+            return;
+        }
         DockerDataHolder dataHolder = DockerContext.getInstance().getDataHolder();
         dataHolder.setCanProcess(true);
         try {

@@ -37,17 +37,17 @@ import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECT
 /**
  * Test class for sample9.
  */
-public class Sample9Test extends SampleTest {
+public class Sample10Test extends SampleTest {
 
-    private final Path sourceDirPath = SAMPLE_DIR.resolve("sample9");
+    private final Path sourceDirPath = SAMPLE_DIR.resolve("sample10");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
-    private final String dockerImage = "hello_world_function:latest";
+    private final String dockerImage = "copy_file_function:latest";
     private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
     private String containerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
-        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "hello_world_function.bal"), 0);
+        Assert.assertEquals(DockerTestUtils.compileBallerinaFile(sourceDirPath, "copy_file_function.bal"), 0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
 
@@ -55,7 +55,7 @@ public class Sample9Test extends SampleTest {
     public void testService() throws IOException, InterruptedException, DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
-                "Hello, World!"),
+                "Lorem ipsum dolor sit amet."),
                 "Container did not start properly.");
     }
 

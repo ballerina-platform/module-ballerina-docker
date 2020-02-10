@@ -20,6 +20,7 @@ package org.ballerinax.docker.utils;
 
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.generator.DockerGenConstants;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,9 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Util methods used for artifact generation.
@@ -45,6 +48,12 @@ public class DockerPluginUtils {
      */
     public static void printError(String msg) {
         error.println("error [docker plugin]: " + msg);
+    }
+
+    public static List<BLangRecordLiteral.BLangRecordKeyValueField> getKeyValuePairs
+            (BLangRecordLiteral bLangRecordLiteral) {
+        return bLangRecordLiteral.getFields().stream().map(field ->
+                (BLangRecordLiteral.BLangRecordKeyValueField) field).collect(Collectors.toList());
     }
 
     /**
@@ -112,7 +121,7 @@ public class DockerPluginUtils {
                 String varName = value.substring(startIndex + 5, endIndex).trim();
                 String resolvedVar = Optional.ofNullable(System.getenv(varName)).orElseThrow(() ->
                         new DockerPluginException("error resolving value: " + varName +
-                                                      " is not set in the environment."));
+                                " is not set in the environment."));
                 String rest = (value.length() > endIndex + 1) ? resolveValue(value.substring(endIndex + 1)) : "";
                 return value.substring(0, startIndex) + resolvedVar + rest;
             }

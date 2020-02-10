@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.ballerinax.docker.utils.DockerPluginUtils.getKeyValuePairs;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printDebug;
 import static org.ballerinax.docker.utils.DockerPluginUtils.resolveValue;
 
@@ -51,7 +52,7 @@ class DockerAnnotationProcessor {
      * Process docker annotations for ballerina Service.
      *
      * @param uberJarFilePath Uber jar file name
-     * @param outputDir    target output directory
+     * @param outputDir       target output directory
      */
     void processDockerModel(DockerDataHolder dockerDataHolder, Path uberJarFilePath, Path outputDir) throws
             DockerPluginException {
@@ -64,12 +65,12 @@ class DockerAnnotationProcessor {
                 String defaultImageName = DockerGenUtils.extractUberJarName(uberJarFilePath);
                 dockerModel.setName(defaultImageName);
             }
-    
+
             Path uberJarFileName = uberJarFilePath.getFileName();
             if (null != uberJarFileName) {
                 dockerModel.setUberJarFileName(uberJarFileName.toString());
             }
-    
+
             Set<Integer> ports = dockerModel.getPorts();
             if (dockerModel.isEnableDebug()) {
                 ports.add(dockerModel.getDebugPort());
@@ -93,10 +94,10 @@ class DockerAnnotationProcessor {
      * @throws DockerPluginException if an error occurred while creating docker model
      */
     DockerModel processConfigAnnotation(AnnotationAttachmentNode attachmentNode) throws DockerPluginException {
-        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
-                ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
+        List<BLangRecordLiteral.BLangRecordKeyValueField> keyValues =
+                getKeyValuePairs((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr);
         DockerModel dockerModel = new DockerModel();
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
+        for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : keyValues) {
             DockerConfiguration dockerConfiguration =
                     DockerConfiguration.valueOf(keyValue.getKey().toString());
             String annotationValue = resolveValue(keyValue.getValue().toString());
@@ -163,15 +164,15 @@ class DockerAnnotationProcessor {
         Set<CopyFileModel> copyFileModels = new HashSet<>();
         // control variable to detect if there are multiple conf files.
         boolean confFileDefined = false;
-        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
-                ((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr).getKeyValuePairs();
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : keyValues) {
+        List<BLangRecordLiteral.BLangRecordKeyValueField> keyValues =
+                getKeyValuePairs((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr);
+        for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : keyValues) {
             List<BLangExpression> configAnnotation = ((BLangListConstructorExpr) keyValue.valueExpr).exprs;
             for (BLangExpression bLangExpression : configAnnotation) {
                 CopyFileModel fileModel = new CopyFileModel();
-                List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
-                        ((BLangRecordLiteral) bLangExpression).getKeyValuePairs();
-                for (BLangRecordLiteral.BLangRecordKeyValue annotation : annotationValues) {
+                List<BLangRecordLiteral.BLangRecordKeyValueField> annotationValues =
+                        getKeyValuePairs((BLangRecordLiteral) bLangExpression);
+                for (BLangRecordLiteral.BLangRecordKeyValueField annotation : annotationValues) {
                     CopyFileConfiguration copyFileConfiguration =
                             CopyFileConfiguration.valueOf(annotation.getKey().toString());
                     String annotationValue = resolveValue(annotation.getValue().toString());

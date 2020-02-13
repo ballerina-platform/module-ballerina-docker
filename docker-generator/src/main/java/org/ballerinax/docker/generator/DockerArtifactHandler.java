@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Locale;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
@@ -121,6 +122,12 @@ public class DockerArtifactHandler {
     
     private DockerClient createClient() {
         DefaultDockerClientConfig.Builder dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder();
+
+        // if windows, consider DOCKER_HOST as "tcp://localhost:2375"
+        if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win")) {
+            dockerClientConfig.withDockerHost("tcp://localhost:2375");
+        }
+
         // set docker host
         if (null != this.dockerModel.getDockerHost()) {
             dockerClientConfig.withDockerHost(this.dockerModel.getDockerHost());

@@ -30,7 +30,7 @@
 # + dockerAPIVersion - Docker API version.
 # + dockerHost - Docker host IP and docker PORT. (e.g minikube IP and docker PORT).
 # Default is to use DOCKER_HOST environment variable.
-# If DOCKER_HOST is unavailable, use `"unix:///var/run/docker.sock"` for Unix or use `"npipe:////./pipe/docker_engine"` for Windows 10 or use `"localhost:2375"`.
+# If DOCKER_HOST is unavailable, use `"unix:///var/run/docker.sock"` for Unix or use `"tcp://localhost:2375"` for Windows.
 # + dockerCertPath - Docker certificate path. Default is to use `"DOCKER_CERT_PATH"` environment variable.
 public type DockerConfiguration record {|
     string registry?;

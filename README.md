@@ -31,7 +31,7 @@ Annotation based docker extension implementation for ballerina.
 |enableDebug|Enable debug for ballerina|false|
 |debugPort|Remote debug port|5005|
 |dockerAPIVersion|Docker API Version|None|
-|dockerHost|Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)|DOCKER_HOST environment variable. If DOCKER_HOST is unavailable, uses "unix:///var/run/docker.sock" for Unix or uses "npipe:////./pipe/docker_engine" for Windows 10 or uses "localhost:2375"|
+|dockerHost|Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)|DOCKER_HOST environment variable. If DOCKER_HOST is unavailable, uses "unix:///var/run/docker.sock" for Unix or uses "tcp://localhost:2375" for Windows|
 |dockerCertPath|Docker certificate path|"DOCKER_CERT_PATH" environment variable|
 
 ### @docker:CopyFiles{}

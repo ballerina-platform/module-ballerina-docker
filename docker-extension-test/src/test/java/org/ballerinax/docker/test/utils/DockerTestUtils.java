@@ -89,6 +89,10 @@ public class DockerTestUtils {
     
     public static DockerClient getDockerClient() {
         DefaultDockerClientConfig.Builder dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder();
+        // if windows, consider DOCKER_HOST as "tcp://localhost:2375"
+        if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win")) {
+            dockerClientConfig.withDockerHost("tcp://localhost:2375");
+        }
         return DockerClientBuilder.getInstance(dockerClientConfig.build()).build();
     }
 
@@ -342,15 +346,12 @@ public class DockerTestUtils {
 
                 // Find docker container IP address if such exists
                 InspectContainerResponse containerInfo = getDockerClient().inspectContainerCmd(containerID).exec();
-                if (!System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("mac") &&
+
+                String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+                // If OS is linux
+                if ((os.contains("nix") || os.contains("nux") || os.contains("aix")) &&
                         !"".equals(containerInfo.getNetworkSettings().getIpAddress())) {
                     serviceIP = containerInfo.getNetworkSettings().getIpAddress();
-                }
-
-                if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") &&
-                        containerInfo.getNetworkSettings().getNetworks().containsKey("nat") &&
-                        !"".equals(containerInfo.getNetworkSettings().getNetworks().get("nat").getIpAddress())) {
-                    serviceIP = containerInfo.getNetworkSettings().getNetworks().get("nat").getIpAddress();
                 }
 
                 log.info("Container IP address found as: " + serviceIP);

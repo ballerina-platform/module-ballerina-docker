@@ -62,7 +62,7 @@ public class DockerTestUtils {
     private static final Log log = LogFactory.getLog(DockerTestUtils.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final String DISTRIBUTION_PATH = FilenameUtils.separatorsToSystem(
-            System.getProperty("ballerina.pack"));
+            System.getProperty("ballerinaPack"));
     private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH +
             File.separator + "bin" +
             File.separator + (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?

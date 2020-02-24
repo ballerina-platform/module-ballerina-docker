@@ -22,8 +22,8 @@
 hs_err_pid*
 
 
-target
-dependency-reduced-pom.xml
+build
+.gradle/
 
 # IDEA Files
 .idea/

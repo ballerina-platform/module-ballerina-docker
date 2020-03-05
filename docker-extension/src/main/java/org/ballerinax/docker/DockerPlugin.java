@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
@@ -35,16 +36,20 @@ import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +57,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.extractUberJarName;
+import static org.ballerinax.docker.utils.DockerPluginUtils.createAnnotation;
 import static org.ballerinax.docker.utils.DockerPluginUtils.getKeyValuePairs;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
 
@@ -69,7 +75,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dlog = diagnosticLog;
-        dockerAnnotationProcessor = new DockerAnnotationProcessor();
+        this.dockerAnnotationProcessor = new DockerAnnotationProcessor();
     }
 
     @Override
@@ -77,6 +83,55 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         BLangPackage bPackage = (BLangPackage) packageNode;
         String pkgID = bPackage.packageID.toString();
         DockerContext.getInstance().addDataHolder(pkgID);
+    
+        // Get the imports with alias _
+        List<BLangImportPackage> dockerImports = bPackage.getImports().stream()
+                .filter(i -> i.symbol.toString().equals("ballerina/docker") && i.getAlias().toString().equals("_"))
+                .collect(Collectors.toList());
+    
+        if (dockerImports.size() > 0) {
+            for (BLangImportPackage dockerImport : dockerImports) {
+                // Get the units of the file which has docker import as _
+                List<TopLevelNode> topLevelNodes = bPackage.getCompilationUnits().stream()
+                        .filter(cu -> cu.getName().equals(dockerImport.compUnit.getValue()))
+                        .flatMap(cu -> cu.getTopLevelNodes().stream())
+                        .collect(Collectors.toList());
+    
+                // Filter out the services
+                List<ServiceNode> serviceNodes = topLevelNodes.stream()
+                        .filter(tln -> tln instanceof ServiceNode)
+                        .map(tln -> (ServiceNode) tln)
+                        .collect(Collectors.toList());
+        
+                // Generate artifacts for services with 'new listener()'
+                serviceNodes.stream()
+                        .filter(sn -> sn.getAttachedExprs().stream().anyMatch(aex -> aex instanceof BLangTypeInit))
+                        .forEach(sn -> process(sn, Collections.singletonList(createAnnotation("Config"))));
+        
+                // Get the variable names of the listeners attached to services
+                List<String> listenerNamesToExpose = serviceNodes.stream()
+                        .map(ServiceNode::getAttachedExprs)
+                        .flatMap(Collection::stream)
+                        .filter(aex -> aex instanceof BLangSimpleVarRef)
+                        .map(aex -> (BLangSimpleVarRef) aex)
+                        .map(BLangSimpleVarRef::toString)
+                        .collect(Collectors.toList());
+    
+                // Generate artifacts for listeners attached to services
+                topLevelNodes.stream()
+                        .filter(tln -> tln instanceof SimpleVariableNode)
+                        .map(tln -> (SimpleVariableNode) tln)
+                        .filter(listener -> listenerNamesToExpose.contains(listener.getName().getValue()))
+                        .forEach(listener -> process(listener, Collections.singletonList(createAnnotation("Expose"))));
+                
+                // Generate artifacts for main functions
+                topLevelNodes.stream()
+                        .filter(tln -> tln instanceof FunctionNode)
+                        .map(tln -> (FunctionNode) tln)
+                        .filter(fn -> "main".equals(fn.getName().getValue()))
+                        .forEach(fn -> process(fn, Collections.singletonList(createAnnotation("Config"))));
+            }
+        }
     }
 
     @Override

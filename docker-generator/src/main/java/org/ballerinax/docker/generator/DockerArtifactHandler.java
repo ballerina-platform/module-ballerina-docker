@@ -55,7 +55,7 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
  * Generates Docker artifacts from annotations.
  */
 public class DockerArtifactHandler {
-    
+
     private static final boolean WINDOWS_BUILD =
             Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
     private final DockerError dockerBuildError = new DockerError();
@@ -63,7 +63,7 @@ public class DockerArtifactHandler {
     private DockerModel dockerModel;
     private DockerClient dockerClient;
     private DefaultDockerClientConfig dockerClientConfig;
-    
+
     public DockerArtifactHandler(DockerModel dockerModel) {
         String registry = dockerModel.getRegistry();
         String imageName = dockerModel.getName();
@@ -119,7 +119,7 @@ public class DockerArtifactHandler {
             throw new DockerGenException("unable to create Docker images " + e.getMessage());
         }
     }
-    
+
     private DockerClient createClient() {
         DefaultDockerClientConfig.Builder dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder();
 
@@ -132,84 +132,84 @@ public class DockerArtifactHandler {
         if (null != this.dockerModel.getDockerHost()) {
             dockerClientConfig.withDockerHost(this.dockerModel.getDockerHost());
         }
-        
+
         // set docker cert path
         if (null != this.dockerModel.getDockerCertPath()) {
             dockerClientConfig.withDockerCertPath(this.dockerModel.getDockerCertPath());
         }
-    
+
         // set docker API version
         if (null != this.dockerModel.getDockerAPIVersion()) {
             dockerClientConfig.withApiVersion(this.dockerModel.getDockerAPIVersion());
         }
-    
+
         // set docker registry url
         if (null != this.dockerModel.getRegistry()) {
             dockerClientConfig.withRegistryUrl(this.dockerModel.getRegistry());
         }
-    
+
         // set docker registry username
         if (null != this.dockerModel.getUsername()) {
             dockerClientConfig.withRegistryUsername(this.dockerModel.getUsername());
         }
-    
+
         // set docker registry password
         if (null != this.dockerModel.getPassword()) {
             dockerClientConfig.withRegistryPassword(this.dockerModel.getPassword());
         }
-    
+
         this.dockerClientConfig = dockerClientConfig.build();
         printDebug("docker client host: " + this.dockerClientConfig.getDockerHost());
-        
+
         if (!this.dockerClientConfig.getApiVersion().equals(RemoteApiVersion.unknown())) {
             printDebug("docker client API version: " + this.dockerClientConfig.getApiVersion().getVersion());
         } else {
             printDebug("docker client API version: not-set");
         }
-        
+
         if (null != this.dockerClientConfig.getSSLConfig() &&
-            this.dockerClientConfig.getSSLConfig() instanceof LocalDirectorySSLConfig) {
+                this.dockerClientConfig.getSSLConfig() instanceof LocalDirectorySSLConfig) {
             LocalDirectorySSLConfig sslConfig = (LocalDirectorySSLConfig) this.dockerClientConfig.getSSLConfig();
             printDebug("docker client certs path: " + sslConfig.getDockerCertPath());
             printDebug("docker client TLS verify: true");
         } else {
             printDebug("docker client TLS verify: false");
         }
-        
+
         return DockerClientBuilder.getInstance(dockerClientConfig).build();
     }
 
     /**
      * Create docker image.
      *
-     * @param dockerDir   dockerfile directory
+     * @param dockerDir dockerfile directory
      */
     public void buildImage(Path dockerDir) throws DockerGenException {
         // validate docker image name
         DockerImageName.validate(this.dockerModel.getName());
 
         printDebug("building docker image `" + this.dockerModel.getName() + "` from directory `" + dockerDir + "`.");
-    
+
         try {
             this.dockerClient.buildImageCmd(dockerDir.toFile())
-                .withNoCache(true)
-                .withForcerm(true)
-                .withTags(Collections.singleton(this.dockerModel.getName()))
-                .exec(new DockerBuildImageCallback())
-                .awaitImageId();
+                    .withNoCache(true)
+                    .withForcerm(true)
+                    .withTags(Collections.singleton(this.dockerModel.getName()))
+                    .exec(new DockerBuildImageCallback())
+                    .awaitImageId();
         } catch (RuntimeException ex) {
             if (ex.getMessage().contains("java.net.SocketException: Connection refused")) {
                 this.dockerBuildError.setErrorMsg("unable to connect to docker host: " +
-                                                  this.dockerClientConfig.getDockerHost());
+                        this.dockerClientConfig.getDockerHost());
             } else {
                 this.dockerBuildError.setErrorMsg("unable to build docker image: " +
-                                                  cleanErrorMessage(ex.getMessage()));
+                        cleanErrorMessage(ex.getMessage()));
             }
         }
-    
+
         handleError(this.dockerBuildError);
     }
-    
+
     /**
      * Push docker image.
      *
@@ -228,7 +228,7 @@ public class DockerArtifactHandler {
             throw new DockerGenException(dockerError.getErrorMsg());
         }
     }
-    
+
     /**
      * Generate Dockerfile content.
      *
@@ -254,10 +254,13 @@ public class DockerArtifactHandler {
 
         dockerfileContent.append("WORKDIR /home/ballerina").append("\n");
         dockerfileContent.append("\n");
-    
+
         dockerfileContent.append("COPY ").append(this.dockerModel.getUberJarFileName()).append(" /home/ballerina")
                 .append("\n");
-    
+        dockerModel.getEnv().forEach((key, value) -> {
+            dockerfileContent.append("ENV ").append(key).append("=").append(value).append("\n");
+        });
+
         this.dockerModel.getCopyFiles().forEach(file -> {
             // Extract the source filename relative to docker folder.
             String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
@@ -269,7 +272,7 @@ public class DockerArtifactHandler {
         });
 
         dockerfileContent.append("\n");
-        
+
         if (this.dockerModel.isService() && this.dockerModel.getPorts().size() > 0) {
             dockerfileContent.append("EXPOSE ");
             this.dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
@@ -279,7 +282,7 @@ public class DockerArtifactHandler {
             dockerfileContent.append("USER ballerina").append("\n");
             dockerfileContent.append("\n");
         }
-        
+
         return appendCMD(dockerfileContent);
     }
 
@@ -300,6 +303,9 @@ public class DockerArtifactHandler {
                     .append(" ")
                     .append(FilenameUtils.separatorsToWindows(file.getTarget()))
                     .append("\n");
+        });
+        dockerModel.getEnv().forEach((key, value) -> {
+            stringBuilder.append("ENV ").append(key).append("=").append(value);
         });
 
         if (this.dockerModel.isService() && this.dockerModel.getPorts().size() > 0) {
@@ -358,7 +364,7 @@ public class DockerArtifactHandler {
             this.errorMsg = errorMsg;
         }
     }
-    
+
     private class DockerBuildImageCallback extends BuildImageResultCallback {
         @Override
         public void onNext(BuildResponseItem item) {
@@ -369,42 +375,42 @@ public class DockerArtifactHandler {
                 if (null != errDetail && null != errDetail.getCode()) {
                     errString.append("(").append(errDetail.getCode()).append(") ");
                 }
-            
+
                 if (null != errDetail && null != errDetail.getMessage()) {
                     errString.append(errDetail.getMessage());
                 }
-            
+
                 String errorMessage = errString.toString();
                 printDebug(errorMessage);
                 dockerBuildError.setErrorMsg("unable to build docker image: " + errorMessage);
             }
-    
+
             String streamLog = item.getStream();
             if (null != streamLog && !"".equals(streamLog.replaceAll("\n", ""))) {
                 printDebug("[build][stream] " + streamLog.replaceAll("\n", ""));
             }
-    
+
             String statusLog = item.getStatus();
             if (null != statusLog && !"".equals(statusLog.replaceAll("\n", ""))) {
                 printDebug("[build][status] " + statusLog.replaceAll("\n", ""));
             }
-    
+
             String imageIdLog = item.getImageId();
             if (null != imageIdLog) {
                 printDebug("[build][image-id]: " + imageIdLog);
             }
-        
+
             super.onNext(item);
         }
     }
-    
+
     private class DockerImagePushCallback extends PushImageResultCallback {
         @Override
         public void onNext(PushResponseItem item) {
             // handling error
             if (item.isErrorIndicated()) {
                 StringBuilder errString = new StringBuilder("[push][error]: ");
-    
+
                 ResponseItem.ErrorDetail errDetail = null;
                 if (null != item.getErrorDetail()) {
                     errDetail = item.getErrorDetail();
@@ -412,31 +418,31 @@ public class DockerArtifactHandler {
                 if (null != errDetail && null != errDetail.getCode()) {
                     errString.append("(").append(errDetail.getCode()).append(") ");
                 }
-            
+
                 if (null != errDetail && null != errDetail.getMessage()) {
                     errString.append(errDetail.getMessage());
                 }
-            
+
                 String errorMessage = errString.toString();
                 printDebug(errorMessage);
                 dockerPushError.setErrorMsg("unable to push docker image: " + errorMessage);
             }
-    
+
             String streamLog = item.getStream();
             if (null != streamLog && !"".equals(streamLog.replaceAll("\n", ""))) {
                 printDebug("[push][stream] " + streamLog.replaceAll("\n", ""));
             }
-            
+
             String statusLog = item.getStatus();
             if (null != statusLog && !"".equals(statusLog.replaceAll("\n", ""))) {
                 printDebug("[push][status] " + statusLog.replaceAll("\n", ""));
             }
-    
+
             String idLog = item.getId();
             if (null != idLog) {
                 printDebug("[push][ID]: " + idLog);
             }
-        
+
             super.onNext(item);
         }
     }

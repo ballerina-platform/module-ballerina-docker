@@ -24,7 +24,9 @@ import org.ballerinax.docker.generator.exceptions.DockerGenException;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.DOCKER_API_VERSION;
@@ -56,6 +58,7 @@ public class DockerModel {
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
     private String cmd;
+    private Map<String, String> env;
 
     public DockerModel() {
         // Initialize with default values except for image name
@@ -67,9 +70,9 @@ public class DockerModel {
         this.enableDebug = false;
         this.debugPort = 5005;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));
-        
         externalFiles = new HashSet<>();
         commandArg = "";
+        env = new HashMap<>();
     }
 
     public void setDockerAPIVersion(String dockerAPIVersion) {
@@ -118,10 +121,6 @@ public class DockerModel {
         return this.cmd
                 .replace("${APP}", this.uberJarFileName)
                 .replace("${CONFIG_FILE}", configFile);
-    }
-    
-    public void setCmd(String cmd) {
-        this.cmd = cmd;
     }
 
     @Override

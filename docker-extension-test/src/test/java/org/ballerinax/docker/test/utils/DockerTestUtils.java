@@ -114,7 +114,7 @@ public class DockerTestUtils {
      */
     public static List<String> getExposedPorts(String imageName) {
         InspectImageResponse dockerImage = getDockerImage(imageName);
-        if (null == dockerImage.getConfig()) {
+        if (null == dockerImage.getConfig() || null == dockerImage.getConfig().getExposedPorts()) {
             return new ArrayList<>();
         }
     
@@ -186,6 +186,45 @@ public class DockerTestUtils {
         po.setStdOutput(logOutput(process.getInputStream()));
         po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
+    }
+    
+    /**
+     * Compile a ballerina project module in a given directory.
+     *
+     * @param sourceDirectory Ballerina source directory
+     * @param moduleName Module name.
+     * @return Exit code
+     * @throws InterruptedException if an error occurs while compiling
+     * @throws IOException          if an error occurs while writing file
+     */
+    public static int compileBallerinaProjectModule(Path sourceDirectory, String moduleName) throws
+            InterruptedException, IOException {
+        Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
+        if (ballerinaInternalLog.toFile().exists()) {
+            log.warn("Deleting already existing ballerina-internal.log file.");
+            FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
+        }
+        
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, moduleName);
+        log.info(COMPILING + sourceDirectory.normalize());
+        log.debug(EXECUTING_COMMAND + pb.command());
+        pb.directory(sourceDirectory.toFile());
+        Map<String, String> environment = pb.environment();
+        addJavaAgents(environment);
+        
+        Process process = pb.start();
+        int exitCode = process.waitFor();
+        log.info(EXIT_CODE + exitCode);
+        logOutput(process.getInputStream());
+        logOutput(process.getErrorStream());
+        
+        // log ballerina-internal.log content
+        if (Files.exists(ballerinaInternalLog)) {
+            log.info("ballerina-internal.log file found. content: ");
+            log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
+        }
+        
+        return exitCode;
     }
 
     /**

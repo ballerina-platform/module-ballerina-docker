@@ -103,10 +103,8 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         .map(tln -> (ServiceNode) tln)
                         .collect(Collectors.toList());
         
-                // Generate artifacts for services with 'new listener()'
-                serviceNodes.stream()
-                        .filter(sn -> sn.getAttachedExprs().stream().anyMatch(aex -> aex instanceof BLangTypeInit))
-                        .forEach(sn -> process(sn, Collections.singletonList(createAnnotation("Config"))));
+                // Generate artifacts for services for all services
+                serviceNodes.forEach(sn -> process(sn, Collections.singletonList(createAnnotation("Config"))));
         
                 // Get the variable names of the listeners attached to services
                 List<String> listenerNamesToExpose = serviceNodes.stream()

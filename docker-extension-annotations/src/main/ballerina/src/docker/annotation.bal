@@ -48,7 +48,7 @@ public type DockerConfiguration record {|
     string dockerAPIVersion?;
     string dockerHost?;
     string dockerCertPath?;
-    map<string> env?;
+    map<boolean|int|float|decimal|string> env?;
 |};
 
 # @docker:Config annotation to configure docker artifact generation.

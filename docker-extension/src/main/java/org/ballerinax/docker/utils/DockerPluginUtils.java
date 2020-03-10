@@ -18,8 +18,12 @@
 
 package org.ballerinax.docker.utils;
 
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.generator.DockerGenConstants;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.File;
@@ -127,5 +131,20 @@ public class DockerPluginUtils {
             }
         }
         return value;
+    }
+    
+    /**
+     * Create an annotation node.
+     *
+     * @param annotationName Name of the annotation node.
+     * @return The created node.
+     */
+    public static AnnotationAttachmentNode createAnnotation(String annotationName) {
+        AnnotationAttachmentNode configAnnotation = new BLangAnnotationAttachment();
+        IdentifierNode configIdentifier = new BLangIdentifier();
+        configIdentifier.setValue(annotationName);
+        configAnnotation.setAnnotationName(configIdentifier);
+        configAnnotation.setExpression(new BLangRecordLiteral());
+        return configAnnotation;
     }
 }

@@ -60,7 +60,8 @@ public class NoImageBuildTest {
     }
     
     @AfterClass
-    public void cleanUp() throws DockerPluginException {
+    public void cleanUp() throws DockerPluginException, IOException {
         DockerPluginUtils.deleteDirectory(targetPath);
+        Files.deleteIfExists(sourceDirPath.resolve("build_image_false.jar"));
     }
 }

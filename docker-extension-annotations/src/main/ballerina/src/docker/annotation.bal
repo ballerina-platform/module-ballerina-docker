@@ -32,6 +32,7 @@
 # Default is to use DOCKER_HOST environment variable.
 # If DOCKER_HOST is unavailable, use `"unix:///var/run/docker.sock"` for Unix or use `"tcp://localhost:2375"` for Windows.
 # + dockerCertPath - Docker certificate path. Default is to use `"DOCKER_CERT_PATH"` environment variable.
+# + env - Environment variables for container
 public type DockerConfiguration record {|
     string registry?;
     string name?;
@@ -47,6 +48,7 @@ public type DockerConfiguration record {|
     string dockerAPIVersion?;
     string dockerHost?;
     string dockerCertPath?;
+    map<boolean|int|float|decimal|string> env?;
 |};
 
 # @docker:Config annotation to configure docker artifact generation.

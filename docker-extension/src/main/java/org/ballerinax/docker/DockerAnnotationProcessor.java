@@ -19,6 +19,7 @@
 package org.ballerinax.docker;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.generator.DockerArtifactHandler;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
@@ -26,17 +27,24 @@ import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.ballerinax.docker.models.DockerDataHolder;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ballerinax.docker.utils.DockerPluginUtils.getKeyValuePairs;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printDebug;
@@ -145,6 +153,9 @@ class DockerAnnotationProcessor {
                 case dockerCertPath:
                     dockerModel.setDockerCertPath(annotationValue);
                     break;
+                case env:
+                    dockerModel.setEnv(getMap(keyValue.getValue()));
+                    break;
                 default:
                     break;
             }
@@ -214,7 +225,7 @@ class DockerAnnotationProcessor {
             command += " " + currentDir.relativize(outputDir);
             out.println("\t" + command);
         }
-        
+
         out.println();
         out.println("\tRun the following command to start a Docker container:");
         StringBuilder command = new StringBuilder("docker run -d ");
@@ -223,6 +234,50 @@ class DockerAnnotationProcessor {
         command.append(dockerModel.getName());
         out.println("\t" + command.toString());
         out.println();
+    }
+
+    /**
+     * Get a map from a ballerina expression.
+     *
+     * @param expr Ballerina record value.
+     * @return Map of key values.
+     * @throws DockerPluginException When the expression cannot be parsed.
+     */
+    private Map<String, String> getMap(BLangExpression expr) throws DockerPluginException {
+        if (expr.getKind() != NodeKind.RECORD_LITERAL_EXPR) {
+            throw new DockerPluginException("unable to parse value: " + expr.toString());
+        } else {
+            BLangRecordLiteral fields = (BLangRecordLiteral) expr;
+            Map<String, String> map = new LinkedHashMap<>();
+            for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : convertRecordFields(fields.getFields())) {
+                map.put(keyValue.getKey().toString(), getStringValue(keyValue.getValue()));
+            }
+            return map;
+        }
+    }
+
+    private List<BLangRecordLiteral.BLangRecordKeyValueField> convertRecordFields(
+            List<BLangRecordLiteral.RecordField> fields) {
+        return fields.stream().map(f -> (BLangRecordLiteral.BLangRecordKeyValueField) f).collect(Collectors.toList());
+    }
+
+    private String getStringValue(BLangExpression expr) throws DockerPluginException {
+        if (expr instanceof BLangSimpleVarRef) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+            if (varRef.symbol instanceof BConstantSymbol) {
+                BConstantSymbol constantSymbol = (BConstantSymbol) varRef.symbol;
+                if (constantSymbol.type instanceof BFiniteType) {
+                    // Parse compile time constant
+                    BFiniteType compileConst = (BFiniteType) constantSymbol.type;
+                    if (compileConst.getValueSpace().size() > 0) {
+                        return resolveValue(compileConst.getValueSpace().iterator().next().toString());
+                    }
+                }
+            }
+        } else if (expr instanceof BLangLiteral) {
+            return resolveValue(expr.toString());
+        }
+        throw new DockerPluginException("unable to parse value: " + expr.toString());
     }
 
     private enum DockerConfiguration {
@@ -239,7 +294,8 @@ class DockerAnnotationProcessor {
         debugPort,
         dockerAPIVersion,
         dockerHost,
-        dockerCertPath
+        dockerCertPath,
+        env
     }
 
     private enum CopyFileConfiguration {

@@ -47,7 +47,9 @@
         </file>
         <!--    Copy jars-->
         <file>
-            <source>${project.basedir}/src/main/ballerina/target/caches/jar_cache/ballerina/docker/docker.jar</source>
+            <source>
+                ${project.basedir}/src/main/ballerina/target/caches/jar_cache/ballerina/docker/ballerina.docker.jar
+            </source>
             <outputDirectory>.</outputDirectory>
             <fileMode>755</fileMode>
         </file>

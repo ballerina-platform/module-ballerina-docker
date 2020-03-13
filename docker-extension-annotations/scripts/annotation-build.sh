@@ -38,17 +38,17 @@ then
     cd ${DOCKER_BALLERINA_PROJECT}
     ${EXECUTABLE} clean
     JAVA_OPTS="-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true" ${EXECUTABLE} build -c -a --skip-tests
-    mv target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar target/caches/jar_cache/ballerina/docker/docker.jar
+    mv target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar target/caches/jar_cache/ballerina/docker/ballerina.docker.jar
     cd -
 else
     pushd ${DOCKER_BALLERINA_PROJECT} /dev/null 2>&1
         ${EXECUTABLE} clean
         JAVA_OPTS="-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true" ${EXECUTABLE} build -c -a --skip-tests
-        mv target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar target/caches/jar_cache/ballerina/docker/docker.jar
+        mv target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar target/caches/jar_cache/ballerina/docker/ballerina.docker.jar
     popd > /dev/null 2>&1
 fi
 
 # update distribution with docker annotation artifacts.
 cp ${DOCKER_BALLERINA_PROJECT}/target/caches/bir_cache/ballerina/docker/docker.bir ${DISTRIBUTION_BIR_CACHE}
 cp ${DOCKER_BALLERINA_PROJECT}/Ballerina.toml ${DISTRIBUTION_BIR_CACHE}
-cp ${DOCKER_BALLERINA_PROJECT}/target/caches/jar_cache/ballerina/docker/docker.jar ${DISTRIBUTION_SYSTEM_LIB}
+cp ${DOCKER_BALLERINA_PROJECT}/target/caches/jar_cache/ballerina/docker/ballerina.docker.jar ${DISTRIBUTION_SYSTEM_LIB}

@@ -66,7 +66,7 @@ public class DockerTestUtils {
     private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH +
             File.separator + "bin" +
             File.separator + (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
-                              "ballerina.bat" : "ballerina");
+            "ballerina.bat" : "ballerina");
     private static final String BUILD = "build";
     private static final String RUN = "run";
     private static final String EXECUTING_COMMAND = "Executing command: ";
@@ -86,7 +86,7 @@ public class DockerTestUtils {
         }
         return output.toString();
     }
-    
+
     public static DockerClient getDockerClient() {
         DefaultDockerClientConfig.Builder dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder();
         // if windows, consider DOCKER_HOST as "tcp://localhost:2375"
@@ -117,7 +117,7 @@ public class DockerTestUtils {
         if (null == dockerImage.getConfig() || null == dockerImage.getConfig().getExposedPorts()) {
             return new ArrayList<>();
         }
-    
+
         ExposedPort[] exposedPorts = dockerImage.getConfig().getExposedPorts();
         return Arrays.stream(exposedPorts).map(ExposedPort::toString).collect(Collectors.toList());
     }
@@ -133,7 +133,7 @@ public class DockerTestUtils {
         if (null == dockerImage.getConfig() || null == dockerImage.getConfig().getCmd()) {
             return new ArrayList<>();
         }
-        
+
         return Arrays.asList(dockerImage.getConfig().getCmd());
     }
 
@@ -157,29 +157,46 @@ public class DockerTestUtils {
      */
     public static ProcessOutput compileBallerinaFile(Path sourceDirectory, String fileName) throws InterruptedException,
             IOException {
-    
+        return compileBallerinaFile(sourceDirectory, fileName, null);
+    }
+
+
+    /**
+     * Compile a ballerina file in a given directory.
+     *
+     * @param sourceDirectory Ballerina source directory
+     * @param fileName        Ballerina source file name
+     * @return Exit code
+     * @throws InterruptedException if an error occurs while compiling
+     * @throws IOException          if an error occurs while writing file
+     */
+    public static ProcessOutput compileBallerinaFile(Path sourceDirectory, String fileName, Map<String, String> envVars)
+            throws InterruptedException, IOException {
+
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
         if (ballerinaInternalLog.toFile().exists()) {
             log.warn("Deleting already existing ballerina-internal.log file.");
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
-    
+
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, fileName);
         log.info(COMPILING + sourceDirectory.normalize().resolve(fileName));
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
-    
+        if (envVars != null) {
+            envVars.forEach(environment::put);
+        }
         Process process = pb.start();
         int exitCode = process.waitFor();
-    
+
         // log ballerina-internal.log content
         if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
             log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
         }
-    
+
         ProcessOutput po = new ProcessOutput();
         log.info(EXIT_CODE + exitCode);
         po.setExitCode(exitCode);
@@ -187,12 +204,12 @@ public class DockerTestUtils {
         po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
     }
-    
+
     /**
      * Compile a ballerina project module in a given directory.
      *
      * @param sourceDirectory Ballerina source directory
-     * @param moduleName Module name.
+     * @param moduleName      Module name.
      * @return Exit code
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
@@ -204,26 +221,26 @@ public class DockerTestUtils {
             log.warn("Deleting already existing ballerina-internal.log file.");
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
-        
+
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, moduleName);
         log.info(COMPILING + sourceDirectory.normalize());
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
-        
+
         Process process = pb.start();
         int exitCode = process.waitFor();
         log.info(EXIT_CODE + exitCode);
         logOutput(process.getInputStream());
         logOutput(process.getErrorStream());
-        
+
         // log ballerina-internal.log content
         if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
             log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
         }
-        
+
         return exitCode;
     }
 
@@ -242,14 +259,14 @@ public class DockerTestUtils {
             log.warn("Deleting already existing ballerina-internal.log file.");
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
-    
+
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, "-a");
         log.info(COMPILING + sourceDirectory.normalize());
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
-    
+
         Process process = pb.start();
         int exitCode = process.waitFor();
         log.info(EXIT_CODE + exitCode);
@@ -300,14 +317,14 @@ public class DockerTestUtils {
      */
     private static HostConfig getPortMappingForHost(List<Integer> dockerPortBindings) {
         List<PortBinding> portBindings = new ArrayList<>();
-        
+
         for (Integer dockerPortBinding : dockerPortBindings) {
             PortBinding portBinding = new PortBinding(
                     Ports.Binding.bindIpAndPort("0.0.0.0", Integer.parseInt(dockerPortBinding.toString())),
                     ExposedPort.parse(dockerPortBinding.toString()));
             portBindings.add(portBinding);
         }
-        
+
         return HostConfig.newHostConfig().withPortBindings(portBindings);
     }
 
@@ -321,12 +338,12 @@ public class DockerTestUtils {
      */
     public static String createContainer(String dockerImage, String containerName, List<Integer> portBindings) {
         return getDockerClient().createContainerCmd(dockerImage)
-            .withHostConfig(getPortMappingForHost(portBindings))
-            .withAttachStderr(true)
-            .withAttachStdout(true)
-            .withName(containerName)
-            .exec()
-            .getId();
+                .withHostConfig(getPortMappingForHost(portBindings))
+                .withAttachStderr(true)
+                .withAttachStdout(true)
+                .withName(containerName)
+                .exec()
+                .getId();
     }
 
     /**
@@ -372,7 +389,7 @@ public class DockerTestUtils {
                                 super.onNext(item);
                             }
                         }).awaitCompletion(3, TimeUnit.SECONDS);
-                
+
                 if (containerLogs.toString().trim().contains(logToWait)) {
                     containerStarted = true;
                     break;
@@ -414,8 +431,8 @@ public class DockerTestUtils {
         try {
             InspectContainerResponse containerInfo = getDockerClient().inspectContainerCmd(containerID).exec();
             if ((null != containerInfo.getState().getRestarting() && containerInfo.getState().getRestarting()) ||
-                (null != containerInfo.getState().getPaused() && containerInfo.getState().getPaused()) ||
-                (null != containerInfo.getState().getRunning() && containerInfo.getState().getRunning())) {
+                    (null != containerInfo.getState().getPaused() && containerInfo.getState().getPaused()) ||
+                    (null != containerInfo.getState().getRunning() && containerInfo.getState().getRunning())) {
                 log.info("Stopping container: " + containerID);
                 getDockerClient().stopContainerCmd(containerID).exec();
             }

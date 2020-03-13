@@ -30,9 +30,9 @@ pushd %DOCKER_BALLERINA_PROJECT%
 cmd /C %EXECUTABLE% clean
 set JAVA_OPTS="-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
 cmd /C %EXECUTABLE% build -c -a --skip-tests
-ren %DOCKER_BALLERINA_PROJECT%target\caches\jar_cache\ballerina\docker\ballerina-docker-.jar docker.jar
+ren %DOCKER_BALLERINA_PROJECT%target\caches\jar_cache\ballerina\docker\ballerina-docker-.jar ballerina.docker.jar
 popd
 
 COPY "%DOCKER_BALLERINA_PROJECT%target\caches\bir_cache\ballerina\docker\docker.bir" "%DISTRIBUTION_BIR_CACHE%"
 COPY "%DOCKER_BALLERINA_PROJECT%Ballerina.toml" "%DISTRIBUTION_BIR_CACHE%"
-COPY "%DOCKER_BALLERINA_PROJECT%target\caches\jar_cache\ballerina\docker\docker.jar" "%DISTRIBUTION_SYSTEM_LIB%"
+COPY "%DOCKER_BALLERINA_PROJECT%target\caches\jar_cache\ballerina\docker\ballerina.docker.jar" "%DISTRIBUTION_SYSTEM_LIB%"

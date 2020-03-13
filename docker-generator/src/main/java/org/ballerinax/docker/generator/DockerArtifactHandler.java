@@ -257,9 +257,9 @@ public class DockerArtifactHandler {
 
         dockerfileContent.append("COPY ").append(this.dockerModel.getUberJarFileName()).append(" /home/ballerina")
                 .append("\n");
-        dockerModel.getEnv().forEach((key, value) -> {
-            dockerfileContent.append("ENV ").append(key).append("=").append(value).append("\n");
-        });
+
+        dockerModel.getEnv().forEach((key, value) -> dockerfileContent.append("ENV ").
+                append(key).append("=").append(value).append("\n"));
 
         this.dockerModel.getCopyFiles().forEach(file -> {
             // Extract the source filename relative to docker folder.
@@ -304,9 +304,9 @@ public class DockerArtifactHandler {
                     .append(FilenameUtils.separatorsToWindows(file.getTarget()))
                     .append("\n");
         });
-        dockerModel.getEnv().forEach((key, value) -> {
-            stringBuilder.append("ENV ").append(key).append("=").append(value);
-        });
+
+        dockerModel.getEnv().forEach((key, value) ->
+                stringBuilder.append("ENV ").append(key).append("=").append(value));
 
         if (this.dockerModel.isService() && this.dockerModel.getPorts().size() > 0) {
             stringBuilder.append("EXPOSE ");

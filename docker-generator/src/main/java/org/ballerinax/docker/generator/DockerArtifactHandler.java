@@ -217,9 +217,15 @@ public class DockerArtifactHandler {
      */
     public void pushImage() throws InterruptedException, DockerGenException {
         printDebug("pushing docker image `" + this.dockerModel.getName() + "`.");
-        this.dockerClient.pushImageCmd(this.dockerModel.getName())
-                .exec(new DockerImagePushCallback()).
-                awaitCompletion();
+    
+        try {
+            this.dockerClient.pushImageCmd(this.dockerModel.getName())
+                    .exec(new DockerImagePushCallback()).
+                    awaitCompletion();
+        } catch (RuntimeException ex) {
+            this.dockerBuildError.setErrorMsg(cleanErrorMessage(ex.getMessage()));
+        }
+    
         handleError(this.dockerPushError);
     }
 

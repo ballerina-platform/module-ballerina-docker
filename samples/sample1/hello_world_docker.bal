@@ -6,10 +6,6 @@ import ballerina/docker;
     basePath: "/helloWorld"
 }
 @docker:Config {
-    env:{
-        hello: "world",
-        los: "polos"
-    }
 }
 service helloWorld on new http:Listener(9090) {
     resource function sayHello(http:Caller outboundEP, http:Request request) {

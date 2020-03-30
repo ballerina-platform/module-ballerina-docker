@@ -7,9 +7,13 @@ on:
   push:
     branches:
       - '*'
+    paths:
+      - './base/base-image/Dockerfile'
   pull_request:
     branches:
       - '*'
+    paths:
+      - './base/base-image/Dockerfile'
 
 jobs:
   build:

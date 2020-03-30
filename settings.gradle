@@ -15,6 +15,10 @@
  *
  */
  
+plugins {
+  id "com.gradle.enterprise" version "3.2"
+}
+
 rootProject.name = 'docker-extension-parent'
 include(':docker-generator')
 include(':docker-extension')
@@ -22,3 +26,10 @@ include(':docker-extension-annotations')
 include(':docker-extension-test')
 include(':docker-extension-examples')
 include(':docker-extension-coverage-report')
+
+gradleEnterprise {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}

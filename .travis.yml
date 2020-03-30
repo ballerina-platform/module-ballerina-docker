@@ -41,7 +41,6 @@ script:
     set -e
     if [ "$TRAVIS_OS_NAME" = "linux" ]
     then
-      docker build --no-cache=true -t ballerina/jre8:v1 ./base/base-image
       ./gradlew clean build  --stacktrace --scan --console=plain --no-daemon
     fi
     if [ "$TRAVIS_OS_NAME" = "windows" ]

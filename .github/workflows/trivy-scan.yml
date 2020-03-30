@@ -1,0 +1,31 @@
+name: Trivy Docker Image Scan Workflow
+
+on:
+  schedule:
+    # 4am in UTC time.
+    - cron:  '0 4 * * *'
+  push:
+    branches:
+      - *
+  pull_request:
+    branches:
+      - *
+
+jobs:
+  build:
+    name: Trivy Docker Image Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Set up Docker
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Install and run Trivy Scanning
+        run: |
+          export VERSION=$(curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+          wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION:-'0.5.3'}/trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
+          tar zxvf trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
+          docker build --no-cache=true -t ballerina/jre8:v1 ./base/base-image
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./trivy --exit-code 1 --severity HIGH --no-progress ballerina/jre8:v1

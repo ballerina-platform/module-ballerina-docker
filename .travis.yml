@@ -35,10 +35,6 @@ jobs:
       os: linux
       language: java
       jdk: openjdk8
-      install:
-        - export VERSION=$(curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-        - wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION:-'0.5.3'}/trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
-        - tar zxvf trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
 
 script:
   - |
@@ -46,7 +42,6 @@ script:
     if [ "$TRAVIS_OS_NAME" = "linux" ]
     then
       docker build --no-cache=true -t ballerina/jre8:v1 ./base/base-image
-      ./trivy --exit-code 1 --severity HIGH --no-progress ballerina/jre8:v1 || true
       ./gradlew clean build  --stacktrace --scan --console=plain --no-daemon
     fi
     if [ "$TRAVIS_OS_NAME" = "windows" ]
@@ -57,7 +52,6 @@ script:
 cache:
   directories:
   - $HOME/.m2
-  - $HOME/.cache/trivy
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

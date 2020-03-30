@@ -14,4 +14,5 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 FROM openjdk:8-jre-alpine
+
 RUN apk update && apk upgrade

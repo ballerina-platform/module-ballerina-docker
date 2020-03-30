@@ -17,7 +17,6 @@
  
 
 plugins {
-  id "com.gradle.enterprise" version "3.2"
   id "com.github.johnrengelman.shadow" version "5.2.0"
   id "com.github.spotbugs" version "1.6.10"
 }

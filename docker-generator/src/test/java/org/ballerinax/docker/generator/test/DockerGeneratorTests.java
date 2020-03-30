@@ -78,9 +78,9 @@ public class DockerGeneratorTests {
         Method generateDockerfileMethod = DockerArtifactHandler.class.getDeclaredMethod("generateDockerfile");
         generateDockerfileMethod.setAccessible(true);
         String dockerfileContent = (String) generateDockerfileMethod.invoke(artifactHandler);
-        File dockerfile = new File("target/docker");
+        File dockerfile = new File("build/docker");
         Assert.assertTrue(dockerfile.mkdirs());
-        dockerfile = new File("target/docker/Dockerfile");
+        dockerfile = new File("build/docker/Dockerfile");
         DockerGenUtils.writeToFile(dockerfileContent, dockerfile.toPath());
         log.info("Dockerfile Content:\n" + dockerfileContent);
         Assert.assertTrue(dockerfile.exists());

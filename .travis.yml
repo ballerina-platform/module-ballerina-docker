@@ -37,8 +37,8 @@ jobs:
       jdk: openjdk8
       install:
         - export VERSION=$(curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-        - wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION}/trivy_${VERSION}_Linux-64bit.tar.gz
-        - tar zxvf trivy_${VERSION}_Linux-64bit.tar.gz
+        - wget https://github.com/aquasecurity/trivy/releases/download/v${VERSION:-'0.5.3'}/trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
+        - tar zxvf trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
 
 script:
   - |
@@ -47,11 +47,11 @@ script:
     then
       docker build --no-cache=true -t ballerina/jre8:v1 ./base/base-image
       ./trivy --exit-code 1 --severity HIGH --no-progress ballerina/jre8:v1 || true
-      mvn clean install -B -V
+      ./gradlew clean build  --stacktrace --scan --console=plain --no-daemon
     fi
     if [ "$TRAVIS_OS_NAME" = "windows" ]
     then
-      powershell -C 'mvn clean install "-Dmaven.test.skip=true" -B -V'
+      powershell -C './gradlew build -x test  --stacktrace --console=plain --no-daemon'
     fi
 
 cache:

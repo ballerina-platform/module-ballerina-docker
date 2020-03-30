@@ -8,12 +8,12 @@ on:
     branches:
       - '*'
     paths:
-      - './base/base-image/Dockerfile'
+      - 'base/base-image/*'
   pull_request:
     branches:
       - '*'
     paths:
-      - './base/base-image/Dockerfile'
+      - 'base/base-image/*'
 
 jobs:
   build:

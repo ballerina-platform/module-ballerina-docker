@@ -14,7 +14,13 @@
  * limitations under the License.
  *
  */
- 
+
+configurations {
+    jacocoRuntime
+}
+dependencies {
+    jacocoRuntime "org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime"
+}
 
 dependencies {
     implementation project(":docker-generator")
@@ -35,8 +41,11 @@ test {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
             sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
-            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../docker-extension-annotations/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
+            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../docker-extension-annotations/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"),
+            jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true"
         ]
 	}
 }
+
 test.dependsOn(":docker-extension-annotations:build")
+test.dependsOn(":docker-extension:build")

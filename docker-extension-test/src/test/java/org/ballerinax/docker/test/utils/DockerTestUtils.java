@@ -456,7 +456,7 @@ public class DockerTestUtils {
     }
 
     private static String getJacocoAgentArgs() {
-        String jacocoArgLine = System.getProperty("jacoco.agent.argLine");
+        String jacocoArgLine = System.getProperty("jacocoAgentLine");
         if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
             log.warn("Running integration test without jacoco test coverage");
             return "";

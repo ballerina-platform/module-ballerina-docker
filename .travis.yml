@@ -41,11 +41,11 @@ script:
     set -e
     if [ "$TRAVIS_OS_NAME" = "linux" ]
     then
-      ./gradlew clean build  --stacktrace --scan --console=plain --no-daemon
+      ./gradlew clean build codeCoverageReport --stacktrace --scan --console=plain --no-daemon
     fi
     if [ "$TRAVIS_OS_NAME" = "windows" ]
     then
-      powershell -C './gradlew build -x test  --stacktrace --console=plain --no-daemon'
+      powershell -C './gradlew clean build codeCoverageReport -x test  --stacktrace --console=plain --no-daemon'
     fi
 
 cache:

@@ -17,23 +17,17 @@
 
  
 dependencies {
-    implementation "org.ballerinax.docker:docker-extension:${ballerinaLangVersion}"
+    compile project (":docker-extension")
 }
 
 configurations{
     balTools
-    balDockerExt
 }
 
 dependencies{
     balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}"){
         transitive = false
     }
-
-    balDockerExt ("org.ballerinax.docker:docker-extension:${ballerinaLangVersion}"){
-        transitive = false
-    }
-
 }
 
 description = 'Ballerinax - Docker Extension Annotations'
@@ -68,7 +62,7 @@ task runScript {
 
 task copyBalDockerExt {
     doLast{
-        configurations.balDockerExt.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             copy {
                 from artifact.getFile()
                 into new File(project.buildDir, "extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib/")
@@ -77,6 +71,7 @@ task copyBalDockerExt {
     }
 }
 
+unzip.dependsOn ':docker-extension:build'
 copyBalDockerExt.dependsOn unzip
 runScript.dependsOn copyBalDockerExt
 build.dependsOn runScript

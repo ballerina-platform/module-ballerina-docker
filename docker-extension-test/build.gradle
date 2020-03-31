@@ -35,7 +35,8 @@ test {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
             sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
-            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../docker-extension-annotations/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
+            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../docker-extension-annotations/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"),
+            jacocoAgentLine: "-javaagent:" + configurations.jacocoAgent.asPath + "=destfile=${buildDir}/coverage-reports/jacoco.exec"
         ]
 	}
 }

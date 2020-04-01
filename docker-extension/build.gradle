@@ -16,6 +16,10 @@
  */
  
 
+plugins {
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+}
+
 dependencies {
     implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     implementation project(':docker-generator')
@@ -24,6 +28,8 @@ dependencies {
 }
 
 description = 'Ballerinax - Docker Extension'
+
+tasks.build.dependsOn tasks.shadowJar
 
 test {
     testLogging.showStandardStreams = true

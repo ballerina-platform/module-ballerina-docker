@@ -67,10 +67,6 @@ subprojects {
     apply plugin: 'java'
 }
 
-jacoco {
-    toolVersion = "0.8.5"
-}
-
 task codeCoverageReport(type: JacocoReport) {
     executionData fileTree(project.rootDir.absolutePath).include("**/build/coverage-reports/*.exec")
 

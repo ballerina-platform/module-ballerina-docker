@@ -23,6 +23,8 @@ dependencies {
     implementation project(":docker-extension")
     implementation project(":docker-extension-annotations")
     implementation "com.github.docker-java:docker-java:${dockerJavaVersion}"
+
+    testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     testImplementation "org.slf4j:slf4j-api:${slf4jVersion}"
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
     testImplementation "org.testng:testng:${testngVersion}"

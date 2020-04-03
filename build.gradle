@@ -37,6 +37,8 @@ allprojects {
     group = 'org.ballerinax.docker'
     version = '1.3.0-SNAPSHOT'
 
+    apply plugin: 'jacoco'
+
     repositories {
         mavenLocal()
         maven {
@@ -63,6 +65,10 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+}
+
+jacoco {
+    toolVersion = "0.8.5"
 }
 
 task codeCoverageReport(type: JacocoReport) {

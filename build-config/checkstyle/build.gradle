@@ -14,22 +14,24 @@
  * limitations under the License.
  *
  */
- 
+
 plugins {
-  id "com.gradle.enterprise" version "3.2"
+    id "de.undercouch.download"
 }
 
-rootProject.name = 'docker-extension-parent'
-include(':build-config:checkstyle')
-include(':docker-generator')
-include(':docker-extension')
-include(':docker-extension-annotations')
-include(':docker-extension-test')
-include(':docker-extension-examples')
+task downloadMultipleFiles(type: Download) {
+    src([
+        'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml',
+        'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/suppressions.xml'
+    ])
+    overwrite false
+    dest buildDir
+}
 
-gradleEnterprise {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-    }
+artifacts.add('default', file("$project.buildDir/checkstyle.xml")) {
+    builtBy('downloadMultipleFiles')
+}
+
+artifacts.add('default', file("$project.buildDir/suppressions.xml")) {
+    builtBy('downloadMultipleFiles')
 }

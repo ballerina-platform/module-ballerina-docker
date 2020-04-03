@@ -14,7 +14,10 @@
  * limitations under the License.
  *
  */
- 
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+description = 'Ballerinax - Docker Generator'
 
 dependencies {
     implementation "com.github.docker-java:docker-java:${dockerJavaVersion}"
@@ -26,11 +29,9 @@ dependencies {
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 
-description = 'Ballerinax - Docker Generator'
-
 test {
     testLogging.showStandardStreams = true
-    useTestNG(){
+    useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
 }

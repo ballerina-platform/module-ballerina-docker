@@ -14,20 +14,47 @@
  * limitations under the License.
  *
  */
- 
+
+plugins {
+    id "com.github.johnrengelman.shadow"
+}
+
+apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     implementation project(':docker-generator')
     implementation "com.github.docker-java:docker-java:${dockerJavaVersion}"
+
+    compileOnly "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
+
+    testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     testImplementation "org.testng:testng:${testngVersion}"
 }
 
 description = 'Ballerinax - Docker Extension'
 
+jar {
+    enabled = false
+    dependsOn(shadowJar {
+        exclude 'docker-extension'
+        classifier = null
+        minimize()
+    })
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact shadowJar
+        }
+    }
+}
+
 test {
     testLogging.showStandardStreams = true
-    useTestNG(){
+    useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+build.dependsOn ':docker-generator:build'

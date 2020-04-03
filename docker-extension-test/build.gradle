@@ -15,12 +15,8 @@
  *
  */
 
-configurations {
-    jacocoRuntime
-}
-dependencies {
-    jacocoRuntime "org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime"
-}
+
+apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(":docker-generator")
@@ -37,7 +33,7 @@ description = 'Ballerinax - Docker Extension Tests'
 
 test {
     testLogging.showStandardStreams = true
-    useTestNG(){
+    useTestNG() {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
             sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),

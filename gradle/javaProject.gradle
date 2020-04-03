@@ -43,6 +43,12 @@ jacoco {
 }
 
 test {
+    testLogging {
+        showStackTraces = true
+        showStandardStreams = true
+        events "failed"
+        exceptionFormat "full"
+    }
     jacoco {
         enabled = true
         destinationFile = file("$buildDir/coverage-reports/jacoco.exec")

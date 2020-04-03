@@ -34,7 +34,6 @@ dependencies {
 description = 'Ballerinax - Docker Extension Tests'
 
 test {
-    testLogging.showStandardStreams = true
     useTestNG() {
         suites 'src/test/resources/testng.xml'
         systemProperties = [

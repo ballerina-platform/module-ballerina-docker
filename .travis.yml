@@ -49,3 +49,4 @@ jobs:
 cache:
   directories:
   - $HOME/.m2
+

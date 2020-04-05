@@ -21,20 +21,25 @@ plugins {
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+description = 'Ballerinax - Docker Extension'
+
 configurations {
-    runtime.exclude group: "io.netty"
-    runtime.exclude group: "org.javassist"
-    runtime.exclude group: "com.google.guava"
-    runtime.exclude group: "com.fasterxml.jackson.core"
-    runtime.exclude group: "com.fasterxml.jackson.dataformat"
-    runtime.exclude group: "com.fasterxml.jackson.module"
-    runtime.exclude group: "org.glassfish.hk2.external"
-    runtime.exclude group: "org.bouncycastle"
-    runtime.exclude group: "org.slf4j"
-    runtime.exclude group: "commons-codec"
-    runtime.exclude group: "org.apache.commons"
-//    runtime.exclude group: "commons-io" <-- Needed for tests
-    runtime.exclude group: "commons-logging"
+    fatJar {
+        extendsFrom implementation
+        exclude group: "io.netty"
+        exclude group: "org.javassist"
+        exclude group: "com.google.guava"
+        exclude group: "com.fasterxml.jackson.core"
+        exclude group: "com.fasterxml.jackson.dataformat"
+        exclude group: "com.fasterxml.jackson.module"
+        exclude group: "org.glassfish.hk2.external"
+        exclude group: "org.bouncycastle"
+        exclude group: "org.slf4j"
+        exclude group: "commons-codec"
+        exclude group: "org.apache.commons"
+        exclude group: "commons-io"
+        exclude group: "commons-logging"        
+    }
 }
 
 dependencies {
@@ -47,12 +52,11 @@ dependencies {
     testImplementation "org.testng:testng:${testngVersion}"
 }
 
-description = 'Ballerinax - Docker Extension'
-
 jar {
     enabled = false
     dependsOn(shadowJar {
-        exclude 'docker-extension'
+        project.configurations.implementation.canBeResolved = true
+        configurations = [project.configurations.fatJar]
         classifier = null
     })
 }

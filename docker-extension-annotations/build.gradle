@@ -15,7 +15,8 @@
  *
  */
 
- 
+description = 'Ballerinax - Docker Extension Annotations'
+
 dependencies {
     compile project (":docker-extension")
 }
@@ -33,8 +34,6 @@ dependencies {
     }
     dockerExtensionPlugin project(":docker-extension")
 }
-
-description = 'Ballerinax - Docker Extension Annotations'
 
 task unzip {
     doLast {

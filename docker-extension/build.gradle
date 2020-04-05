@@ -21,6 +21,22 @@ plugins {
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    runtime.exclude group: "io.netty"
+    runtime.exclude group: "org.javassist"
+    runtime.exclude group: "com.google.guava"
+    runtime.exclude group: "com.fasterxml.jackson.core"
+    runtime.exclude group: "com.fasterxml.jackson.dataformat"
+    runtime.exclude group: "com.fasterxml.jackson.module"
+    runtime.exclude group: "org.glassfish.hk2.external"
+    runtime.exclude group: "org.bouncycastle"
+    runtime.exclude group: "org.slf4j"
+    runtime.exclude group: "commons-codec"
+    runtime.exclude group: "org.apache.commons"
+//    runtime.exclude group: "commons-io" <-- Needed for tests
+    runtime.exclude group: "commons-logging"
+}
+
 dependencies {
     implementation project(':docker-generator')
     implementation "com.github.docker-java:docker-java:${dockerJavaVersion}"
@@ -38,7 +54,6 @@ jar {
     dependsOn(shadowJar {
         exclude 'docker-extension'
         classifier = null
-        minimize()
     })
 }
 

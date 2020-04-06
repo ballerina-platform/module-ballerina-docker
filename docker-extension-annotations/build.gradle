@@ -15,22 +15,25 @@
  *
  */
 
- 
+description = 'Ballerinax - Docker Extension Annotations'
+
 dependencies {
     compile project (":docker-extension")
 }
 
-configurations{
+configurations {
     balTools
-}
-
-dependencies{
-    balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}"){
+    dockerExtensionPlugin {
         transitive = false
     }
 }
 
-description = 'Ballerinax - Docker Extension Annotations'
+dependencies {
+    balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
+        transitive = false
+    }
+    dockerExtensionPlugin project(":docker-extension")
+}
 
 task unzip {
     doLast {
@@ -52,7 +55,7 @@ task runScript {
             workingDir project.projectDir
             if (System.properties['os.name'].toLowerCase().contains('windows')) {
                 commandLine 'cmd', '/c', 'cd scripts && annotation-build.bat ' + distributionPath + ' ' + projectRoot
-            }else{
+            } else {
                 commandLine 'sh', '-c', 'scripts/annotation-build.sh ' + distributionPath + ' ' + projectRoot
             }
             
@@ -61,17 +64,14 @@ task runScript {
 }
 
 task copyBalDockerExt {
-    doLast{
-        configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-            copy {
-                from artifact.getFile()
-                into new File(project.buildDir, "extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib/")
-            }
+    doLast {
+        copy {
+            from configurations.dockerExtensionPlugin
+            into new File(project.buildDir, "extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib/")
         }
     }
 }
 
-unzip.dependsOn ':docker-extension:build'
 copyBalDockerExt.dependsOn unzip
 runScript.dependsOn copyBalDockerExt
 build.dependsOn runScript

@@ -15,18 +15,16 @@
  *
  */
 
-configurations {
-    jacocoRuntime
-}
-dependencies {
-    jacocoRuntime "org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime"
-}
+
+apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(":docker-generator")
     implementation project(":docker-extension")
     implementation project(":docker-extension-annotations")
     implementation "com.github.docker-java:docker-java:${dockerJavaVersion}"
+
+    testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     testImplementation "org.slf4j:slf4j-api:${slf4jVersion}"
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
     testImplementation "org.testng:testng:${testngVersion}"
@@ -36,8 +34,7 @@ dependencies {
 description = 'Ballerinax - Docker Extension Tests'
 
 test {
-    testLogging.showStandardStreams = true
-    useTestNG(){
+    useTestNG() {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
             sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),

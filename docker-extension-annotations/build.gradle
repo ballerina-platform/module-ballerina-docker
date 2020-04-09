@@ -33,16 +33,13 @@ dependencies {
     }
 }
 
-def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
-def ballerinaProjectRoot = project.projectDir.absolutePath + "/src/main/ballerina"
-
 jar {
     enabled = false
 }
 
 clean {
-    delete "$ballerinaProjectRoot/target"
-    delete "$ballerinaProjectRoot/Ballerina.lock"
+    delete "$project.projectDir/target"
+    delete "$project.projectDir/Ballerina.lock"
 }
 
 task unzip {
@@ -56,16 +53,17 @@ task unzip {
     }
 }
 
-def artifactDockerBallerinaBirDir = file("$ballerinaProjectRoot/target/caches/bir_cache/")
-def artifactDockerBallerinaJar = file("$ballerinaProjectRoot/target/caches/jar_cache/ballerina/docker/ballerina.docker.jar")
+def artifactDockerBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/")
+def artifactDockerBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerina/docker/ballerina.docker.jar")
 
 task ballerinaBuild {
     dependsOn unzip
-    inputs.dir file(ballerinaProjectRoot)
+    inputs.dir file(project.projectDir)
     doLast {
         exec {
-            workingDir ballerinaProjectRoot
+            workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
+            def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
             } else {
@@ -74,8 +72,8 @@ task ballerinaBuild {
         }
         copy {
             // Copying the jar from ballerina build
-            from "$ballerinaProjectRoot/target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar"
-            into "$ballerinaProjectRoot/target/caches/jar_cache/ballerina/docker/"
+            from "$project.projectDir/target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar"
+            into "$project.projectDir/target/caches/jar_cache/ballerina/docker/"
             rename { String fileName ->
                 fileName.replace("ballerina-docker-.jar", artifactDockerBallerinaJar.getName())
             }
@@ -85,7 +83,7 @@ task ballerinaBuild {
                  todir: "${artifactDockerBallerinaBirDir}/ballerina/docker/0.0.0/"
         copy {
             // Copy the TOML to the same folder as the BIR
-            from file("$ballerinaProjectRoot/Ballerina.toml")
+            from file("$project.projectDir/Ballerina.toml")
             into file("${artifactDockerBallerinaBirDir}/ballerina/docker/0.0.0")
         }
     }

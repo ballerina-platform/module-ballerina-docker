@@ -15,24 +15,34 @@
  *
  */
 
-description = 'Ballerinax - Docker Extension Annotations'
+import org.apache.tools.ant.taskdefs.condition.Os
 
-dependencies {
-    compile project (":docker-extension")
-}
+apply from: "$rootDir/gradle/mvnPublisher.gradle"
+
+description = 'Ballerinax - Docker Extension Annotations'
 
 configurations {
     balTools
-    dockerExtensionPlugin {
-        transitive = false
-    }
+    dockerBallerinaBirDir
+    dockerBallerinaJar
 }
 
 dependencies {
     balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
         transitive = false
     }
-    dockerExtensionPlugin project(":docker-extension")
+}
+
+def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
+def ballerinaProjectRoot = project.projectDir.absolutePath + "/src/main/ballerina"
+
+jar {
+    enabled = false
+}
+
+clean {
+    delete "$ballerinaProjectRoot/target"
+    delete "$ballerinaProjectRoot/Ballerina.lock"
 }
 
 task unzip {
@@ -46,33 +56,59 @@ task unzip {
     }
 }
 
-def distributionPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
-def projectRoot = project.projectDir.absolutePath
+def artifactDockerBallerinaBirDir = file("$ballerinaProjectRoot/target/caches/bir_cache/")
+def artifactDockerBallerinaJar = file("$ballerinaProjectRoot/target/caches/jar_cache/ballerina/docker/ballerina.docker.jar")
 
-task runScript {   
+task ballerinaBuild {
+    dependsOn unzip
+    inputs.dir file(ballerinaProjectRoot)
     doLast {
         exec {
-            workingDir project.projectDir
-            if (System.properties['os.name'].toLowerCase().contains('windows')) {
-                commandLine 'cmd', '/c', 'cd scripts && annotation-build.bat ' + distributionPath + ' ' + projectRoot
+            workingDir ballerinaProjectRoot
+            environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
             } else {
-                commandLine 'sh', '-c', 'scripts/annotation-build.sh ' + distributionPath + ' ' + projectRoot
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
             }
-            
         }
-    }
-}
-
-task copyBalDockerExt {
-    doLast {
         copy {
-            from configurations.dockerExtensionPlugin
-            into new File(project.buildDir, "extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib/")
+            // Copying the jar from ballerina build
+            from "$ballerinaProjectRoot/target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar"
+            into "$ballerinaProjectRoot/target/caches/jar_cache/ballerina/docker/"
+            rename { String fileName ->
+                fileName.replace("ballerina-docker-.jar", artifactDockerBallerinaJar.getName())
+            }
+        }
+        // Copy the BIR to the 0.0.0 folder within it
+        ant.move file: "${artifactDockerBallerinaBirDir}/ballerina/docker/docker.bir",
+                 todir: "${artifactDockerBallerinaBirDir}/ballerina/docker/0.0.0/"
+        copy {
+            // Copy the TOML to the same folder as the BIR
+            from file("$ballerinaProjectRoot/Ballerina.toml")
+            into file("${artifactDockerBallerinaBirDir}/ballerina/docker/0.0.0")
+        }
+    }
+    outputs.dir artifactDockerBallerinaBirDir
+    outputs.file artifactDockerBallerinaJar
+}
+
+artifacts {
+    dockerBallerinaBirDir file: artifactDockerBallerinaBirDir, builtBy: ballerinaBuild
+    dockerBallerinaJar file: artifactDockerBallerinaJar, builtBy: ballerinaBuild
+}
+
+task createArtifactZip(type: Zip) {
+    destinationDirectory = file("$buildDir/distributions")
+    from ballerinaBuild
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact source: createArtifactZip, extension: 'zip'
         }
     }
 }
 
-copyBalDockerExt.dependsOn unzip
-runScript.dependsOn copyBalDockerExt
-build.dependsOn runScript
-
+build.dependsOn ballerinaBuild

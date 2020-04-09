@@ -15,8 +15,13 @@
  *
  */
 
-
 apply from: "$rootDir/gradle/javaProject.gradle"
+
+configurations {
+    dockerExtensionPlugin
+    dockerBallerinaBirDir
+    dockerBallerinaJar
+}
 
 dependencies {
     implementation project(":docker-generator")
@@ -29,11 +34,45 @@ dependencies {
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
     testImplementation "org.testng:testng:${testngVersion}"
     testImplementation "commons-codec:commons-codec:${commonsCodecVersion}"
+
+    dockerExtensionPlugin project(":docker-extension")
+    dockerBallerinaBirDir project(path: ":docker-extension-annotations", configuration: "dockerBallerinaBirDir")
+    dockerBallerinaJar project(path: ":docker-extension-annotations", configuration: "dockerBallerinaJar")
 }
 
 description = 'Ballerinax - Docker Extension Tests'
 
+def distributionLocation = project(":docker-extension-annotations").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
+
+task copyBalDockerExt {
+    doLast {
+        copy {
+            from configurations.dockerExtensionPlugin
+            into file("${distributionLocation}/bre/lib/")
+        }
+    }
+}
+
+task copyBallerinaArtifacts {
+    doLast {
+        copy {
+            from configurations.dockerBallerinaBirDir
+            into file("${distributionLocation}/bir-cache/")
+        }
+        copy {
+            from configurations.dockerBallerinaJar
+            into file("${distributionLocation}/bre/lib/")
+        }
+    }
+}
+
+task prepareDistribution {
+    dependsOn copyBalDockerExt
+    dependsOn copyBallerinaArtifacts
+}
+
 test {
+    dependsOn prepareDistribution
     useTestNG() {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
@@ -43,6 +82,3 @@ test {
         ]
 	}
 }
-
-test.dependsOn(":docker-extension-annotations:build")
-test.dependsOn(":docker-extension:build")

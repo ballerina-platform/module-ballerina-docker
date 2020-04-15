@@ -51,6 +51,7 @@ task unzip {
             }
         }
     }
+    outputs.dir file("$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
 }
 
 def artifactDockerBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/")
@@ -58,7 +59,8 @@ def artifactDockerBallerinaJar = file("$project.projectDir/target/caches/jar_cac
 
 task ballerinaBuild {
     dependsOn unzip
-    inputs.dir file(project.projectDir)
+    inputs.dir file("$project.projectDir/src")
+    inputs.file file("$project.projectDir/Ballerina.toml")
     doLast {
         exec {
             workingDir project.projectDir

@@ -35,7 +35,7 @@ dependencies {
     testImplementation "org.testng:testng:${testngVersion}"
     testImplementation "commons-codec:commons-codec:${commonsCodecVersion}"
 
-    dockerExtensionPlugin project(":docker-extension")
+    dockerExtensionPlugin project(path: ":docker-extension", configuration: "shadow")
     dockerBallerinaBirDir project(path: ":docker-extension-annotations", configuration: "dockerBallerinaBirDir")
     dockerBallerinaJar project(path: ":docker-extension-annotations", configuration: "dockerBallerinaJar")
 }

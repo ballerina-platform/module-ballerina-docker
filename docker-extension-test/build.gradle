@@ -18,6 +18,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
+    bDistributionDir
     dockerExtensionPlugin
     dockerBallerinaBirDir
     dockerBallerinaJar
@@ -36,15 +37,17 @@ dependencies {
     testImplementation "commons-codec:commons-codec:${commonsCodecVersion}"
 
     dockerExtensionPlugin project(path: ":docker-extension", configuration: "shadow")
+    bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
     dockerBallerinaBirDir project(path: ":docker-extension-annotations", configuration: "dockerBallerinaBirDir")
     dockerBallerinaJar project(path: ":docker-extension-annotations", configuration: "dockerBallerinaJar")
 }
 
 description = 'Ballerinax - Docker Extension Tests'
 
-def distributionLocation = project(":docker-extension-annotations").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
+def distributionLocation = configurations.bDistributionDir.singleFile
 
 task copyBalDockerExt {
+    dependsOn configurations.dockerExtensionPlugin
     doLast {
         copy {
             from configurations.dockerExtensionPlugin
@@ -54,6 +57,8 @@ task copyBalDockerExt {
 }
 
 task copyBallerinaArtifacts {
+    dependsOn configurations.dockerBallerinaBirDir
+    dependsOn configurations.dockerBallerinaJar
     doLast {
         copy {
             from configurations.dockerBallerinaBirDir
@@ -77,7 +82,7 @@ test {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
             sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
-            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../docker-extension-annotations/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"),
+            ballerinaPack: System.getProperty('ballerinaPack', "$configurations.bDistributionDir.singleFile.absolutePath"),
             jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true"
         ]
 	}

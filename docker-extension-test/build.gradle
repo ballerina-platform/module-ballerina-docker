@@ -62,7 +62,7 @@ task copyBallerinaArtifacts {
     doLast {
         copy {
             from configurations.dockerBallerinaBirDir
-            into file("${distributionLocation}/bir-cache/")
+            into file("${distributionLocation}/bir-cache/ballerina")
         }
         copy {
             from configurations.dockerBallerinaJar

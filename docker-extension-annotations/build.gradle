@@ -57,7 +57,7 @@ task unzip {
     outputs.dir bDistribution
 }
 
-def artifactDockerBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/")
+def artifactDockerBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/ballerina")
 def artifactDockerBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerina/docker/ballerina.docker.jar")
 
 task ballerinaBuild {
@@ -84,12 +84,12 @@ task ballerinaBuild {
             }
         }
         // Copy the BIR to the 0.0.0 folder within it
-        ant.move file: "${artifactDockerBallerinaBirDir}/ballerina/docker/docker.bir",
-                 todir: "${artifactDockerBallerinaBirDir}/ballerina/docker/0.0.0/"
+        ant.move file: "${artifactDockerBallerinaBirDir}/docker/docker.bir",
+                 todir: "${artifactDockerBallerinaBirDir}/docker/0.0.0/"
         copy {
             // Copy the TOML to the same folder as the BIR
             from file("$project.projectDir/Ballerina.toml")
-            into file("${artifactDockerBallerinaBirDir}/ballerina/docker/0.0.0")
+            into file("${artifactDockerBallerinaBirDir}/docker/0.0.0")
         }
     }
     outputs.dir artifactDockerBallerinaBirDir

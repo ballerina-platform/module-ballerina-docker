@@ -33,7 +33,7 @@
 # If DOCKER_HOST is unavailable, use `"unix:///var/run/docker.sock"` for Unix or use `"tcp://localhost:2375"` for Windows.
 # + dockerCertPath - Docker certificate path. Default is to use `"DOCKER_CERT_PATH"` environment variable.
 # + env - Environment variables for container.
-# + dockerConfig - Docker config file location.
+# + dockerConfigFile - Docker config file location.
 public type DockerConfiguration record {|
     string registry?;
     string name?;

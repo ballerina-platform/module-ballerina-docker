@@ -29,7 +29,7 @@ configurations {
 }
 
 dependencies {
-    balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
+    balTools("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
         transitive = false
     }
 }
@@ -58,7 +58,8 @@ task unzip {
 }
 
 def artifactDockerBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/ballerina")
-def artifactDockerBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerina/docker/ballerina.docker.jar")
+def artifactDockerBallerinaJar =
+        file("$project.projectDir/target/caches/jar_cache/ballerina/docker/1.0.0/ballerina-docker-1.0.0.jar")
 
 task ballerinaBuild {
     dependsOn unzip
@@ -76,20 +77,9 @@ task ballerinaBuild {
             }
         }
         copy {
-            // Copying the jar from ballerina build
-            from "$project.projectDir/target/caches/jar_cache/ballerina/docker/ballerina-docker-.jar"
-            into "$project.projectDir/target/caches/jar_cache/ballerina/docker/"
-            rename { String fileName ->
-                fileName.replace("ballerina-docker-.jar", artifactDockerBallerinaJar.getName())
-            }
-        }
-        // Copy the BIR to the 0.0.0 folder within it
-        ant.move file: "${artifactDockerBallerinaBirDir}/docker/docker.bir",
-                 todir: "${artifactDockerBallerinaBirDir}/docker/0.0.0/"
-        copy {
             // Copy the TOML to the same folder as the BIR
             from file("$project.projectDir/Ballerina.toml")
-            into file("${artifactDockerBallerinaBirDir}/docker/0.0.0")
+            into file("${artifactDockerBallerinaBirDir}/docker/1.0.0")
         }
     }
     outputs.dir artifactDockerBallerinaBirDir

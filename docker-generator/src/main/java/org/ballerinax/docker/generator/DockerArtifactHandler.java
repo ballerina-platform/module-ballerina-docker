@@ -158,6 +158,10 @@ public class DockerArtifactHandler {
             dockerClientConfig.withRegistryPassword(this.dockerModel.getPassword());
         }
 
+        if (null != this.dockerModel.getDockerConfig()) {
+            dockerClientConfig.withDockerConfig(dockerModel.getDockerConfig());
+        }
+
         this.dockerClientConfig = dockerClientConfig.build();
         printDebug("docker client host: " + this.dockerClientConfig.getDockerHost());
 
@@ -217,7 +221,7 @@ public class DockerArtifactHandler {
      */
     public void pushImage() throws InterruptedException, DockerGenException {
         printDebug("pushing docker image `" + this.dockerModel.getName() + "`.");
-    
+
         try {
             this.dockerClient.pushImageCmd(this.dockerModel.getName())
                     .exec(new DockerImagePushCallback()).
@@ -225,7 +229,7 @@ public class DockerArtifactHandler {
         } catch (RuntimeException ex) {
             this.dockerBuildError.setErrorMsg(cleanErrorMessage(ex.getMessage()));
         }
-    
+
         handleError(this.dockerPushError);
     }
 

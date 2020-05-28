@@ -59,6 +59,7 @@ public class DockerModel {
     private String commandArg;
     private String cmd;
     private Map<String, String> env;
+    private String dockerConfig;
 
     public DockerModel() {
         // Initialize with default values except for image name

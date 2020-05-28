@@ -83,12 +83,12 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         BLangPackage bPackage = (BLangPackage) packageNode;
         String pkgID = bPackage.packageID.toString();
         DockerContext.getInstance().addDataHolder(pkgID);
-    
+
         // Get the imports with alias _
         List<BLangImportPackage> dockerImports = bPackage.getImports().stream()
-                .filter(i -> i.symbol.toString().equals("ballerina/docker") && i.getAlias().toString().equals("_"))
+                .filter(i -> i.symbol.toString().startsWith("ballerina/docker") && i.getAlias().toString().equals("_"))
                 .collect(Collectors.toList());
-    
+
         if (dockerImports.size() > 0) {
             for (BLangImportPackage dockerImport : dockerImports) {
                 // Get the units of the file which has docker import as _
@@ -96,16 +96,16 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         .filter(cu -> cu.getName().equals(dockerImport.compUnit.getValue()))
                         .flatMap(cu -> cu.getTopLevelNodes().stream())
                         .collect(Collectors.toList());
-    
+
                 // Filter out the services
                 List<ServiceNode> serviceNodes = topLevelNodes.stream()
                         .filter(tln -> tln instanceof ServiceNode)
                         .map(tln -> (ServiceNode) tln)
                         .collect(Collectors.toList());
-        
+
                 // Generate artifacts for services for all services
                 serviceNodes.forEach(sn -> process(sn, Collections.singletonList(createAnnotation("Config"))));
-        
+
                 // Get the variable names of the listeners attached to services
                 List<String> listenerNamesToExpose = serviceNodes.stream()
                         .map(ServiceNode::getAttachedExprs)
@@ -114,14 +114,14 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         .map(aex -> (BLangSimpleVarRef) aex)
                         .map(BLangSimpleVarRef::toString)
                         .collect(Collectors.toList());
-    
+
                 // Generate artifacts for listeners attached to services
                 topLevelNodes.stream()
                         .filter(tln -> tln instanceof SimpleVariableNode)
                         .map(tln -> (SimpleVariableNode) tln)
                         .filter(listener -> listenerNamesToExpose.contains(listener.getName().getValue()))
                         .forEach(listener -> process(listener, Collections.singletonList(createAnnotation("Expose"))));
-                
+
                 // Generate artifacts for main functions
                 topLevelNodes.stream()
                         .filter(tln -> tln instanceof FunctionNode)

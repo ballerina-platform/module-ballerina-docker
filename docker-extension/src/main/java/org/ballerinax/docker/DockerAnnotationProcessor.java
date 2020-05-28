@@ -156,7 +156,7 @@ class DockerAnnotationProcessor {
                 case env:
                     dockerModel.setEnv(getMap(keyValue.getValue()));
                     break;
-                case dockerConfigFile:
+                case dockerConfigPath:
                     dockerModel.setDockerConfig(annotationValue);
                     break;
                 default:
@@ -299,7 +299,7 @@ class DockerAnnotationProcessor {
         dockerHost,
         dockerCertPath,
         env,
-        dockerConfigFile
+        dockerConfigPath
     }
 
     private enum CopyFileConfiguration {

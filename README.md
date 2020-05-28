@@ -34,6 +34,8 @@ Annotation based docker extension implementation for ballerina.
 |dockerAPIVersion|Docker API Version|None|
 |dockerHost|Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)|DOCKER_HOST environment variable. If DOCKER_HOST is unavailable, uses "unix:///var/run/docker.sock" for Unix or uses "tcp://localhost:2375" for Windows|
 |dockerCertPath|Docker certificate path|"DOCKER_CERT_PATH" environment variable|
+|cmd|Value for CMD for the generated Dockerfile|`CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`|
+|dockerConfigFile|Docker config file path|None|
 
 ### @docker:CopyFiles{}
 - Supported with ballerina services, listeners or functions.

@@ -74,8 +74,6 @@ allprojects {
             requireBranch = ''
         }
     }
-
-    afterReleaseBuild.dependsOn publishToMavenLocal
     afterReleaseBuild.dependsOn publish
 }
 

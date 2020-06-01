@@ -15,8 +15,6 @@
  *
  */
 
-apply from: "$rootDir/gradle/repositories.gradle"
-
 description = 'Ballerinax - Docker Extension Examples'
 
 task zipExamples(type: Zip) {

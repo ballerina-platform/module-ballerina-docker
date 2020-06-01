@@ -21,8 +21,6 @@ apply plugin: "checkstyle"
 apply plugin: "jacoco"
 apply plugin: "maven-publish"
 
-apply from: "$rootDir/gradle/repositories.gradle"
-
 configurations {
     jacocoRuntime
 }

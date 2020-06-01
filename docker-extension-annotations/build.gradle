@@ -17,7 +17,7 @@
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-apply from: "$rootDir/gradle/mvnPublisher.gradle"
+apply from: "$rootDir/gradle/repositories.gradle"
 
 description = 'Ballerinax - Docker Extension Annotations'
 

@@ -15,7 +15,7 @@
  *
  */
 
-apply from: "$rootDir/gradle/mvnPublisher.gradle"
+apply from: "$rootDir/gradle/repositories.gradle"
 
 description = 'Ballerinax - Docker Extension Examples'
 

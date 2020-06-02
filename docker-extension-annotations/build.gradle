@@ -55,9 +55,12 @@ task unzip {
     outputs.dir bDistribution
 }
 
+def ballerinaToml = file("$project.projectDir/Ballerina.toml")
+def semverMatcher = ballerinaToml.getText("UTF-8") =~ /(([0-9]+)\.([0-9]+)\.([0-9]+))/
+def tomlSemver = semverMatcher[0][1]
+
 def artifactDockerBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/ballerina")
-def artifactDockerBallerinaJar =
-        file("$project.projectDir/target/caches/jar_cache/ballerina/docker/1.0.0/ballerina-docker-1.0.0.jar")
+def artifactDockerBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerina/docker/${tomlSemver}/ballerina-docker-${tomlSemver}.jar")
 
 task ballerinaBuild {
     dependsOn unzip
@@ -77,7 +80,7 @@ task ballerinaBuild {
         copy {
             // Copy the TOML to the same folder as the BIR
             from file("$project.projectDir/Ballerina.toml")
-            into file("${artifactDockerBallerinaBirDir}/docker/1.0.0")
+            into file("${artifactDockerBallerinaBirDir}/docker/${tomlSemver}")
         }
     }
     outputs.dir artifactDockerBallerinaBirDir

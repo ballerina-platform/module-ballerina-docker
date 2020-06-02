@@ -67,14 +67,23 @@ task ballerinaBuild {
     inputs.dir file("$project.projectDir/src")
     inputs.file file("$project.projectDir/Ballerina.toml")
     doLast {
+        def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
         exec {
             workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
-            def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
             } else {
                 commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
+            }
+        }
+        exec {
+            workingDir project.projectDir
+            environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc -a"
+            } else {
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc -a"
             }
         }
         copy {
@@ -82,8 +91,14 @@ task ballerinaBuild {
             from file("$project.projectDir/Ballerina.toml")
             into file("${artifactDockerBallerinaBirDir}/docker/${tomlSemver}")
         }
+        copy {
+            // Restructure API docs directory
+            from file("$project.projectDir/target/apidocs/docker")
+            into file("$project.buildDir/apidocs/docs/docker")
+        }
     }
     outputs.dir artifactDockerBallerinaBirDir
+    outputs.dir file("$project.buildDir/apidocs")
     outputs.file artifactDockerBallerinaJar
 }
 

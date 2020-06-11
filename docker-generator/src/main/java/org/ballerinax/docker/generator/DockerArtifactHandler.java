@@ -37,7 +37,6 @@ import org.ballerinax.docker.generator.utils.DockerImageName;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -102,11 +101,14 @@ public class DockerArtifactHandler {
                 copyFileOrDirectory(sourcePath, target);
 
             }
+            if (dockerModel.isUberJar()) {
+                copyNativeJars(outputDir);
+            }
             //check image build is enabled.
             if (this.dockerModel.isBuildImage()) {
                 buildImage(outputDir);
                 outStream.print(logAppender + " - complete 2/" + logStepCount + " \r");
-                Files.delete(uberJarLocation);
+//                Files.delete(uberJarLocation);
                 //push only if image push is enabled.
                 if (this.dockerModel.isPush()) {
                     pushImage();
@@ -117,6 +119,18 @@ public class DockerArtifactHandler {
             throw new DockerGenException("unable to write content to " + outputDir);
         } catch (InterruptedException e) {
             throw new DockerGenException("unable to create Docker images " + e.getMessage());
+        }
+    }
+
+    private void copyNativeJars(Path outputDir) throws DockerGenException {
+        for (Path jarPath : this.dockerModel.getDependencyJarPaths()) {
+            // Copy jar files
+            Path target = outputDir.resolve(jarPath.getFileName());
+            Path sourcePath = jarPath;
+            if (!sourcePath.isAbsolute()) {
+                sourcePath = sourcePath.toAbsolutePath();
+            }
+            copyFileOrDirectory(sourcePath, target);
         }
     }
 
@@ -265,6 +279,13 @@ public class DockerArtifactHandler {
         dockerfileContent.append("WORKDIR /home/ballerina").append("\n");
         dockerfileContent.append("\n");
 
+        if (!dockerModel.isUberJar()) {
+            // Add native jars COPY instructions
+            dockerModel.getDependencyJarPaths().forEach(path -> {
+                dockerfileContent.append("COPY ").append(path.getFileName()).append(" /home/ballerina/jars/ \n");
+            });
+        }
+
         dockerfileContent.append("COPY ").append(this.dockerModel.getUberJarFileName()).append(" /home/ballerina")
                 .append("\n");
 
@@ -292,7 +313,6 @@ public class DockerArtifactHandler {
             dockerfileContent.append("USER ballerina").append("\n");
             dockerfileContent.append("\n");
         }
-
         return appendCMD(dockerfileContent);
     }
 
@@ -336,7 +356,8 @@ public class DockerArtifactHandler {
                         "server=y,suspend=y,address=").append(dockerModel.getDebugPort())
                         .append(" -jar ").append(dockerModel.getUberJarFileName());
             } else {
-                stringBuilder.append("CMD java -jar ").append(dockerModel.getUberJarFileName());
+                stringBuilder.append("CMD java –classpath /home/ballerina/jar/  -jar ")
+                        .append(dockerModel.getUberJarFileName());
             }
             if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
                 stringBuilder.append(dockerModel.getCommandArg());

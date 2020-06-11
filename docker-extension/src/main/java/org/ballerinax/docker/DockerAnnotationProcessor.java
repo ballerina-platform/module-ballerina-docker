@@ -26,6 +26,7 @@ import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
+import org.ballerinax.docker.models.DockerContext;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -105,7 +106,7 @@ class DockerAnnotationProcessor {
     DockerModel processConfigAnnotation(AnnotationAttachmentNode attachmentNode) throws DockerPluginException {
         List<BLangRecordLiteral.BLangRecordKeyValueField> keyValues =
                 getKeyValuePairs((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr);
-        DockerModel dockerModel = new DockerModel();
+        DockerModel dockerModel = DockerContext.getInstance().getDataHolder().getDockerModel();
         for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : keyValues) {
             DockerConfiguration dockerConfiguration =
                     DockerConfiguration.valueOf(keyValue.getKey().toString());

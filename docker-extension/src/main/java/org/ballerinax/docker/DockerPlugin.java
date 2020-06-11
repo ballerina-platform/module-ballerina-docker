@@ -18,6 +18,7 @@
 
 package org.ballerinax.docker;
 
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
@@ -45,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,6 +57,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.extractUberJarName;
 import static org.ballerinax.docker.utils.DockerPluginUtils.createAnnotation;
@@ -78,17 +81,23 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         this.dockerAnnotationProcessor = new DockerAnnotationProcessor();
     }
 
+    public void setCompilerContext(CompilerContext context) {
+        super.setCompilerContext(context);
+        DockerContext.getInstance().setCompilerContext(context);
+    }
+
     @Override
     public void process(PackageNode packageNode) {
         BLangPackage bPackage = (BLangPackage) packageNode;
         String pkgID = bPackage.packageID.toString();
         DockerContext.getInstance().addDataHolder(pkgID);
-
         // Get the imports with alias _
         List<BLangImportPackage> dockerImports = bPackage.getImports().stream()
                 .filter(i -> i.symbol.toString().startsWith("ballerina/docker") && i.getAlias().toString().equals("_"))
                 .collect(Collectors.toList());
-
+        JarResolver jarResolver = DockerContext.getInstance().getCompilerContext().get(JAR_RESOLVER_KEY);
+        Set<Path> dependencyJarPaths = new HashSet<>(jarResolver.allDependencies(bPackage));
+        DockerContext.getInstance().getDataHolder(pkgID).getDockerModel().addDependencyJarPaths(dependencyJarPaths);
         if (dockerImports.size() > 0) {
             for (BLangImportPackage dockerImport : dockerImports) {
                 // Get the units of the file which has docker import as _
@@ -311,6 +320,8 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
                 try {
                     DockerPluginUtils.deleteDirectory(dockerOutputPath);
+                    JarResolver jarResolver = DockerContext.getInstance().getCompilerContext().get(JAR_RESOLVER_KEY);
+                    executableJarFile = jarResolver.moduleJar(moduleID);
                     dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(),
                             executableJarFile, dockerOutputPath);
                 } catch (DockerPluginException e) {

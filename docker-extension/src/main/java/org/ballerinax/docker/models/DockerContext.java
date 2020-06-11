@@ -18,6 +18,8 @@
 
 package org.ballerinax.docker.models;
 
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +30,7 @@ public class DockerContext {
     private static DockerContext instance;
     private final Map<String, DockerDataHolder> dockerContext;
     private String currentPackage;
+    private CompilerContext compilerContext;
 
     private DockerContext() {
         dockerContext = new HashMap<>();
@@ -59,4 +62,11 @@ public class DockerContext {
         return this.dockerContext.get(packageID);
     }
 
+    public CompilerContext getCompilerContext() {
+        return compilerContext;
+    }
+
+    public void setCompilerContext(CompilerContext compilerContext) {
+        this.compilerContext = compilerContext;
+    }
 }

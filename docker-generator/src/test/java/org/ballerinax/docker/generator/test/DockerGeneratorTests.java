@@ -53,7 +53,7 @@ public class DockerGeneratorTests {
         ports.add(9092);
         dockerModel.setPorts(ports);
         dockerModel.setService(true);
-        dockerModel.setUberJarFileName("example.jar");
+        dockerModel.setJarFileName("example.jar");
         dockerModel.setEnableDebug(true);
         dockerModel.setDebugPort(5005);
 

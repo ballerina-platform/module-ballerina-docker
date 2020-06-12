@@ -47,9 +47,9 @@ public abstract class SampleTest {
             .toAbsolutePath();
     
     @BeforeClass
-    abstract void compileSample() throws IOException, InterruptedException;
+    protected abstract void compileSample() throws IOException, InterruptedException;
     
     @AfterClass
-    abstract void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException;
+    public abstract void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException;
     
 }

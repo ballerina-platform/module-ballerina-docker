@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
+import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.models.DockerContext;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.ballerinax.docker.utils.DockerPluginUtils;
@@ -59,7 +60,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
-import static org.ballerinax.docker.generator.utils.DockerGenUtils.extractUberJarName;
+import static org.ballerinax.docker.generator.utils.DockerGenUtils.extractJarName;
 import static org.ballerinax.docker.utils.DockerPluginUtils.createAnnotation;
 import static org.ballerinax.docker.utils.DockerPluginUtils.getKeyValuePairs;
 import static org.ballerinax.docker.utils.DockerPluginUtils.printError;
@@ -314,14 +315,19 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                     if (Files.exists(projectRoot.resolve("Ballerina.toml"))) {
                         dockerOutputPath = projectRoot.resolve("target")
                                 .resolve(ARTIFACT_DIRECTORY)
-                                .resolve(extractUberJarName(executableJarFile));
+                                .resolve(extractJarName(executableJarFile));
                     }
                 }
 
                 try {
                     DockerPluginUtils.deleteDirectory(dockerOutputPath);
-                    JarResolver jarResolver = DockerContext.getInstance().getCompilerContext().get(JAR_RESOLVER_KEY);
-                    executableJarFile = jarResolver.moduleJar(moduleID);
+                    DockerModel dockerModel = DockerContext.getInstance().getDataHolder().getDockerModel();
+                    dockerModel.setPkgId(moduleID);
+                    if (!dockerModel.isUberJar()) {
+                        JarResolver jarResolver =
+                                DockerContext.getInstance().getCompilerContext().get(JAR_RESOLVER_KEY);
+                        executableJarFile = jarResolver.moduleJar(moduleID);
+                    }
                     dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(),
                             executableJarFile, dockerOutputPath);
                 } catch (DockerPluginException e) {

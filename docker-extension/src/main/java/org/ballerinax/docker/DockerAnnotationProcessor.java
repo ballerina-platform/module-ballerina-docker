@@ -61,24 +61,24 @@ class DockerAnnotationProcessor {
     /**
      * Process docker annotations for ballerina Service.
      *
-     * @param uberJarFilePath Uber jar file name
-     * @param outputDir       target output directory
+     * @param jarFilePath jar file Path
+     * @param outputDir   target output directory
      */
-    void processDockerModel(DockerDataHolder dockerDataHolder, Path uberJarFilePath, Path outputDir) throws
-            DockerPluginException {
+    void processDockerModel(DockerDataHolder dockerDataHolder, Path jarFilePath, Path outputDir)
+            throws DockerPluginException {
         try {
             DockerModel dockerModel = dockerDataHolder.getDockerModel();
             dockerModel.setPorts(dockerDataHolder.getPorts());
             dockerModel.setCopyFiles(dockerDataHolder.getExternalFiles());
             // set docker image name
             if (dockerModel.getName() == null) {
-                String defaultImageName = DockerGenUtils.extractUberJarName(uberJarFilePath);
+                String defaultImageName = DockerGenUtils.extractJarName(jarFilePath);
                 dockerModel.setName(defaultImageName);
             }
 
-            Path uberJarFileName = uberJarFilePath.getFileName();
-            if (null != uberJarFileName) {
-                dockerModel.setUberJarFileName(uberJarFileName.toString());
+            Path jarFileName = jarFilePath.getFileName();
+            if (null != jarFileName) {
+                dockerModel.setJarFileName(jarFileName.toString());
             }
 
             Set<Integer> ports = dockerModel.getPorts();
@@ -89,7 +89,7 @@ class DockerAnnotationProcessor {
             printDebug(dockerModel.toString());
             out.println("\nGenerating docker artifacts...");
             DockerArtifactHandler dockerHandler = new DockerArtifactHandler(dockerModel);
-            dockerHandler.createArtifacts(out, "\t@docker \t\t", uberJarFilePath, outputDir);
+            dockerHandler.createArtifacts(out, "\t@docker \t\t", jarFilePath, outputDir);
             printDockerInstructions(dockerModel, outputDir);
         } catch (DockerGenException e) {
             throw new DockerPluginException(e.getMessage(), e);
@@ -159,6 +159,9 @@ class DockerAnnotationProcessor {
                     break;
                 case dockerConfigPath:
                     dockerModel.setDockerConfig(annotationValue);
+                    break;
+                case uberJar:
+                    dockerModel.setUberJar(Boolean.parseBoolean(annotationValue));
                     break;
                 default:
                     break;
@@ -300,7 +303,8 @@ class DockerAnnotationProcessor {
         dockerHost,
         dockerCertPath,
         env,
-        dockerConfigPath
+        dockerConfigPath,
+        uberJar
     }
 
     private enum CopyFileConfiguration {

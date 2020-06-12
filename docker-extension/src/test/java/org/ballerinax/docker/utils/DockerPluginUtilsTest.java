@@ -50,9 +50,9 @@ public class DockerPluginUtilsTest {
         Path jarFilePath =
                 Paths.get("/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/hello_config_file.jar");
         String jarFileName = "hello_config_file";
-        Assert.assertEquals(DockerGenUtils.extractUberJarName(jarFilePath), jarFileName);
+        Assert.assertEquals(DockerGenUtils.extractJarName(jarFilePath), jarFileName);
         jarFilePath = Paths.get("/Users/anuruddha/workspace/ballerinax/docker/samples/sample5/");
-        Assert.assertNull(DockerGenUtils.extractUberJarName(jarFilePath));
+        Assert.assertNull(DockerGenUtils.extractJarName(jarFilePath));
     }
 
     @Test

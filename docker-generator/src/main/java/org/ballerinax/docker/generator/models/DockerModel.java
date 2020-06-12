@@ -19,6 +19,7 @@
 package org.ballerinax.docker.generator.models;
 
 import lombok.Data;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinax.docker.generator.DockerGenConstants;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 
@@ -55,7 +56,7 @@ public class DockerModel {
     private String dockerHost;
     private String dockerCertPath;
     private boolean isService;
-    private String uberJarFileName;
+    private String jarFileName;
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
     private String cmd;
@@ -63,6 +64,7 @@ public class DockerModel {
     private String dockerConfig;
     private Set<Path> dependencyJarPaths;
     private boolean uberJar;
+    private PackageID pkgId;
 
     public DockerModel() {
         // Initialize with default values except for image name
@@ -129,7 +131,7 @@ public class DockerModel {
         }
 
         return this.cmd
-                .replace("${APP}", this.uberJarFileName)
+                .replace("${APP}", this.jarFileName)
                 .replace("${CONFIG_FILE}", configFile);
     }
 
@@ -150,7 +152,7 @@ public class DockerModel {
                 ", dockerHost='" + dockerHost + '\'' +
                 ", dockerCertPath='" + dockerCertPath + '\'' +
                 ", isService=" + isService +
-                ", uberJarFileName='" + uberJarFileName + '\'' +
+                ", jarFileName='" + jarFileName + '\'' +
                 ", externalFiles=" + externalFiles +
                 ", commandArg='" + commandArg + '\'' +
                 ", cmd='" + cmd + '\'' +

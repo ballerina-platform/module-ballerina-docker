@@ -27,3 +27,4 @@
 1. [Example8: Override CMD of the generated Dockerfile](sample8/)
 1. [Example9: Docker Hello World Main function](sample9/)
 1. [Example10: Copy files with Main function](sample10/)
+1. [Example11: Hello World with thin jar](sample11/)

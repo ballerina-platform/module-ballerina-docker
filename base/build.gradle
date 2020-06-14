@@ -14,21 +14,24 @@
  * limitations under the License.
  *
  */
-apply from: "$rootDir/gradle/mvnPublisher.gradle"
-
 description = 'Ballerinax - Docker Base'
 
 configurations {
-    balTools
+    bDistributionDir
 }
 
 jar {
     enabled = false
 }
 
+dependencies{
+    bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
+}
+
 def distributionLocation = project(":docker-extension-annotations").buildDir.absolutePath+"/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
 
-task copyRT {
+task copyRuntimeJar {
+    dependsOn configurations.bDistributionDir
     doLast {
         copy {
             from file("$distributionLocation/bre/lib/ballerina-rt-${ballerinaLangVersion}.jar")
@@ -38,7 +41,7 @@ task copyRT {
 }
 
 task dockerThinBuild {
-    dependsOn copyRT
+    dependsOn copyRuntimeJar
     doLast {
         exec {
             workingDir file("$project.projectDir/thin-jar-base/")

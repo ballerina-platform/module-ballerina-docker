@@ -42,7 +42,7 @@ dependencies {
     dockerBallerinaJar project(path: ":docker-extension-annotations", configuration: "dockerBallerinaJar")
 }
 
-description = 'Ballerina - Docker Extension Tests'
+description = 'Ballerinax - Docker Extension Tests'
 
 def distributionLocation = configurations.bDistributionDir.singleFile
 

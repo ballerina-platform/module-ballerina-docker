@@ -30,13 +30,12 @@ dependencies {
     bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
 }
 
-def distributionLocation = project(":docker-extension-annotations").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
 
 task copyRuntimeJar {
     dependsOn configurations.bDistributionDir
     doLast {
         copy {
-            from file("$distributionLocation/bre/lib/ballerina-rt-${ballerinaLangVersion}.jar")
+            from file("$configurations.bDistributionDir.singleFile.absolutePath/bre/lib/ballerina-rt-${ballerinaLangVersion}.jar")
             into file("$project.projectDir/thin-jar-base/")
         }
     }

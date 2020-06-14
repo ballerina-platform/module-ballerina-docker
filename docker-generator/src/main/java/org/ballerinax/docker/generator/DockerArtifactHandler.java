@@ -38,6 +38,7 @@ import org.ballerinax.docker.generator.utils.DockerImageName;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -145,7 +146,7 @@ public class DockerArtifactHandler {
             if (this.dockerModel.isBuildImage()) {
                 buildImage(outputDir);
                 outStream.print(logAppender + " - complete 2/" + logStepCount + " \r");
-//                Files.delete(uberJarLocation);
+                Files.delete(jarLocation);
                 //push only if image push is enabled.
                 if (this.dockerModel.isPush()) {
                     pushImage();

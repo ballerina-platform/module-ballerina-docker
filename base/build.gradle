@@ -14,6 +14,8 @@
  * limitations under the License.
  *
  */
+import org.apache.tools.ant.taskdefs.condition.Os
+
 description = 'Ballerinax - Docker Base'
 
 configurations {
@@ -24,11 +26,11 @@ jar {
     enabled = false
 }
 
-dependencies{
+dependencies {
     bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
 }
 
-def distributionLocation = project(":docker-extension-annotations").buildDir.absolutePath+"/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
+def distributionLocation = project(":docker-extension-annotations").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
 
 task copyRuntimeJar {
     dependsOn configurations.bDistributionDir
@@ -45,7 +47,13 @@ task dockerThinBuild {
     doLast {
         exec {
             workingDir file("$project.projectDir/thin-jar-base/")
-            commandLine 'sh', '-c', "docker build -t ballerina/thin-base:${ballerinaLangVersion} ."
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                // Ignore the windows build
+                // TODO: Fix Windows Docker image
+                commandLine 'cmd', '/c', "echo."
+            } else {
+                commandLine 'sh', '-c', "docker build -t ballerina/thin-base:${ballerinaLangVersion} ."
+            }
         }
     }
 }

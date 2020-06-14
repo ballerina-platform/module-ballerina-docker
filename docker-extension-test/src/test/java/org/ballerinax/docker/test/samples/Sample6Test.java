@@ -45,7 +45,7 @@ public class Sample6Test extends SampleTest {
     private final Path targetDirPath = sourceDirPath.resolve("target");
     private final Path burgerTargetPath = targetDirPath.resolve("docker").resolve("burger");
     private final Path pizzaTargetPath = targetDirPath.resolve("docker").resolve("pizza");
-    private final String burgerDockerImage = "burger:latest";
+    private final String burgerDockerImage = "foody-burger-0.0.1:latest";
     private final String burgerContainerName = "ballerinax_docker_burger_" +
                                                this.getClass().getSimpleName().toLowerCase();
     private String burgerContainerID;

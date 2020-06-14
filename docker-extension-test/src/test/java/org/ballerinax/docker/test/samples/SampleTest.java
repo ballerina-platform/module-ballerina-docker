@@ -32,24 +32,24 @@ import java.nio.file.Paths;
  * Base class for test cases written to test samples.
  */
 public abstract class SampleTest {
-    
+
     /**
      * Location of the samples directory.
      */
     protected static final Path SAMPLE_DIR = Paths.get(FilenameUtils.separatorsToSystem(
             System.getProperty("sampleDir")));
-    
+
     /**
      * Location where clients for the samples are residing in.
      */
     protected static final Path CLIENT_BAL_FOLDER = Paths.get("src").resolve("test").resolve("resources")
             .resolve("sample-clients")
             .toAbsolutePath();
-    
+
     @BeforeClass
     protected abstract void compileSample() throws IOException, InterruptedException;
-    
+
     @AfterClass
     public abstract void cleanUp() throws DockerPluginException, InterruptedException, DockerTestException;
-    
+
 }

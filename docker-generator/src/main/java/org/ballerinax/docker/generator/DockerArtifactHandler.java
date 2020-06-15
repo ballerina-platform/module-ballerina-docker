@@ -29,6 +29,7 @@ import com.github.dockerjava.core.RemoteApiVersion;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.github.dockerjava.core.command.PushImageResultCallback;
 import org.apache.commons.io.FilenameUtils;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
@@ -46,10 +47,13 @@ import java.util.Locale;
 import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
 import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
+import static org.ballerinax.docker.generator.DockerGenConstants.WORK_DIR;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.cleanErrorMessage;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDirectory;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 
 /**
  * Generates Docker artifacts from annotations.
@@ -76,11 +80,48 @@ public class DockerArtifactHandler {
         this.dockerClient = createClient();
     }
 
-    public void createArtifacts(PrintStream outStream, String logAppender, Path uberJarFilePath, Path outputDir)
+    private String getModuleLevelClassName(String orgName, String moduleName, String version, String sourceFileName) {
+
+        String className = cleanupSourceFileName(sourceFileName);
+        // handle source file path start with '/'.
+        if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
+            className = className.substring(1);
+        }
+
+        if (!moduleName.equals(".")) {
+            if (!version.equals("")) {
+                className = cleanupName(version) + "/" + className;
+            }
+            className = cleanupName(moduleName) + "/" + className;
+        }
+
+        if (!orgName.equalsIgnoreCase("$anon")) {
+            className = cleanupName(orgName) + "/" + className;
+        }
+
+        return className;
+    }
+
+    private String cleanupName(String name) {
+
+        return name.replace(".", "_");
+    }
+
+    private String cleanupSourceFileName(String name) {
+
+        return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
+    }
+
+    public void createArtifacts(PrintStream outStream, String logAppender, Path jarFilePath, Path outputDir)
             throws DockerGenException {
         String dockerContent;
         if (!WINDOWS_BUILD) {
-            dockerContent = generateDockerfile();
+            if (!dockerModel.isUberJar()) {
+                dockerContent = generateThinJarDockerfile();
+                copyNativeJars(outputDir);
+            } else {
+                dockerContent = generateDockerfile();
+            }
         } else {
             dockerContent = generateDockerfileForWindows();
         }
@@ -89,9 +130,8 @@ public class DockerArtifactHandler {
             outStream.print(logAppender + " - complete 0/" + logStepCount + " \r");
             DockerGenUtils.writeToFile(dockerContent, outputDir.resolve("Dockerfile"));
             outStream.print(logAppender + " - complete 1/" + logStepCount + " \r");
-            Path uberJarLocation = outputDir.resolve(DockerGenUtils.extractUberJarName(uberJarFilePath) +
-                    EXECUTABLE_JAR);
-            copyFileOrDirectory(uberJarFilePath, uberJarLocation);
+            Path jarLocation = outputDir.resolve(DockerGenUtils.extractJarName(jarFilePath) + EXECUTABLE_JAR);
+            copyFileOrDirectory(jarFilePath, jarLocation);
             for (CopyFileModel copyFileModel : this.dockerModel.getCopyFiles()) {
                 // Copy external files to docker folder
                 Path target = outputDir.resolve(Paths.get(copyFileModel.getSource()).getFileName());
@@ -106,7 +146,7 @@ public class DockerArtifactHandler {
             if (this.dockerModel.isBuildImage()) {
                 buildImage(outputDir);
                 outStream.print(logAppender + " - complete 2/" + logStepCount + " \r");
-                Files.delete(uberJarLocation);
+                Files.delete(jarLocation);
                 //push only if image push is enabled.
                 if (this.dockerModel.isPush()) {
                     pushImage();
@@ -117,6 +157,18 @@ public class DockerArtifactHandler {
             throw new DockerGenException("unable to write content to " + outputDir);
         } catch (InterruptedException e) {
             throw new DockerGenException("unable to create Docker images " + e.getMessage());
+        }
+    }
+
+    private void copyNativeJars(Path outputDir) throws DockerGenException {
+        for (Path jarPath : this.dockerModel.getDependencyJarPaths()) {
+            // Copy jar files
+            Path target = outputDir.resolve(jarPath.getFileName());
+            Path sourcePath = jarPath;
+            if (!sourcePath.isAbsolute()) {
+                sourcePath = sourcePath.toAbsolutePath();
+            }
+            copyFileOrDirectory(sourcePath, target);
         }
     }
 
@@ -240,6 +292,79 @@ public class DockerArtifactHandler {
     }
 
     /**
+     * Generate Dockerfile content using thin jar.
+     *
+     * @return Dockerfile content as a string
+     */
+    private String generateThinJarDockerfile() {
+        StringBuilder dockerfileContent = new StringBuilder();
+        dockerfileContent.append("# Auto Generated Dockerfile\n");
+        dockerfileContent.append("FROM ").append(DockerGenConstants.BALLERINA_THIN_BASE).append("\n");
+        dockerfileContent.append("\n");
+        dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
+        dockerfileContent.append("\n");
+        dockerfileContent.append("WORKDIR " + WORK_DIR).append("\n");
+
+        dockerModel.getDependencyJarPaths().forEach(path -> {
+            dockerfileContent.append("COPY ").append(path.getFileName()).append(" " + WORK_DIR + "/jars/ \n");
+        });
+
+        appendCommonCommands(dockerfileContent);
+        if (isBlank(dockerModel.getCmd())) {
+            PackageID packageID = dockerModel.getPkgId();
+            final String mainClass = getModuleLevelClassName(packageID.orgName.value,
+                    packageID.name.value,
+                    packageID.version.value, "___init");
+            if (this.dockerModel.isEnableDebug()) {
+                dockerfileContent.append("CMD java -Xdebug -Xnoagent -Djava.compiler=NONE " +
+                        "-Xrunjdwp:transport=dt_socket," +
+                        "server=y,suspend=y,address=").append(dockerModel.getDebugPort()).append("-Xdiag -cp \"")
+                        .append(dockerModel.getJarFileName()).append(":jars/*\" ").append(mainClass);
+            } else {
+                dockerfileContent.append("CMD java -Xdiag -cp \"").append(dockerModel.getJarFileName())
+                        .append(":jars/*\" ").append(mainClass);
+            }
+        } else {
+            dockerfileContent.append(this.dockerModel.getCmd());
+        }
+        if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
+            dockerfileContent.append(dockerModel.getCommandArg());
+        }
+        dockerfileContent.append("\n");
+
+        return dockerfileContent.toString();
+    }
+
+    private void appendCommonCommands(StringBuilder dockerfileContent) {
+        dockerfileContent.append("COPY ").append(this.dockerModel.getJarFileName()).append(" " + WORK_DIR)
+                .append("\n");
+        dockerModel.getEnv().forEach((key, value) -> dockerfileContent.append("ENV ").
+                append(key).append("=").append(value).append("\n"));
+
+        this.dockerModel.getCopyFiles().forEach(file -> {
+            // Extract the source filename relative to docker folder.
+            String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
+            dockerfileContent.append("COPY ")
+                    .append(sourceFileName)
+                    .append(" ")
+                    .append(file.getTarget())
+                    .append("\n");
+        });
+
+        dockerfileContent.append("\n");
+
+        if (this.dockerModel.isService() && this.dockerModel.getPorts().size() > 0) {
+            dockerfileContent.append("EXPOSE ");
+            this.dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
+        }
+        dockerfileContent.append("\n");
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
+            dockerfileContent.append("USER ballerina").append("\n");
+            dockerfileContent.append("\n");
+        }
+    }
+
+    /**
      * Generate Dockerfile content.
      *
      * @return Dockerfile content as a string
@@ -265,34 +390,7 @@ public class DockerArtifactHandler {
         dockerfileContent.append("WORKDIR /home/ballerina").append("\n");
         dockerfileContent.append("\n");
 
-        dockerfileContent.append("COPY ").append(this.dockerModel.getUberJarFileName()).append(" /home/ballerina")
-                .append("\n");
-
-        dockerModel.getEnv().forEach((key, value) -> dockerfileContent.append("ENV ").
-                append(key).append("=").append(value).append("\n"));
-
-        this.dockerModel.getCopyFiles().forEach(file -> {
-            // Extract the source filename relative to docker folder.
-            String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
-            dockerfileContent.append("COPY ")
-                    .append(sourceFileName)
-                    .append(" ")
-                    .append(file.getTarget())
-                    .append("\n");
-        });
-
-        dockerfileContent.append("\n");
-
-        if (this.dockerModel.isService() && this.dockerModel.getPorts().size() > 0) {
-            dockerfileContent.append("EXPOSE ");
-            this.dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
-        }
-        dockerfileContent.append("\n");
-        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
-            dockerfileContent.append("USER ballerina").append("\n");
-            dockerfileContent.append("\n");
-        }
-
+        appendCommonCommands(dockerfileContent);
         return appendCMD(dockerfileContent);
     }
 
@@ -302,7 +400,7 @@ public class DockerArtifactHandler {
                 "FROM " + this.dockerModel.getBaseImage() + "\n" +
                 "LABEL maintainer=\"dev@ballerina.io\"\n" +
                 "\n" +
-                "COPY " + this.dockerModel.getUberJarFileName() + " C:\\\\ballerina\\\\home \n\n";
+                "COPY " + this.dockerModel.getJarFileName() + " C:\\\\ballerina\\\\home \n\n";
 
         StringBuilder stringBuilder = new StringBuilder(dockerBase);
         this.dockerModel.getCopyFiles().forEach(file -> {
@@ -329,15 +427,15 @@ public class DockerArtifactHandler {
     }
 
     private String appendCMD(StringBuilder stringBuilder) {
-
-        if (null == this.dockerModel.getCmd() || "".equals(this.dockerModel.getCmd())) {
+        if (isBlank(dockerModel.getCmd())) {
             if (this.dockerModel.isEnableDebug()) {
                 stringBuilder.append("CMD java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket," +
                         "server=y,suspend=y,address=").append(dockerModel.getDebugPort())
-                        .append(" -jar ").append(dockerModel.getUberJarFileName());
+                        .append(" -jar ").append(dockerModel.getJarFileName());
             } else {
-                stringBuilder.append("CMD java -jar ").append(dockerModel.getUberJarFileName());
+                stringBuilder.append("CMD java -jar ").append(dockerModel.getJarFileName());
             }
+
             if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
                 stringBuilder.append(dockerModel.getCommandArg());
             }

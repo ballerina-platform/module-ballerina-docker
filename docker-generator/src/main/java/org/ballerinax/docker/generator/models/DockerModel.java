@@ -19,10 +19,12 @@
 package org.ballerinax.docker.generator.models;
 
 import lombok.Data;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinax.docker.generator.DockerGenConstants;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,12 +56,15 @@ public class DockerModel {
     private String dockerHost;
     private String dockerCertPath;
     private boolean isService;
-    private String uberJarFileName;
+    private String jarFileName;
     private Set<CopyFileModel> externalFiles;
     private String commandArg;
     private String cmd;
     private Map<String, String> env;
     private String dockerConfig;
+    private Set<Path> dependencyJarPaths;
+    private boolean uberJar;
+    private PackageID pkgId;
 
     public DockerModel() {
         // Initialize with default values except for image name
@@ -74,6 +79,8 @@ public class DockerModel {
         externalFiles = new HashSet<>();
         commandArg = "";
         env = new HashMap<>();
+        dependencyJarPaths = new HashSet<>();
+        uberJar = true;
     }
 
     public void setDockerAPIVersion(String dockerAPIVersion) {
@@ -82,6 +89,10 @@ public class DockerModel {
         }
 
         this.dockerAPIVersion = dockerAPIVersion;
+    }
+
+    public void addDependencyJarPaths(Set<Path> paths) {
+        this.dependencyJarPaths.addAll(paths);
     }
 
     public Set<CopyFileModel> getCopyFiles() {
@@ -120,7 +131,7 @@ public class DockerModel {
         }
 
         return this.cmd
-                .replace("${APP}", this.uberJarFileName)
+                .replace("${APP}", this.jarFileName)
                 .replace("${CONFIG_FILE}", configFile);
     }
 
@@ -141,7 +152,7 @@ public class DockerModel {
                 ", dockerHost='" + dockerHost + '\'' +
                 ", dockerCertPath='" + dockerCertPath + '\'' +
                 ", isService=" + isService +
-                ", uberJarFileName='" + uberJarFileName + '\'' +
+                ", jarFileName='" + jarFileName + '\'' +
                 ", externalFiles=" + externalFiles +
                 ", commandArg='" + commandArg + '\'' +
                 ", cmd='" + cmd + '\'' +

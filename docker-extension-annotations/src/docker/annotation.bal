@@ -21,7 +21,7 @@
 # + tag - Docker image tag. Default value is `"latest"`.
 # + username - Username for docker registry.
 # + password - Password for docker registry.
-# + baseImage - Base image to create the docker image. Default value is `"openjdk:8-jre-alpine"`.
+# + baseImage - Base image to create the docker image. Default value is `"ballerina/jre8:v1"`.
 # + buildImage - Enable building docker image. Default value is `true`.
 # + push - Enable pushing docker image to registry. Field `buildImage` must be set to `true` to be effective. Default value is `false`.
 # + cmd - Value for CMD for the generated Dockerfile. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
@@ -34,6 +34,7 @@
 # + dockerCertPath - Docker certificate path. Default is to use `"DOCKER_CERT_PATH"` environment variable.
 # + env - Environment variables for container.
 # + dockerConfigPath - Docker config file path.
+# + uberJar - Use ballerina uber jar. Default is `true`.
 public type DockerConfiguration record {|
     string registry?;
     string name?;
@@ -51,6 +52,7 @@ public type DockerConfiguration record {|
     string dockerCertPath?;
     map<boolean|int|float|decimal|string> env?;
     string dockerConfigPath?;
+    boolean uberJar?;
 |};
 
 # @docker:Config annotation to configure docker artifact generation.

@@ -93,12 +93,12 @@ public class DockerGenUtils {
     /**
      * Extract the ballerina file name from a given file path.
      *
-     * @param uberJarFilePath Uber jar file path.
+     * @param jarFilePath Uber jar file path.
      * @return Uber jar file name without ".jar"
      */
-    public static String extractUberJarName(Path uberJarFilePath) {
-        if (null != uberJarFilePath) {
-            Path fileName = uberJarFilePath.getFileName();
+    public static String extractJarName(Path jarFilePath) {
+        if (null != jarFilePath) {
+            Path fileName = jarFilePath.getFileName();
             if (null != fileName && fileName.toString().endsWith(".jar")) {
                 return fileName.toString().replace(".jar", "");
             }

@@ -30,6 +30,7 @@
             <class name="org.ballerinax.docker.test.samples.Sample8Test"/>
             <class name="org.ballerinax.docker.test.samples.Sample9Test"/>
             <class name="org.ballerinax.docker.test.samples.Sample10Test"/>
+            <class name="org.ballerinax.docker.test.samples.Sample11Test"/>
         </classes>
     </test>
 
@@ -39,6 +40,7 @@
             <class name="org.ballerinax.docker.test.NoAnnotationsTest"/>
             <class name="org.ballerinax.docker.test.NoAnnotationsModuleTest"/>
             <class name="org.ballerinax.docker.test.EnvVarTest"/>
+            <class name="org.ballerinax.docker.test.ThinJarTest"/>
         </classes>
     </test>
 

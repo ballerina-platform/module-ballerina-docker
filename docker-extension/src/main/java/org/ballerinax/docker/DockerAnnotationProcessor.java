@@ -26,6 +26,7 @@ import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
+import org.ballerinax.docker.models.DockerContext;
 import org.ballerinax.docker.models.DockerDataHolder;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -60,24 +61,24 @@ class DockerAnnotationProcessor {
     /**
      * Process docker annotations for ballerina Service.
      *
-     * @param uberJarFilePath Uber jar file name
-     * @param outputDir       target output directory
+     * @param jarFilePath jar file Path
+     * @param outputDir   target output directory
      */
-    void processDockerModel(DockerDataHolder dockerDataHolder, Path uberJarFilePath, Path outputDir) throws
-            DockerPluginException {
+    void processDockerModel(DockerDataHolder dockerDataHolder, Path jarFilePath, Path outputDir)
+            throws DockerPluginException {
         try {
             DockerModel dockerModel = dockerDataHolder.getDockerModel();
             dockerModel.setPorts(dockerDataHolder.getPorts());
             dockerModel.setCopyFiles(dockerDataHolder.getExternalFiles());
             // set docker image name
             if (dockerModel.getName() == null) {
-                String defaultImageName = DockerGenUtils.extractUberJarName(uberJarFilePath);
+                String defaultImageName = DockerGenUtils.extractJarName(jarFilePath);
                 dockerModel.setName(defaultImageName);
             }
 
-            Path uberJarFileName = uberJarFilePath.getFileName();
-            if (null != uberJarFileName) {
-                dockerModel.setUberJarFileName(uberJarFileName.toString());
+            Path jarFileName = jarFilePath.getFileName();
+            if (null != jarFileName) {
+                dockerModel.setJarFileName(jarFileName.toString());
             }
 
             Set<Integer> ports = dockerModel.getPorts();
@@ -88,7 +89,7 @@ class DockerAnnotationProcessor {
             printDebug(dockerModel.toString());
             out.println("\nGenerating docker artifacts...");
             DockerArtifactHandler dockerHandler = new DockerArtifactHandler(dockerModel);
-            dockerHandler.createArtifacts(out, "\t@docker \t\t", uberJarFilePath, outputDir);
+            dockerHandler.createArtifacts(out, "\t@docker \t\t", jarFilePath, outputDir);
             printDockerInstructions(dockerModel, outputDir);
         } catch (DockerGenException e) {
             throw new DockerPluginException(e.getMessage(), e);
@@ -105,7 +106,7 @@ class DockerAnnotationProcessor {
     DockerModel processConfigAnnotation(AnnotationAttachmentNode attachmentNode) throws DockerPluginException {
         List<BLangRecordLiteral.BLangRecordKeyValueField> keyValues =
                 getKeyValuePairs((BLangRecordLiteral) ((BLangAnnotationAttachment) attachmentNode).expr);
-        DockerModel dockerModel = new DockerModel();
+        DockerModel dockerModel = DockerContext.getInstance().getDataHolder().getDockerModel();
         for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : keyValues) {
             DockerConfiguration dockerConfiguration =
                     DockerConfiguration.valueOf(keyValue.getKey().toString());
@@ -158,6 +159,9 @@ class DockerAnnotationProcessor {
                     break;
                 case dockerConfigPath:
                     dockerModel.setDockerConfig(annotationValue);
+                    break;
+                case uberJar:
+                    dockerModel.setUberJar(Boolean.parseBoolean(annotationValue));
                     break;
                 default:
                     break;
@@ -299,7 +303,8 @@ class DockerAnnotationProcessor {
         dockerHost,
         dockerCertPath,
         env,
-        dockerConfigPath
+        dockerConfigPath,
+        uberJar
     }
 
     private enum CopyFileConfiguration {

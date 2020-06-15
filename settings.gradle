@@ -24,6 +24,7 @@ include(':build-config:checkstyle')
 include(':docker-generator')
 include(':docker-extension')
 include(':docker-extension-annotations')
+include(':base')
 include(':docker-extension-test')
 include(':docker-extension-examples')
 

@@ -81,9 +81,9 @@ task ballerinaBuild {
             workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc -a"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc docker"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc -a"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc docker"
             }
         }
         copy {

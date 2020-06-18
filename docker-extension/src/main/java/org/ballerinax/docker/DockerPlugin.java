@@ -97,8 +97,10 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 .filter(i -> i.symbol.toString().startsWith("ballerina/docker") && i.getAlias().toString().equals("_"))
                 .collect(Collectors.toList());
         JarResolver jarResolver = DockerContext.getInstance().getCompilerContext().get(JAR_RESOLVER_KEY);
-        Set<Path> dependencyJarPaths = new HashSet<>(jarResolver.allDependencies(bPackage));
-        DockerContext.getInstance().getDataHolder(pkgID).getDockerModel().addDependencyJarPaths(dependencyJarPaths);
+        if (jarResolver != null) {
+            Set<Path> dependencyJarPaths = new HashSet<>(jarResolver.allDependencies(bPackage));
+            DockerContext.getInstance().getDataHolder(pkgID).getDockerModel().addDependencyJarPaths(dependencyJarPaths);
+        }
         if (dockerImports.size() > 0) {
             for (BLangImportPackage dockerImport : dockerImports) {
                 // Get the units of the file which has docker import as _

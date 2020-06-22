@@ -50,7 +50,7 @@ public class ThinJarTest extends SampleTest {
     private final String burgerDockerImage = "foody-burger-0.0.1:latest";
     private final String burgerContainerName = "ballerinax_docker_burger_" +
             this.getClass().getSimpleName().toLowerCase();
-    private final String pizzaDockerImage = "pizza:latest";
+    private final String pizzaDockerImage = "foody-pizza-0.0.1:latest";
     private final String pizzaContainerName = "ballerinax_docker_pizza_" +
             this.getClass().getSimpleName().toLowerCase();
     private String burgerContainerID;

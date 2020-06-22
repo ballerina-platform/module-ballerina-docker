@@ -6,6 +6,7 @@ import ballerina/docker;
     basePath: "/helloWorld"
 }
 @docker:Config {
+    uberJar: true,
     cmd: "CMD java -jar ${APP} --b7a.http.accesslog.console=true"
 }
 service helloWorld on new http:Listener(9090) {

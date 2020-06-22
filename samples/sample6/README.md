@@ -4,8 +4,8 @@
 - Following artifacts will be generated from this sample.
     ``` 
     $> docker images
-    pizza 
-    burger
+    foody-burger-0.0.1:latest 
+    foody-burger-0.0.1:latest
     
     $> tree
     ├── src
@@ -83,8 +83,8 @@ $> tree
 ```bash
 $> docker images
 REPOSITORY                                   TAG                 IMAGE ID            CREATED              SIZE
-pizza                                        latest              445bd0e52a19        About a minute ago   112MB
-burger                                       latest              7cf8892ad733        2 minutes ago        112MB
+foody-pizza-0.0.1                           latest              445bd0e52a19        About a minute ago   112MB
+foody-burger-0.0.1                          latest              7cf8892ad733        2 minutes ago        112MB
 ```
 
 4. Run docker image as a container (Use the command printed on screen in step 1):
@@ -99,9 +99,9 @@ $> docker run -d -p 9099:9099 pizza:latest
 5. Verify docker container is running:
 ```bash
 $> docker ps
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
-7dd116abbeec        pizza:latest        "/bin/sh -c 'java -j…"   5 seconds ago       Up 3 seconds        0.0.0.0:9099->9099/tcp   angry_cartwright
-51b1d31feb7e        burger:latest       "/bin/sh -c 'java -j…"   58 seconds ago      Up 57 seconds       0.0.0.0:9096->9096/tcp   interesting_easley
+CONTAINER ID        IMAGE                            COMMAND                  CREATED             STATUS              PORTS                    NAMES
+7dd116abbeec        foody-pizza-0.0.1:latest        "/bin/sh -c 'java -j…"   5 seconds ago       Up 3 seconds        0.0.0.0:9099->9099/tcp   angry_cartwright
+51b1d31feb7e        foody-burger-0.0.1:latest       "/bin/sh -c 'java -j…"   58 seconds ago      Up 57 seconds       0.0.0.0:9096->9096/tcp   interesting_easley
 ```
 
 6. Access the hello world service with curl command:

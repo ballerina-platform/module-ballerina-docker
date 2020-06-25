@@ -7,6 +7,10 @@
             {
                 "name": "Docker Deployment",
                 "url": "docker-deployment"
+            },
+            {
+                "name": "Docker Deployment without Annotations",
+                "url": "docker-deployment-without-annotations"
             }
         ]
     }

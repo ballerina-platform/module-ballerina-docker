@@ -46,9 +46,7 @@ task buildExamples {
       }
       exec {
          workingDir file("${project.projectDir}/examples/docker-deployment")
-         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', "docker rmi helloworld:v1.0"
-         } else {
+         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             commandLine 'sh', '-c', "docker rmi helloworld:v1.0"
          }
       }
@@ -65,9 +63,7 @@ task buildExamples {
       }
       exec {
          workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
-         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', "docker rmi docker_deployment_without_annotations:latest"
-         } else {
+         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             commandLine 'sh', '-c', "docker rmi docker_deployment_without_annotations:latest"
          }
       }

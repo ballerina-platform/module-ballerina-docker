@@ -35,40 +35,32 @@ task buildExamples {
    dependsOn configurations.bDistributionDir
    dependsOn ':docker-extension-test:prepareDistribution'
    doLast {
-      def distributionLocation = configurations.bDistributionDir.singleFile
-      exec {
-         workingDir file("${project.projectDir}/examples/docker-deployment")
-         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', "$distributionLocation/bin/ballerina.bat build docker_deployment.bal"
-         } else {
+      if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+         def distributionLocation = configurations.bDistributionDir.singleFile
+         // Example - "docker-deployment"
+         exec {
+            workingDir file("${project.projectDir}/examples/docker-deployment")
             commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment.bal"
          }
-      }
-      exec {
-         workingDir file("${project.projectDir}/examples/docker-deployment")
-         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+         exec {
+            workingDir file("${project.projectDir}/examples/docker-deployment")
             commandLine 'sh', '-c', "docker rmi helloworld:v1.0"
          }
-      }
-      file("${project.projectDir}/examples/docker-deployment/docker_deployment.jar").delete()
-      file("${project.projectDir}/examples/docker-deployment/docker").deleteDir()
+         file("${project.projectDir}/examples/docker-deployment/docker_deployment.jar").delete()
+         file("${project.projectDir}/examples/docker-deployment/docker").deleteDir()
 
-      exec {
-         workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
-         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', "$distributionLocation/bin/ballerina.bat build docker_deployment_without_annotations.bal"
-         } else {
+         // Example - "docker-deployment-without-annotations"
+         exec {
+            workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
             commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment_without_annotations.bal"
          }
-      }
-      exec {
-         workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
-         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+         exec {
+            workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
             commandLine 'sh', '-c', "docker rmi docker_deployment_without_annotations:latest"
          }
+         file("${project.projectDir}/examples/docker-deployment-without-annotations/docker_deployment_without_annotations.jar").delete()
+         file("${project.projectDir}/examples/docker-deployment-without-annotations/docker").deleteDir()
       }
-      file("${project.projectDir}/examples/docker-deployment-without-annotations/docker_deployment_without_annotations.jar").delete()
-      file("${project.projectDir}/examples/docker-deployment-without-annotations/docker").deleteDir()
    }
 }
 

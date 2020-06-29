@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -17,16 +19,69 @@
 
 description = 'Ballerinax - Docker Extension Examples'
 
+configurations {
+   bDistributionDir
+}
+
+dependencies {
+   bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
+}
+
+jar {
+   enabled = false
+}
+
+task buildExamples {
+   dependsOn configurations.bDistributionDir
+   dependsOn ':docker-extension-test:prepareDistribution'
+   doLast {
+      def distributionLocation = configurations.bDistributionDir.singleFile
+      exec {
+         workingDir file("${project.projectDir}/examples/docker-deployment")
+         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', "$distributionLocation/bin/ballerina.bat build docker_deployment.bal"
+         } else {
+            commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment.bal"
+         }
+      }
+      exec {
+         workingDir file("${project.projectDir}/examples/docker-deployment")
+         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', "docker rmi helloworld:v1.0"
+         } else {
+            commandLine 'sh', '-c', "docker rmi helloworld:v1.0"
+         }
+      }
+      file("${project.projectDir}/examples/docker-deployment/docker_deployment.jar").delete()
+      file("${project.projectDir}/examples/docker-deployment/docker").deleteDir()
+
+      exec {
+         workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
+         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', "$distributionLocation/bin/ballerina.bat build docker_deployment_without_annotations.bal"
+         } else {
+            commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment_without_annotations.bal"
+         }
+      }
+      exec {
+         workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
+         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', "docker rmi docker_deployment_without_annotations:latest"
+         } else {
+            commandLine 'sh', '-c', "docker rmi docker_deployment_without_annotations:latest"
+         }
+      }
+      file("${project.projectDir}/examples/docker-deployment-without-annotations/docker_deployment_without_annotations.jar").delete()
+      file("${project.projectDir}/examples/docker-deployment-without-annotations/docker").deleteDir()
+   }
+}
+
 task zipExamples(type: Zip) {
    from 'examples/'
    include '*'
    include '*/*'
    archiveFileName = "docker-extension-examples-${ballerinaLangVersion}.zip"
    destinationDirectory = file(project.buildDir.absolutePath)
-}
-
-jar {
-   enabled = false
 }
 
 publishing {
@@ -37,4 +92,5 @@ publishing {
    }
 }
 
+zipExamples.dependsOn buildExamples
 build.dependsOn zipExamples

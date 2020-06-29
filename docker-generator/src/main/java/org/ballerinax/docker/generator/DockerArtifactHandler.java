@@ -338,11 +338,12 @@ public class DockerArtifactHandler {
             } else {
                 stringBuilder.append("CMD java -jar ").append(dockerModel.getUberJarFileName());
             }
-            if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
-                stringBuilder.append(dockerModel.getCommandArg());
-            }
         } else {
             stringBuilder.append(this.dockerModel.getCmd());
+        }
+
+        if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
+            stringBuilder.append(dockerModel.getCommandArg());
         }
 
         stringBuilder.append("\n");

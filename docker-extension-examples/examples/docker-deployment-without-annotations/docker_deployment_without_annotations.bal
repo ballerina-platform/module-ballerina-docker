@@ -10,12 +10,6 @@ listener http:Listener helloWorldEP = new(9090);
 }
 service helloWorld on helloWorldEP {
     resource function sayHello(http:Caller outboundEP, http:Request request) {
-        http:Response response = new;
-        response.setTextPayload("Hello World from Docker ! \n");
-        var responseResult = outboundEP->respond(response);
-        if (responseResult is error) {
-            error err = responseResult;
-            log:printError("Error sending response", err);
-        }
+        check outboundEP->respond("Hello World from Azure Functions ! \n");
     }
 }

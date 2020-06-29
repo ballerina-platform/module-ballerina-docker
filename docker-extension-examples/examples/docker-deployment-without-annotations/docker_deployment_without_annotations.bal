@@ -10,6 +10,6 @@ listener http:Listener helloWorldEP = new(9090);
 }
 service helloWorld on helloWorldEP {
     resource function sayHello(http:Caller outboundEP, http:Request request) {
-        check outboundEP->respond("Hello World from Azure Functions ! \n");
+        check outboundEP->respond("Hello World from Docker! \n");
     }
 }

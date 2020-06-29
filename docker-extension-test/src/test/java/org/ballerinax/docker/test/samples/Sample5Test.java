@@ -81,10 +81,8 @@ public class Sample5Test extends SampleTest {
     
     @Test
     public void validateDockerImage() {
-        Assert.assertEquals(getCommand(this.dockerImage).toString(), "[/bin/sh, -c, java -jar " +
-                                                                     "hello_config_file.jar " +
-                                                                     "--b7a.config.file=" +
-                                                                     "/home/ballerina/conf/ballerina.conf]");
+        Assert.assertEquals(getCommand(this.dockerImage).toString(), "[/bin/sh, -c, java -Xdiag -cp " +
+                "\"hello_config_file.jar:jars/*\" ___init --b7a.config.file=/home/ballerina/conf/ballerina.conf]");
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9090/tcp");

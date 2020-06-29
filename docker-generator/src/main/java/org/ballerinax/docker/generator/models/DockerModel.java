@@ -80,7 +80,7 @@ public class DockerModel {
         commandArg = "";
         env = new HashMap<>();
         dependencyJarPaths = new HashSet<>();
-        uberJar = true;
+        uberJar = false;
     }
 
     public void setDockerAPIVersion(String dockerAPIVersion) {

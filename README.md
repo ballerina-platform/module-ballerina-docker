@@ -37,6 +37,7 @@ Annotation based docker extension implementation for ballerina.
 |dockerCertPath|Docker certificate path|"DOCKER_CERT_PATH" environment variable|
 |cmd|Value for CMD for the generated Dockerfile|`CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`|
 |dockerConfigFile|Docker config file path|None|
+|uberJar|Use ballerina uber jar|Default is `false`|
 
 ### @docker:CopyFiles{}
 - Supported with ballerina services, listeners or functions.

@@ -2,57 +2,58 @@
 
 - The CMD of the generated Dockerfile can be overridden using the `cmd` field of the @docker:Config{} annotation. 
 - In this sample we are enabling http trace logs by overriding the `CMD` value of the generated Dockerfile. 
-- The `cmd` field will be as `CMD java -jar ${APP} --b7a.http.accesslog.console=true` in the @docker:Config{} annotation.
+- The `cmd` field will be as `CMD java -Xdiag -cp '${APP}:jars/*' ___init --b7a.http.accesslog.console=true` in the @docker:Config{} annotation for thin jar based build.
+- The `cmd` field will be as `CMD java -jar ${APP} --b7a.http.accesslog.console=true` in the @docker:Config{} annotation for uber jar based build.
 - Following files will be generated from this sample.
     ``` 
     $> docker image
-    hello_world_cmd_docker:latest
+    cmd_thin_jar:latest
     
     $> tree
-    ├── hello_world_cmd_docker.jar
+    ├── cmd_thin_jar.jar
     └── docker
         └── Dockerfile
     ```
 ### How to run:
 
-1. Compile the  hello_world_cmd_docker.bal file. Command to run docker image will be printed on success:
+1. Compile the  cmd_thin_jar.bal file. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build hello_world_cmd_docker.bal
+$> ballerina build cmd_thin_jar.bal
 Compiling source
-	hello_world_cmd_docker.bal
+	cmd_thin_jar.bal
 
 Generating executables
-	hello_world_cmd_docker.jar
+	cmd_thin_jar.jar
 
 Generating docker artifacts...
 	@docker 		 - complete 2/2
 
 	Run the following command to start a Docker container:
-	docker run -d -p 9090:9090 hello_world_cmd_docker:latest
+	docker run -d -p 9090:9090 cmd_thin_jar:latest
 ```
 
-2. hello_world_cmd_docker.jar, Dockerfile and docker image will be generated: 
+2. cmd_thin_jar.jar, Dockerfile and docker image will be generated: 
 ```bash
 $> tree
 .
 ├── README.md
 ├── docker
 │   └── Dockerfile
-├── hello_world_cmd_docker.bal
-└── hello_world_cmd_docker.jar
+├── cmd_thin_jar.bal
+└── cmd_thin_jar.jar
 ```
 
 3. Verify the docker image is created:
 ```bash
 $> docker images
 REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
-hello_world_cmd_docker    latest              df83ae43f69b        2 minutes ago        102MB
+cmd_thin_jar               latest              df83ae43f69b        2 minutes ago        102MB  
 
 ```
 
 4. Run docker image as a container (Use the command printed on screen in step 1):
 ```bash
-$> docker run -d -p 9090:9090 hello_world_cmd_docker:latest
+$> docker run -d -p 9090:9090 cmd_thin_jar:latest
 68eb4160ac769f131ebd3ed59f8ee0f6fe6a2e1924e290b04a4cd7513e9b71d1
 ```
 
@@ -60,7 +61,7 @@ $> docker run -d -p 9090:9090 hello_world_cmd_docker:latest
 ```bash
 $> docker ps
 CONTAINER ID        IMAGE                           COMMAND                  CREATED              STATUS              PORTS                    NAMES
-68eb4160ac76        hello_world_cmd_docker:latest   "/bin/sh -c 'balleri…"   About a minute ago   Up About a minute   0.0.0.0:9090->9090/tcp   vigilant_swartz
+68eb4160ac76        cmd_thin_jar:latest   "/bin/sh -c 'balleri…"   About a minute ago   Up About a minute   0.0.0.0:9090->9090/tcp   vigilant_swartz
 
 ```
 
@@ -80,5 +81,5 @@ Hello, World from service helloWorld !
 8. Remove docker instance and image.
 ```bash
 $> docker rm -f 68eb4160ac76
-$> docker rmi hello_world_cmd_docker:latest
+$> docker rmi cmd_thin_jar:latest
 ```

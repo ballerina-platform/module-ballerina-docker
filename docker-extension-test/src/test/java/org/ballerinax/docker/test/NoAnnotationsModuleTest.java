@@ -51,7 +51,7 @@ public class NoAnnotationsModuleTest {
     
     @Test(timeOut = 90000)
     public void withAndWithoutAnnotationTest() throws IOException, InterruptedException, DockerTestException {
-        this.dockerImage = "mix_service:latest";
+        this.dockerImage = "panda-mix_service-0.1.0:latest";
         String dockerContainerName = "ballerina_docker_mix_" + this.getClass().getSimpleName().toLowerCase();
         
         // Stop if container is already running
@@ -63,7 +63,8 @@ public class NoAnnotationsModuleTest {
         // Validate docker file
         Path dockerfile = TARGET.resolve(ARTIFACT_DIRECTORY).resolve("mix_service").resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
-        Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"panda-mix_service-0.1.0.jar:jars/*\" " +
+                "panda/mix_service/0_1_0/___init"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
     
@@ -91,7 +92,7 @@ public class NoAnnotationsModuleTest {
     
     @Test(timeOut = 90000)
     public void withoutAnnotationTest() throws IOException, InterruptedException, DockerTestException {
-        this.dockerImage = "no_annotations:latest";
+        this.dockerImage = "panda-no_annotations-0.1.0:latest";
         String dockerContainerName = "ballerina_docker_no_annotations_" + this.getClass().getSimpleName().toLowerCase();
         
         // Stop if container is already running
@@ -103,7 +104,8 @@ public class NoAnnotationsModuleTest {
         // Validate docker file
         Path dockerfile = TARGET.resolve(ARTIFACT_DIRECTORY).resolve("no_annotations").resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
-        Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"panda-no_annotations-0.1.0.jar:jars/*\" " +
+                "panda/no_annotations/0_1_0/___init"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
         

@@ -47,111 +47,111 @@ public class NoAnnotationsTest {
     private String containerID;
     private String dockerImage;
     private String jarName;
-    
+
     @Test(timeOut = 90000)
     public void serviceWithNoAnnotationTest() throws IOException, InterruptedException, DockerTestException {
         this.dockerImage = "no_annotation_service:latest";
         this.jarName = "no_annotation_service.jar";
         String dockerContainerName = "ballerina_docker_svc_" + this.getClass().getSimpleName().toLowerCase();
-        
+
         // Stop if container is already running
         DockerTestUtils.stopContainer(dockerContainerName);
-        
+
         // Compile code
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(SOURCE_DIR_PATH, "no_annotation_service.bal")
                 .getExitCode(), 0);
-    
+
         // Validate docker file
         Path dockerfile = TARGET_PATH.resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
-        Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"no_annotation_service.jar:jars/*\" " +
+                "___init"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
-    
+
         // Validate expose ports of docker image
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9090/tcp");
-    
+
         // Spin up a container
         this.containerID = DockerTestUtils.createContainer(this.dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(this.containerID,
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
-    
+
         // Send request to validate
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "hello_world_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
         Assert.assertEquals(runOutput.getStdOutput(), "Hello, World!", "Unexpected service response.");
     }
-    
+
     @Test(timeOut = 90000)
     public void listenerWithNoAnnotationTest() throws IOException, InterruptedException, DockerTestException {
         this.dockerImage = "no_annotation_listener:latest";
         this.jarName = "no_annotation_listener.jar";
         String dockerContainerName = "ballerina_docker_lstnr_" + this.getClass().getSimpleName().toLowerCase();
-        
+
         // Stop if container is already running
         DockerTestUtils.stopContainer(dockerContainerName);
-        
+
         // Compile code
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(SOURCE_DIR_PATH, "no_annotation_listener.bal")
                 .getExitCode(), 0);
-        
+
         // Validate docker file
         Path dockerfile = TARGET_PATH.resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
-        Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
-        
+
         // Validate expose ports of docker image
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9090/tcp");
-        
+
         // Spin up a container
         this.containerID = DockerTestUtils.createContainer(this.dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(this.containerID,
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
-        
+
         // Send request to validate
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "hello_world_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
         Assert.assertEquals(runOutput.getStdOutput().trim(), "Hello, World!", "Unexpected service response.");
     }
-    
+
     @Test(timeOut = 90000)
     public void mainWithNoAnnotationTest() throws IOException, InterruptedException, DockerTestException {
         this.dockerImage = "no_annotation_main:latest";
         this.jarName = "no_annotation_main.jar";
         String dockerContainerName = "ballerina_docker_main_" + this.getClass().getSimpleName().toLowerCase();
-        
+
         // Stop if container is already running
         DockerTestUtils.stopContainer(dockerContainerName);
-        
+
         // Compile code
         Assert.assertEquals(DockerTestUtils.compileBallerinaFile(SOURCE_DIR_PATH, "no_annotation_main.bal")
                 .getExitCode(), 0);
-        
+
         // Validate docker file
         Path dockerfile = TARGET_PATH.resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
-        Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"no_annotation_main.jar:jars/*\" ___init"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
-        
+
         // Validate expose ports of docker image
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 0);
-        
+
         // Spin up a container
         this.containerID = DockerTestUtils.createContainer(this.dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(this.containerID, "Hello, World!"),
                 "Main function did not run.");
     }
-    
+
     @AfterMethod
     public void cleanUp() throws DockerPluginException, IOException {
         DockerTestUtils.stopContainer(this.containerID);

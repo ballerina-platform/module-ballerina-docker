@@ -55,7 +55,7 @@ public class Sample5Test extends SampleTest {
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
     
-    @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
+    @Test(dependsOnMethods = "validateDockerImage", timeOut = 90000)
     public void testService() throws IOException, InterruptedException, DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,

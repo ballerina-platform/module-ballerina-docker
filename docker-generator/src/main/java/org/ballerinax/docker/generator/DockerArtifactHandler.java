@@ -344,11 +344,11 @@ public class DockerArtifactHandler {
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
-        dockerfileContent.append("WORKDIR " + "C:\\ballerina\\home\\").append("\n");
+        dockerfileContent.append("WORKDIR " + "C:\\\\ballerina\\\\home\\\\").append(System.lineSeparator());
 
         dockerModel.getDependencyJarPaths().forEach(path ->
                 dockerfileContent.append("COPY ").append(path.getFileName()).append(" "
-                        + "C:\\ballerina\\home\\jars\\ \n"));
+                        + "C:\\\\ballerina\\\\home\\\\jars\\\\ ").append(System.lineSeparator()));
 
         appendCommonCommands(dockerfileContent);
         if (isBlank(dockerModel.getCmd())) {
@@ -377,9 +377,9 @@ public class DockerArtifactHandler {
 
     private void appendCommonCommands(StringBuilder dockerfileContent) {
         dockerfileContent.append("COPY ").append(this.dockerModel.getJarFileName()).append(" " + WORK_DIR)
-                .append("\n");
+                .append(System.lineSeparator());
         dockerModel.getEnv().forEach((key, value) -> dockerfileContent.append("ENV ").
-                append(key).append("=").append(value).append("\n"));
+                append(key).append("=").append(value).append(System.lineSeparator()));
 
         this.dockerModel.getCopyFiles().forEach(file -> {
             // Extract the source filename relative to docker folder.
@@ -388,19 +388,19 @@ public class DockerArtifactHandler {
                     .append(sourceFileName)
                     .append(" ")
                     .append(file.getTarget())
-                    .append("\n");
+                    .append(System.lineSeparator());
         });
 
-        dockerfileContent.append("\n");
+        dockerfileContent.append(System.lineSeparator());
 
         if (this.dockerModel.isService() && this.dockerModel.getPorts().size() > 0) {
             dockerfileContent.append("EXPOSE ");
             this.dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
         }
-        dockerfileContent.append("\n");
+        dockerfileContent.append(System.lineSeparator());
         if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
             dockerfileContent.append("USER ballerina").append("\n");
-            dockerfileContent.append("\n");
+            dockerfileContent.append(System.lineSeparator());
         }
     }
 

@@ -47,7 +47,7 @@ task dockerThinBuild {
         exec {
             workingDir file("$project.projectDir/thin-jar-base/")
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "docker build -t ballerina/thin-base-windows:${ballerinaLangVersion} ."
+                commandLine 'cmd', '/c', "docker build -t ballerina/thin-base-windows:${ballerinaLangVersion} -f DockerfileWindows ."
             } else {
                 commandLine 'sh', '-c', "docker build -t ballerina/thin-base:${ballerinaLangVersion} ."
             }

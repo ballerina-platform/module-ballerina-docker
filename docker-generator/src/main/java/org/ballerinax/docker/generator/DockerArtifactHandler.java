@@ -122,7 +122,12 @@ public class DockerArtifactHandler {
                 dockerContent = generateDockerfile();
             }
         } else {
-            dockerContent = generateDockerfileForWindows();
+            if (!dockerModel.isUberJar()) {
+                dockerContent = generateThinJarWindowsDockerfile();
+                copyNativeJars(outputDir);
+            } else {
+                dockerContent = generateDockerfileForWindows();
+            }
         }
         try {
             String logStepCount = this.dockerModel.isBuildImage() ? (this.dockerModel.isPush() ? "3" : "2") : "1";
@@ -306,6 +311,44 @@ public class DockerArtifactHandler {
 
         dockerModel.getDependencyJarPaths().forEach(path ->
                 dockerfileContent.append("COPY ").append(path.getFileName()).append(" " + WORK_DIR + "/jars/ \n"));
+
+        appendCommonCommands(dockerfileContent);
+        if (isBlank(dockerModel.getCmd())) {
+            PackageID packageID = dockerModel.getPkgId();
+            final String mainClass = getModuleLevelClassName(packageID.orgName.value, packageID.name.value,
+                    packageID.version.value);
+            if (this.dockerModel.isEnableDebug()) {
+                dockerfileContent.append("CMD java -Xdebug -Xnoagent -Djava.compiler=NONE " +
+                        "-Xrunjdwp:transport=dt_socket," +
+                        "server=y,suspend=y,address=").append(dockerModel.getDebugPort()).append("-Xdiag -cp \"")
+                        .append(dockerModel.getJarFileName()).append(":jars/*\" ").append(mainClass);
+            } else {
+                dockerfileContent.append("CMD java -Xdiag -cp \"").append(dockerModel.getJarFileName())
+                        .append(":jars/*\" ").append(mainClass);
+            }
+        } else {
+            dockerfileContent.append(this.dockerModel.getCmd());
+        }
+        if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
+            dockerfileContent.append(dockerModel.getCommandArg());
+        }
+        dockerfileContent.append("\n");
+
+        return dockerfileContent.toString();
+    }
+
+    private String generateThinJarWindowsDockerfile() {
+        StringBuilder dockerfileContent = new StringBuilder();
+        dockerfileContent.append("# Auto Generated Dockerfile\n");
+        dockerfileContent.append("FROM ").append(DockerGenConstants.BALLERINA_THIN_BASE_WINDOWS).append("\n");
+        dockerfileContent.append("\n");
+        dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
+        dockerfileContent.append("\n");
+        dockerfileContent.append("WORKDIR " + "C:\\ballerina\\home\\").append("\n");
+
+        dockerModel.getDependencyJarPaths().forEach(path ->
+                dockerfileContent.append("COPY ").append(path.getFileName()).append(" "
+                        + "C:\\ballerina\\home\\jars\\ \n"));
 
         appendCommonCommands(dockerfileContent);
         if (isBlank(dockerModel.getCmd())) {

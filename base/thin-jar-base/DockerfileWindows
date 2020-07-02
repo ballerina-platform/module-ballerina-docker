@@ -16,4 +16,4 @@
 
 FROM openjdk:8-windowsservercore
 WORKDIR C:\\ballerina\\home
-COPY ballerina-rt-*.jar /home/ballerina/jars/
+COPY ballerina-rt-*.jar C:\\ballerina\\home\\jars

@@ -34,5 +34,7 @@ public class DockerGenConstants {
     public static final String BALLERINA_VERSION = "ballerina.version";
     public static final String BALLERINA_THIN_BASE_LINUX =
             "ballerina/thin-base:" + System.getProperty(BALLERINA_VERSION);
+    public static final String BALLERINA_THIN_BASE_WINDOWS =
+            "ballerina/thin-base-windows:" + System.getProperty(BALLERINA_VERSION);
     public static final String WORK_DIR = "/home/ballerina";
 }

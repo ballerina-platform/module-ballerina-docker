@@ -80,9 +80,9 @@ public class DockerArtifactHandler {
         this.dockerClient = createClient();
     }
 
-    private String getModuleLevelClassName(String orgName, String moduleName, String version, String sourceFileName) {
+    private String getModuleLevelClassName(String orgName, String moduleName, String version) {
 
-        String className = cleanupSourceFileName(sourceFileName);
+        String className = cleanupSourceFileName();
         // handle source file path start with '/'.
         if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
             className = className.substring(1);
@@ -107,9 +107,8 @@ public class DockerArtifactHandler {
         return name.replace(".", "_");
     }
 
-    private String cleanupSourceFileName(String name) {
-
-        return name.replace(".", FILE_NAME_PERIOD_SEPERATOR);
+    private String cleanupSourceFileName() {
+        return "___init".replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }
 
     public void createArtifacts(PrintStream outStream, String logAppender, Path jarFilePath, Path outputDir)
@@ -299,22 +298,20 @@ public class DockerArtifactHandler {
     private String generateThinJarDockerfile() {
         StringBuilder dockerfileContent = new StringBuilder();
         dockerfileContent.append("# Auto Generated Dockerfile\n");
-        dockerfileContent.append("FROM ").append(DockerGenConstants.BALLERINA_THIN_BASE).append("\n");
+        dockerfileContent.append("FROM ").append(DockerGenConstants.BALLERINA_THIN_BASE_LINUX).append("\n");
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
         dockerfileContent.append("WORKDIR " + WORK_DIR).append("\n");
 
-        dockerModel.getDependencyJarPaths().forEach(path -> {
-            dockerfileContent.append("COPY ").append(path.getFileName()).append(" " + WORK_DIR + "/jars/ \n");
-        });
+        dockerModel.getDependencyJarPaths().forEach(path ->
+                dockerfileContent.append("COPY ").append(path.getFileName()).append(" " + WORK_DIR + "/jars/ \n"));
 
         appendCommonCommands(dockerfileContent);
         if (isBlank(dockerModel.getCmd())) {
             PackageID packageID = dockerModel.getPkgId();
-            final String mainClass = getModuleLevelClassName(packageID.orgName.value,
-                    packageID.name.value,
-                    packageID.version.value, "___init");
+            final String mainClass = getModuleLevelClassName(packageID.orgName.value, packageID.name.value,
+                    packageID.version.value);
             if (this.dockerModel.isEnableDebug()) {
                 dockerfileContent.append("CMD java -Xdebug -Xnoagent -Djava.compiler=NONE " +
                         "-Xrunjdwp:transport=dt_socket," +

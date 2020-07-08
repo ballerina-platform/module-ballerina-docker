@@ -2,18 +2,20 @@
 
 ## Building Ballerina distribution the image
 
-1. Copy the ballerina runtime distribution zip file to `docker/` folder.
-1. Run the following command to build the ballerina distribution docker image by replacing `BALLERINA_DISTRIBUTION_FILE` with name of the runtime distribution copied earlier.
+Run the following command to build the ballerina tools/runtime docker image by replacing `BALLERINA_DISTRIBUTION_FILE` with name of the distribution.
 
 ### For linux platform
 #### Runtime image
-```docker build --no-cache=true --squash --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE> -t ballerina/ballerina-runtime:<version> ./docker -f runtime.Dockerfile```
+Execute the following command(s)  
+```cd base-image```  
+```docker build --no-cache=true -t ballerina/jre8:v1 .```
 #### Tools image
-```docker build --no-cache=true --squash --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE> -t ballerina/ballerina:<version> ./docker -f tools.Dockerfile```
+Copy the ballerina distribution zip file to `docker/` folder and execute the following command(s)    
+```cd docker```  
+```docker build --no-cache=true --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE> -t ballerina/ballerina:<version> .```
 
 ### For windows platform
-```docker build --no-cache=true --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE> -t ballerina/ballerina-runtime:<version> .\docker\ -f .\docker\windows.Dockerfile```
-
-## Building Base image
-1. Run the following command to build the base Docker image.
-```docker build --squash --no-cache=true -t ballerina/jre8:v1 ./base-image```
+#### Tools image
+Copy the ballerina distribution zip file to `docker/` folder and execute the following command(s)  
+```cd docker```  
+```docker build --no-cache=true --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE> -t ballerina/ballerina-runtime:<version> -f DockerfileWindows .```

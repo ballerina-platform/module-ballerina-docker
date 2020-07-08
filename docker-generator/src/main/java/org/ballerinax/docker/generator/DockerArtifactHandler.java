@@ -36,6 +36,7 @@ import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.ballerinax.docker.generator.utils.DockerImageName;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -344,11 +345,13 @@ public class DockerArtifactHandler {
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
-        dockerfileContent.append("WORKDIR " + "C:\\\\ballerina\\\\home\\\\").append(System.lineSeparator());
+        dockerfileContent.append("WORKDIR " + "C:").append(File.separator).append("ballerina")
+                .append(File.separator).append("home").append(File.separator).append(System.lineSeparator());
 
         dockerModel.getDependencyJarPaths().forEach(path ->
-                dockerfileContent.append("COPY ").append(path.getFileName()).append(" "
-                        + "C:\\\\ballerina\\\\home\\\\jars\\\\ ").append(System.lineSeparator()));
+                dockerfileContent.append("COPY ").append(path.getFileName()).append(" " + "C:").append(File.separator)
+                        .append("ballerina").append(File.separator).append("home").append(File.separator)
+                        .append("jars").append(File.separator).append(System.lineSeparator()));
 
         appendCommonCommands(dockerfileContent);
         if (isBlank(dockerModel.getCmd())) {
@@ -370,7 +373,7 @@ public class DockerArtifactHandler {
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             dockerfileContent.append(dockerModel.getCommandArg());
         }
-        dockerfileContent.append("\n");
+        dockerfileContent.append(System.lineSeparator());
 
         return dockerfileContent.toString();
     }

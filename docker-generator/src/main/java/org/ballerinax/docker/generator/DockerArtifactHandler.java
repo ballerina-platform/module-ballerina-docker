@@ -36,7 +36,6 @@ import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.ballerinax.docker.generator.utils.DockerImageName;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -339,19 +338,20 @@ public class DockerArtifactHandler {
     }
 
     private String generateThinJarWindowsDockerfile() {
+        final String separator = "\\\\";
         StringBuilder dockerfileContent = new StringBuilder();
         dockerfileContent.append("# Auto Generated Dockerfile\n");
         dockerfileContent.append("FROM ").append(DockerGenConstants.BALLERINA_THIN_BASE_WINDOWS).append("\n");
-        dockerfileContent.append("\n");
-        dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
-        dockerfileContent.append("\n");
-        dockerfileContent.append("WORKDIR " + "C:").append(File.separator).append("ballerina")
-                .append(File.separator).append("home").append(File.separator).append(System.lineSeparator());
+        dockerfileContent.append(System.lineSeparator());
+        dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append(System.lineSeparator());
+        dockerfileContent.append(System.lineSeparator());
+        dockerfileContent.append("WORKDIR ").append(WORK_DIR).append(System.lineSeparator());
 
-        dockerModel.getDependencyJarPaths().forEach(path ->
-                dockerfileContent.append("COPY ").append(path.getFileName()).append(" " + "C:").append(File.separator)
-                        .append("ballerina").append(File.separator).append("home").append(File.separator)
-                        .append("jars").append(File.separator).append(System.lineSeparator()).append("\n"));
+        for (Path path : dockerModel.getDependencyJarPaths()) {
+            dockerfileContent.append("COPY ").append(path.getFileName()).append(WORK_DIR)
+                    .append("jars").append(separator);
+            dockerfileContent.append(System.lineSeparator());
+        }
 
         appendCommonCommands(dockerfileContent);
         if (isBlank(dockerModel.getCmd())) {
@@ -370,6 +370,7 @@ public class DockerArtifactHandler {
         } else {
             dockerfileContent.append(this.dockerModel.getCmd());
         }
+        dockerfileContent.append(System.lineSeparator());
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             dockerfileContent.append(dockerModel.getCommandArg());
         }
@@ -416,22 +417,22 @@ public class DockerArtifactHandler {
         StringBuilder dockerfileContent = new StringBuilder();
         dockerfileContent.append("# Auto Generated Dockerfile\n");
         dockerfileContent.append("FROM ").append(this.dockerModel.getBaseImage()).append("\n");
-        dockerfileContent.append("\n");
+        dockerfileContent.append(System.lineSeparator());
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
-        dockerfileContent.append("\n");
+        dockerfileContent.append(System.lineSeparator());
 
         if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
-            dockerfileContent.append("RUN addgroup troupe \\").append("\n");
+            dockerfileContent.append("RUN addgroup troupe \\").append(System.lineSeparator());
             dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
                     .append("\n");
-            dockerfileContent.append("    && apk add --update --no-cache bash \\").append("\n");
-            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\").append("\n");
-            dockerfileContent.append("    && rm -rf /var/cache/apk/*").append("\n");
+            dockerfileContent.append("    && apk add --update --no-cache bash \\").append(System.lineSeparator());
+            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\").append(System.lineSeparator());
+            dockerfileContent.append("    && rm -rf /var/cache/apk/*").append(System.lineSeparator());
             dockerfileContent.append("\n");
         }
 
-        dockerfileContent.append("WORKDIR /home/ballerina").append("\n");
-        dockerfileContent.append("\n");
+        dockerfileContent.append("WORKDIR /home/ballerina").append(System.lineSeparator());
+        dockerfileContent.append(System.lineSeparator());
 
         appendCommonCommands(dockerfileContent);
         return appendCMD(dockerfileContent);
@@ -481,12 +482,12 @@ public class DockerArtifactHandler {
         } else {
             stringBuilder.append(this.dockerModel.getCmd());
         }
-
+        stringBuilder.append(System.lineSeparator());
         if (!DockerGenUtils.isBlank(dockerModel.getCommandArg())) {
             stringBuilder.append(dockerModel.getCommandArg());
         }
 
-        stringBuilder.append("\n");
+        stringBuilder.append(System.lineSeparator());
 
         return stringBuilder.toString();
     }

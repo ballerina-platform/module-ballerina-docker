@@ -36,5 +36,7 @@ public class DockerGenConstants {
             "ballerina/thin-base:" + System.getProperty(BALLERINA_VERSION);
     public static final String BALLERINA_THIN_BASE_WINDOWS =
             "ballerina/thin-base-windows:" + System.getProperty(BALLERINA_VERSION);
-    public static final String WORK_DIR = "/home/ballerina";
+    private static final boolean WINDOWS_BUILD =
+            Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
+    public static final String WORK_DIR = WINDOWS_BUILD ? "C:\\ballerina\\home\\" : "/home/ballerina";
 }

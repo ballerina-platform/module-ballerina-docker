@@ -351,7 +351,7 @@ public class DockerArtifactHandler {
         dockerModel.getDependencyJarPaths().forEach(path ->
                 dockerfileContent.append("COPY ").append(path.getFileName()).append(" " + "C:").append(File.separator)
                         .append("ballerina").append(File.separator).append("home").append(File.separator)
-                        .append("jars").append(File.separator).append(System.lineSeparator()));
+                        .append("jars").append(File.separator).append(System.lineSeparator()).append("\n"));
 
         appendCommonCommands(dockerfileContent);
         if (isBlank(dockerModel.getCmd())) {

@@ -53,7 +53,6 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDir
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 
 /**
  * Generates Docker artifacts from annotations.
@@ -81,12 +80,8 @@ public class DockerArtifactHandler {
     }
 
     private String getModuleLevelClassName(String orgName, String moduleName, String version) {
-
-        String className = cleanupSourceFileName();
+        String className = "___init".replace(".", FILE_NAME_PERIOD_SEPERATOR);
         // handle source file path start with '/'.
-        if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
-            className = className.substring(1);
-        }
 
         if (!moduleName.equals(".")) {
             if (!version.equals("")) {
@@ -103,12 +98,7 @@ public class DockerArtifactHandler {
     }
 
     private String cleanupName(String name) {
-
         return name.replace(".", "_");
-    }
-
-    private String cleanupSourceFileName() {
-        return "___init".replace(".", FILE_NAME_PERIOD_SEPERATOR);
     }
 
     public void createArtifacts(PrintStream outStream, String logAppender, Path jarFilePath, Path outputDir)

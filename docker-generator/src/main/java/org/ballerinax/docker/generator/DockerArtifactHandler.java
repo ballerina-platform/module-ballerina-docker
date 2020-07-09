@@ -338,7 +338,7 @@ public class DockerArtifactHandler {
     }
 
     private String generateThinJarWindowsDockerfile() {
-        final String separator = "\\\\";
+        final String separator = "\\";
         StringBuilder dockerfileContent = new StringBuilder();
         dockerfileContent.append("# Auto Generated Dockerfile\n");
         dockerfileContent.append("FROM ").append(DockerGenConstants.BALLERINA_THIN_BASE_WINDOWS).append("\n");
@@ -352,7 +352,7 @@ public class DockerArtifactHandler {
                     .append("jars").append(separator);
             dockerfileContent.append(System.lineSeparator());
         }
-
+        dockerfileContent.append(System.lineSeparator());
         appendCommonCommands(dockerfileContent);
         if (isBlank(dockerModel.getCmd())) {
             PackageID packageID = dockerModel.getPkgId();
@@ -426,7 +426,8 @@ public class DockerArtifactHandler {
             dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
                     .append("\n");
             dockerfileContent.append("    && apk add --update --no-cache bash \\").append(System.lineSeparator());
-            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\").append(System.lineSeparator());
+            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\")
+                    .append(System.lineSeparator());
             dockerfileContent.append("    && rm -rf /var/cache/apk/*").append(System.lineSeparator());
             dockerfileContent.append("\n");
         }

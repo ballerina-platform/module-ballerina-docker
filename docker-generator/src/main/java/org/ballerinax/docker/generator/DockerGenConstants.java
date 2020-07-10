@@ -32,6 +32,11 @@ public class DockerGenConstants {
     public static final String OPENJDK_8_JRE_ALPINE_BASE_IMAGE = "ballerina/jre8:v1";
     public static final String OPENJDK_8_JRE_WINDOWS_BASE_IMAGE = "openjdk:8-windowsservercore";
     public static final String BALLERINA_VERSION = "ballerina.version";
-    public static final String BALLERINA_THIN_BASE = "ballerina/thin-base:" + System.getProperty(BALLERINA_VERSION);
-    public static final String WORK_DIR = "/home/ballerina";
+    public static final String BALLERINA_THIN_BASE_LINUX =
+            "ballerina/thin-base:" + System.getProperty(BALLERINA_VERSION);
+    public static final String BALLERINA_THIN_BASE_WINDOWS =
+            "ballerina/thin-base-windows:" + System.getProperty(BALLERINA_VERSION);
+    private static final boolean WINDOWS_BUILD =
+            Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
+    public static final String WORK_DIR = WINDOWS_BUILD ? "C:\\ballerina\\home\\" : "/home/ballerina";
 }

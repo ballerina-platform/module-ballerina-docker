@@ -30,7 +30,6 @@ dependencies {
     bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
 }
 
-
 task copyRuntimeJar {
     dependsOn configurations.bDistributionDir
     doLast {
@@ -52,6 +51,7 @@ task dockerThinBuild {
                 commandLine 'sh', '-c', "docker build -t ballerina/thin-base:${ballerinaLangVersion} ."
             }
         }
+        file("$project.projectDir/thin-jar-base/ballerina-rt-${ballerinaLangVersion}.jar").delete()
     }
 }
 

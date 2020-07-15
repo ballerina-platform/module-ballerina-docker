@@ -78,6 +78,7 @@ task prepareDistribution {
 
 test {
     dependsOn prepareDistribution
+    dependsOn(':base:build')
     useTestNG() {
         suites 'src/test/resources/testng.xml'
         systemProperties = [

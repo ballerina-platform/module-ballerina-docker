@@ -65,7 +65,8 @@ public class Sample9Test extends SampleTest {
     public void validateDockerfile() throws IOException {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
-        Assert.assertTrue(dockerFileContent.contains("adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina"));
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"hello_world_function.jar:jars/*\" " +
+                "___init"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());
     }

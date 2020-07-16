@@ -75,7 +75,8 @@ public class Sample4Test extends SampleTest {
         List<String> commands = getCommand(this.dockerImage);
         Assert.assertEquals(commands.size(), 3);
         Assert.assertEquals(commands.get(2), "java -Xdebug -Xnoagent -Djava.compiler=NONE " +
-                "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 -jar docker_debug.jar");
+                "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005-Xdiag -cp \"docker_debug.jar:jars/*\" " +
+                "___init");
     }
 
     @AfterClass

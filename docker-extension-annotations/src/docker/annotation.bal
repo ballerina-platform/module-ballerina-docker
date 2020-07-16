@@ -34,7 +34,7 @@
 # + dockerCertPath - Docker certificate path. Default is to use `"DOCKER_CERT_PATH"` environment variable.
 # + env - Environment variables for container.
 # + dockerConfigPath - Docker config file path.
-# + uberJar - Use ballerina uber jar. Default is `true`.
+# + uberJar - Use ballerina uber jar. Default is `false`.
 public type DockerConfiguration record {|
     string registry?;
     string name?;

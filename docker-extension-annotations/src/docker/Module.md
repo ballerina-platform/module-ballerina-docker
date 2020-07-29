@@ -1,6 +1,8 @@
 ## Module Overview
 
-This module offers an annotation based docker extension implementation for ballerina. 
+This module offers an annotation based docker extension implementation for Ballerina. 
+
+For information on the operations, which you can perform with this module, see [Records](https://ballerina.io/swan-lake/learn/api-docs/ballerina/docker/index.html#records). For examples on the usage of the operations, see the [Docker Deployment Example](https://ballerina.io/swan-lake/learn/by-example/docker-deployment.html).
 
 ### Annotation Usage Sample:
 ```ballerina

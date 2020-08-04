@@ -293,14 +293,15 @@ public class DockerArtifactHandler {
     private String generateThinJarDockerfile() {
         StringBuilder dockerfileContent = new StringBuilder();
         dockerfileContent.append("# Auto Generated Dockerfile\n");
-        dockerfileContent.append("FROM ").append(DockerGenConstants.BALLERINA_THIN_BASE_LINUX).append("\n");
+        dockerfileContent.append("FROM ").append(dockerModel.getBaseImage()).append("\n");
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
-        dockerfileContent.append("WORKDIR " + WORK_DIR).append("\n");
-
+        dockerfileContent.append("WORKDIR ").append(WORK_DIR).append("\n");
+        appendUser(dockerfileContent);
         dockerModel.getDependencyJarPaths().forEach(path ->
-                dockerfileContent.append("COPY ").append(path.getFileName()).append(" " + WORK_DIR + "/jars/ \n"));
+                dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(WORK_DIR).append(
+                        "/jars/ \n"));
 
         appendCommonCommands(dockerfileContent);
         if (isBlank(dockerModel.getCmd())) {
@@ -327,11 +328,24 @@ public class DockerArtifactHandler {
         return dockerfileContent.toString();
     }
 
+    private void appendUser(StringBuilder dockerfileContent) {
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
+            dockerfileContent.append("RUN addgroup troupe \\").append(System.lineSeparator());
+            dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
+                    .append("\n");
+            dockerfileContent.append("    && apk add --update --no-cache bash \\").append(System.lineSeparator());
+            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\")
+                    .append(System.lineSeparator());
+            dockerfileContent.append("    && rm -rf /var/cache/apk/*").append(System.lineSeparator());
+            dockerfileContent.append("\n");
+        }
+    }
+
     private String generateThinJarWindowsDockerfile() {
         final String separator = "\\";
         StringBuilder dockerfileContent = new StringBuilder();
         dockerfileContent.append("# Auto Generated Dockerfile\n");
-        dockerfileContent.append("FROM ").append(DockerGenConstants.BALLERINA_THIN_BASE_WINDOWS).append("\n");
+        dockerfileContent.append("FROM ").append(dockerModel.getBaseImage()).append("\n");
         dockerfileContent.append(System.lineSeparator());
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append(System.lineSeparator());
         dockerfileContent.append(System.lineSeparator());
@@ -370,7 +384,7 @@ public class DockerArtifactHandler {
     }
 
     private void appendCommonCommands(StringBuilder dockerfileContent) {
-        dockerfileContent.append("COPY ").append(this.dockerModel.getJarFileName()).append(" " + WORK_DIR)
+        dockerfileContent.append("COPY ").append(this.dockerModel.getJarFileName()).append(" ").append(WORK_DIR)
                 .append(System.lineSeparator());
         dockerModel.getEnv().forEach((key, value) -> dockerfileContent.append("ENV ").
                 append(key).append("=").append(value).append(System.lineSeparator()));
@@ -411,16 +425,7 @@ public class DockerArtifactHandler {
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append(System.lineSeparator());
 
-        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
-            dockerfileContent.append("RUN addgroup troupe \\").append(System.lineSeparator());
-            dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
-                    .append("\n");
-            dockerfileContent.append("    && apk add --update --no-cache bash \\").append(System.lineSeparator());
-            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\")
-                    .append(System.lineSeparator());
-            dockerfileContent.append("    && rm -rf /var/cache/apk/*").append(System.lineSeparator());
-            dockerfileContent.append("\n");
-        }
+        appendUser(dockerfileContent);
 
         dockerfileContent.append("WORKDIR /home/ballerina").append(System.lineSeparator());
         dockerfileContent.append(System.lineSeparator());

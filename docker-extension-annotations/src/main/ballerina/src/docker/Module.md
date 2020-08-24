@@ -2,9 +2,9 @@
 
 This module offers an annotation based docker extension implementation for Ballerina.
 
-- For information on the operations, which you can perform with this module, see [Records](https://ballerina.io/learn/api-docs/ballerina/docker/index.html#records). 
-- For information on the Deployment, see the[Docker Deployment Guide](https://ballerina.io/learn/deployment/docker/).
-- For examples on the usage of the operations, see the [Docker Deployment Example](https://ballerina.io/learn/by-example/docker-deployment.html).
+- For information on the operations, which you can perform with this module, see [Records](/learn/api-docs/ballerina/docker/index.html#records). 
+- For information on the Deployment, see the[Docker Deployment Guide](/learn/deployment/docker/).
+- For examples on the usage of the operations, see the [Docker Deployment Example](/learn/by-example/docker-deployment.html).
 
 ### Annotation Usage Sample:
 ```ballerina

@@ -71,7 +71,7 @@ public type FileConfig record {|
 
 # External File configurations for docker.
 #
-# + files - Array of [FileConfig](docker.html#FileConfig)
+# + files - Array of file configurations.
 public type FileConfigs record {|
     FileConfig[] files;
 |};

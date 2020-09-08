@@ -74,7 +74,6 @@ public class Sample11Test extends SampleTest {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"hello_world_docker.jar:jars/*\" ___init"));
-        Assert.assertTrue(dockerFileContent.contains("COPY ballerina-math-1.0.0.jar /home/ballerina/jars/"));
         Assert.assertTrue(dockerFile.exists());
     }
 

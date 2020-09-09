@@ -26,3 +26,4 @@ jobs:
         run: |
           set -e
           ./gradlew clean build codeCoverageReport --stacktrace --scan --console=plain --no-daemon
+          bash <(curl -s https://codecov.io/bash)

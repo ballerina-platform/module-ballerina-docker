@@ -3,7 +3,8 @@
 Annotation based docker extension implementation for ballerina. 
 
 [![Build Status](https://wso2.org/jenkins/job/ballerinax/job/docker-pipeline/badge/icon)](https://wso2.org/jenkins/job/ballerinax/job/docker-pipeline/)
-[![Build Status](https://img.shields.io/travis/ballerina-platform/module-ballerina-docker.svg?logo=travis)](https://travis-ci.org/ballerina-platform/module-ballerina-docker)
+![Daily build](https://github.com/ballerina-platform/module-ballerina-docker/workflows/Daily%20build/badge.svg)
+![Build master branch](https://github.com/ballerina-platform/module-ballerina-docker/workflows/Build%20master%20branch/badge.svg)
 [![Trivy Scan](https://github.com/ballerina-platform/module-ballerina-docker/workflows/Trivy%20Docker%20Image%20Scan%20Workflow/badge.svg)](https://github.com/ballerina-platform/module-ballerina-docker/actions?query=workflow%3A%22Trivy+Docker+Image+Scan+Workflow%22)
 [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-docker/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-docker)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 

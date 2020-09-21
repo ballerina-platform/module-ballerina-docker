@@ -63,7 +63,7 @@ Annotation based docker extension implementation for ballerina.
 ```
 4. Run the corresponding Gradle command from within the `module-ballerina-docker` directory.
 ```bash
-#To build the module without the tests:
+#To build the module:
 ./gradlew clean build
 
 #To build the module without the tests:

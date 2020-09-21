@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.MODULE_INIT_QUOTED;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
 /**
@@ -54,26 +55,27 @@ public class Sample1Test extends SampleTest {
                 0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
-    
+
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws IOException, InterruptedException, DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
-    
+
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample1_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
         Assert.assertEquals(runOutput.getStdOutput(), "Hello, World from service helloWorld ! ",
                 "Unexpected service response.");
     }
-    
+
     @Test
     public void validateDockerfile() throws IOException {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
-        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"hello_world_docker.jar:jars/*\" ___init"));
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"hello_world_docker.jar:jars/*\" "
+                + MODULE_INIT_QUOTED));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());
     }

@@ -54,14 +54,24 @@ Annotation based docker extension implementation for ballerina.
 
 ## How to run
 
-1. Download and install JDK 8 or later
-2. Get a clone or download the source from this repository (https://github.com/ballerina-platform/module-ballerina-docker)
-3. Export github personal access token & user name as environment variables.
-```bash
-    export packagePAT=<Token>
-    export packageUser=<username>
-```
-4. Run the corresponding Gradle command from within the `module-ballerina-docker` directory.
+### Prerequisites
+
+1. Download and install JDK 8
+1. Get a clone or download the source from [this repository](https://github.com/ballerina-platform/module-ballerina-docker).
+1. Export github personal access token & user name as environment variables.
+   ```bash
+       export packagePAT=<Token>
+       export packageUser=<username>
+   ```
+1. (optional) Specify the Java home path for JDK 8 ie;
+    ```bash
+        export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/
+    ```
+1. (optional) Ensure Docker daemon is running (used for building tests).
+
+### Building
+
+1. Run the corresponding Gradle command from within the `module-ballerina-docker` directory.
 ```bash
 #To build the module:
 ./gradlew clean build
@@ -69,8 +79,8 @@ Annotation based docker extension implementation for ballerina.
 #To build the module without the tests:
 ./gradlew clean build :docker-extension-test:prepareDistribution -x test
 ```
-5. Copy `docker-extension/build/docker-extension-***.jar` file to `<BALLERINA_HOME>/bre/lib` directory.
-6. Run `ballerina build <.bal filename>` to generate artifacts.
+1. Copy `docker-extension/build/docker-extension-***.jar` file to `<BALLERINA_HOME>/bre/lib` directory.
+1. Run `ballerina build <.bal filename>` to generate artifacts.
 
 The docker artifacts will be created in a folder called docker with following structure.
 ```bash

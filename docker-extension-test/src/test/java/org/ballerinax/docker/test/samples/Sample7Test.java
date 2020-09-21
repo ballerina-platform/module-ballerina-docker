@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.MODULE_INIT_QUOTED;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
@@ -55,19 +56,19 @@ public class Sample7Test extends SampleTest {
                 0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
-    
+
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws IOException, DockerTestException, InterruptedException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName, Arrays.asList(9090, 9696));
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9696"),
                 "Service did not start properly.");
-        
+
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample7_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
         Assert.assertEquals(runOutput.getStdOutput().trim(), "Hello, World from service helloWorld ! Hello, World " +
-                                                             "from service helloWorld !",
+                        "from service helloWorld !",
                 "Unexpected service response.");
     }
 
@@ -80,7 +81,7 @@ public class Sample7Test extends SampleTest {
     @Test
     public void validateDockerImage() {
         Assert.assertEquals(getCommand(this.dockerImage).toString(),
-                "[/bin/sh, -c, java -Xdiag -cp \"hello_world_docker.jar:jars/*\" '$_init']");
+                "[/bin/sh, -c, java -Xdiag -cp \"hello_world_docker.jar:jars/*\" " + MODULE_INIT_QUOTED + "]");
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 2);
         Assert.assertEquals(ports.get(0), "9090/tcp");

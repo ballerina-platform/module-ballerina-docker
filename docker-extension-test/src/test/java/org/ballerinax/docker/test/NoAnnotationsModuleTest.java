@@ -36,6 +36,7 @@ import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Generate docker artifacts for modules without @docker annotations.
@@ -48,39 +49,39 @@ public class NoAnnotationsModuleTest {
             .resolve("test_clients").toAbsolutePath();
     private String containerID;
     private String dockerImage;
-    
+
     @Test(timeOut = 90000)
     public void withAndWithoutAnnotationTest() throws IOException, InterruptedException, DockerTestException {
         this.dockerImage = "panda-mix_service-0.1.0:latest";
         String dockerContainerName = "ballerina_docker_mix_" + this.getClass().getSimpleName().toLowerCase();
-        
+
         // Stop if container is already running
         DockerTestUtils.stopContainer(dockerContainerName);
-        
+
         // Compile code
         Assert.assertEquals(DockerTestUtils.compileBallerinaProjectModule(SOURCE_DIR_PATH, "mix_service"), 0);
-        
+
         // Validate docker file
         Path dockerfile = TARGET.resolve(ARTIFACT_DIRECTORY).resolve("mix_service").resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"panda-mix_service-0.1.0.jar:jars/*\" " +
-                "'panda/mix_service/0_1_0/$_init'"));
+                "'panda/mix_service/0_1_0/" + MODULE_INIT_CLASS_NAME + "'"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
-    
+
         // Validate expose ports of docker image
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 2);
         Assert.assertTrue(ports.contains("9090/tcp"));
         Assert.assertTrue(ports.contains("9091/tcp"));
-    
+
         // Spin up a container
         this.containerID = DockerTestUtils.createContainer(this.dockerImage, dockerContainerName,
                 Arrays.asList(9090, 9091));
         Assert.assertTrue(DockerTestUtils.startContainer(this.containerID,
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
-    
+
         // Send request to validate
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER,
                 "hello_world_client_9090_9091.bal");
@@ -89,39 +90,39 @@ public class NoAnnotationsModuleTest {
                 "Hello, World from service helloWorld ! Hello, World from service helloWorld !",
                 "Unexpected service response.");
     }
-    
+
     @Test(timeOut = 90000)
     public void withoutAnnotationTest() throws IOException, InterruptedException, DockerTestException {
         this.dockerImage = "panda-no_annotations-0.1.0:latest";
         String dockerContainerName = "ballerina_docker_no_annotations_" + this.getClass().getSimpleName().toLowerCase();
-        
+
         // Stop if container is already running
         DockerTestUtils.stopContainer(dockerContainerName);
-        
+
         // Compile code
         Assert.assertEquals(DockerTestUtils.compileBallerinaProjectModule(SOURCE_DIR_PATH, "no_annotations"), 0);
-        
+
         // Validate docker file
         Path dockerfile = TARGET.resolve(ARTIFACT_DIRECTORY).resolve("no_annotations").resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"panda-no_annotations-0.1.0.jar:jars/*\" " +
-                "panda/no_annotations/0_1_0/___init"));
+                "'panda/no_annotations/0_1_0/" + MODULE_INIT_CLASS_NAME + "'"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
-        
+
         // Validate expose ports of docker image
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 2);
         Assert.assertTrue(ports.contains("9090/tcp"));
         Assert.assertTrue(ports.contains("9091/tcp"));
-        
+
         // Spin up a container
         this.containerID = DockerTestUtils.createContainer(this.dockerImage, dockerContainerName,
                 Arrays.asList(9090, 9091));
         Assert.assertTrue(DockerTestUtils.startContainer(this.containerID,
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
-        
+
         // Send request to validate
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER,
                 "hello_world_client_9090_9091.bal");
@@ -130,7 +131,7 @@ public class NoAnnotationsModuleTest {
                 "Hello, World from service helloWorld ! Hello, World from service helloWorld !",
                 "Unexpected service response.");
     }
-    
+
     @AfterMethod
     public void cleanUp() throws DockerPluginException {
         DockerTestUtils.stopContainer(this.containerID);

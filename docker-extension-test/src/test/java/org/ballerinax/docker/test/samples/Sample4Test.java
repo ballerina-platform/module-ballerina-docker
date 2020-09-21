@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.MODULE_INIT_QUOTED;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
@@ -76,7 +77,7 @@ public class Sample4Test extends SampleTest {
         Assert.assertEquals(commands.size(), 3);
         Assert.assertEquals(commands.get(2), "java -Xdebug -Xnoagent -Djava.compiler=NONE " +
                 "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005-Xdiag -cp \"docker_debug.jar:jars/*\" " +
-                "___init");
+                MODULE_INIT_QUOTED);
     }
 
     @AfterClass

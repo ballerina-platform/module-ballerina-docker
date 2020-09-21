@@ -22,7 +22,7 @@ import ballerina/docker;
     basePath: "/helloWorld"
 }
 @docker:Config {
-    cmd: "CMD java -Xdiag -cp '${APP}:jars/*' ___init --b7a.http.accesslog.console=true"
+    cmd: "CMD java -Xdiag -cp '${APP}:jars/*' '$_init' --b7a.http.accesslog.console=true"
 }
 service helloWorld on new http:Listener(9090) {
     resource function sayHello(http:Caller outboundEP, http:Request request) {

@@ -64,7 +64,7 @@ public class NoAnnotationsModuleTest {
         Path dockerfile = TARGET.resolve(ARTIFACT_DIRECTORY).resolve("mix_service").resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"panda-mix_service-0.1.0.jar:jars/*\" " +
-                "panda/mix_service/0_1_0/___init"));
+                "'panda/mix_service/0_1_0/$_init'"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
     

@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.MODULE_INIT_QUOTED;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
 /**
@@ -65,7 +66,7 @@ public class NoAnnotationsTest {
         Path dockerfile = TARGET_PATH.resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"no_annotation_service.jar:jars/*\" " +
-                "___init"));
+                MODULE_INIT_QUOTED));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
 
@@ -138,7 +139,8 @@ public class NoAnnotationsTest {
         // Validate docker file
         Path dockerfile = TARGET_PATH.resolve("Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerfile));
-        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"no_annotation_main.jar:jars/*\" ___init"));
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"no_annotation_main.jar:jars/*\" "
+                + MODULE_INIT_QUOTED));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerfile.toFile().exists());
 

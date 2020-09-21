@@ -38,7 +38,6 @@ import org.ballerinax.docker.generator.utils.DockerImageName;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -53,6 +52,7 @@ import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDir
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.isBlank;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.printDebug;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Generates Docker artifacts from annotations.
@@ -80,7 +80,7 @@ public class DockerArtifactHandler {
     }
 
     private String getModuleLevelClassName(String orgName, String moduleName, String version) {
-        String className = "___init".replace(".", FILE_NAME_PERIOD_SEPERATOR);
+        String className = MODULE_INIT_CLASS_NAME.replace(".", FILE_NAME_PERIOD_SEPERATOR);
         // handle source file path start with '/'.
 
         if (!moduleName.equals(".")) {
@@ -94,7 +94,7 @@ public class DockerArtifactHandler {
             className = cleanupName(orgName) + "/" + className;
         }
 
-        return className;
+        return "'" + className + "'";
     }
 
     private String cleanupName(String name) {
@@ -140,7 +140,6 @@ public class DockerArtifactHandler {
             if (this.dockerModel.isBuildImage()) {
                 buildImage(outputDir);
                 outStream.print(logAppender + " - complete 2/" + logStepCount + " \r");
-                Files.delete(jarLocation);
                 //push only if image push is enabled.
                 if (this.dockerModel.isPush()) {
                     pushImage();

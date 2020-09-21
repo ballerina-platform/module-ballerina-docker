@@ -19,6 +19,7 @@
 package org.ballerinax.docker.test.samples;
 
 import org.ballerinax.docker.exceptions.DockerPluginException;
+import org.ballerinax.docker.generator.DockerGenConstants;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
 import org.ballerinax.docker.test.utils.ProcessOutput;
@@ -65,7 +66,8 @@ public class Sample10Test extends SampleTest {
     public void validateDockerfile() throws IOException {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
-        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"copy_file_function.jar:jars/*\" ___init " +
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"copy_file_function.jar:jars/*\" "
+                + DockerGenConstants.MODULE_INIT_QUOTED + " " +
                 "--b7a.config.file=/home/ballerina/conf/ballerina.conf"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());

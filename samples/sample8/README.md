@@ -2,7 +2,7 @@
 
 - The CMD of the generated Dockerfile can be overridden using the `cmd` field of the @docker:Config{} annotation. 
 - In this sample we are enabling http trace logs by overriding the `CMD` value of the generated Dockerfile. 
-- The `cmd` field will be as `CMD java -Xdiag -cp '${APP}:jars/*' ___init --b7a.http.accesslog.console=true` in the @docker:Config{} annotation for thin jar based build.
+- The `cmd` field will be as `CMD java -Xdiag -cp '${APP}:jars/*' '$_init' --b7a.http.accesslog.console=true` in the @docker:Config{} annotation for thin jar based build.
 - The `cmd` field will be as `CMD java -jar ${APP} --b7a.http.accesslog.console=true` in the @docker:Config{} annotation for uber jar based build.
 - Following files will be generated from this sample.
     ``` 

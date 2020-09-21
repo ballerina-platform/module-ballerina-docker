@@ -80,7 +80,7 @@ public class Sample7Test extends SampleTest {
     @Test
     public void validateDockerImage() {
         Assert.assertEquals(getCommand(this.dockerImage).toString(),
-                "[/bin/sh, -c, java -Xdiag -cp \"hello_world_docker.jar:jars/*\" ___init]");
+                "[/bin/sh, -c, java -Xdiag -cp \"hello_world_docker.jar:jars/*\" '$_init']");
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 2);
         Assert.assertEquals(ports.get(0), "9090/tcp");

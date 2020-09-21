@@ -56,9 +56,21 @@ Annotation based docker extension implementation for ballerina.
 
 1. Download and install JDK 8 or later
 2. Get a clone or download the source from this repository (https://github.com/ballerina-platform/module-ballerina-docker)
-3. Run the Gradle command ``gradle build`` from within the docker directory.
-4. Copy ``build/docker-extension-0.9***.jar`` file to ``<BALLERINA_HOME>/bre/lib`` directory.
-5. Run ``ballerina build <.bal filename>`` to generate artifacts.
+3. Export github personal access token & user name as environment variables.
+```bash
+    export packagePAT=<Token>
+    export packageUser=<username>
+```
+4. Run the corresponding Gradle command from within the `module-ballerina-docker` directory.
+```bash
+#To build the module:
+./gradlew clean build
+
+#To build the module without the tests:
+./gradlew clean build :docker-extension-test:prepareDistribution -x test
+```
+5. Copy `docker-extension/build/docker-extension-***.jar` file to `<BALLERINA_HOME>/bre/lib` directory.
+6. Run `ballerina build <.bal filename>` to generate artifacts.
 
 The docker artifacts will be created in a folder called docker with following structure.
 ```bash

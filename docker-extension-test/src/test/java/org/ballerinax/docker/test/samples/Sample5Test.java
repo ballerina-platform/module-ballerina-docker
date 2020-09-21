@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.MODULE_INIT_QUOTED;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getCommand;
 import static org.ballerinax.docker.test.utils.DockerTestUtils.getExposedPorts;
 
@@ -54,14 +55,14 @@ public class Sample5Test extends SampleTest {
                 0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
     }
-    
+
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 90000)
     public void testService() throws IOException, InterruptedException, DockerTestException {
         containerID = DockerTestUtils.createContainer(dockerImage, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
-        
+
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample5_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
@@ -78,16 +79,17 @@ public class Sample5Test extends SampleTest {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         Assert.assertTrue(dockerFile.exists());
     }
-    
+
     @Test
     public void validateDockerImage() {
         Assert.assertEquals(getCommand(this.dockerImage).toString(), "[/bin/sh, -c, java -Xdiag -cp " +
-                "\"hello_config_file.jar:jars/*\" ___init --b7a.config.file=/home/ballerina/conf/ballerina.conf]");
+                "\"hello_config_file.jar:jars/*\" " + MODULE_INIT_QUOTED + " --b7a.config.file=/home/ballerina/conf" +
+                "/ballerina.conf]");
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9090/tcp");
     }
-    
+
     @AfterClass
     public void cleanUp() throws DockerPluginException {
         DockerTestUtils.stopContainer(containerID);

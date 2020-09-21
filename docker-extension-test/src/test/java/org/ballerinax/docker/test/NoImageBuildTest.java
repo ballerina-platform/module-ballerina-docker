@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.MODULE_INIT_QUOTED;
 
 /**
  * Build with `buildImage` field set to false and check whether build command is shown.
@@ -41,7 +42,7 @@ import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECT
 public class NoImageBuildTest {
     private final Path sourceDirPath = Paths.get("src", "test", "resources", "docker-tests");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
-    
+
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         ProcessOutput buildProcess = DockerTestUtils.compileBallerinaFile(sourceDirPath, "build_image_false.bal");
@@ -49,16 +50,17 @@ public class NoImageBuildTest {
         Assert.assertTrue(buildProcess.getStdOutput().contains(
                 "docker build --force-rm --no-cache -t build_image_false:latest docker"));
     }
-    
+
     @Test
     public void validateDockerfile() throws IOException {
         File dockerFile = this.targetPath.resolve("Dockerfile").toFile();
         Assert.assertTrue(dockerFile.exists());
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
-        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"build_image_false.jar:jars/*\" ___init"));
+        Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"build_image_false.jar:jars/*\" " +
+                MODULE_INIT_QUOTED));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
     }
-    
+
     @AfterClass
     public void cleanUp() throws DockerPluginException, IOException {
         DockerPluginUtils.deleteDirectory(targetPath);

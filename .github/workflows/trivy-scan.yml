@@ -1,4 +1,4 @@
-name: Trivy Docker Image Scan Workflow
+name: Trivy Docker Image Scan
 
 on:
   schedule:

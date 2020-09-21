@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
+import static org.ballerinax.docker.generator.DockerGenConstants.MODULE_INIT_QUOTED;
 
 /**
  * Test class for sample9.
@@ -66,7 +67,7 @@ public class Sample9Test extends SampleTest {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"hello_world_function.jar:jars/*\" " +
-                "___init"));
+                MODULE_INIT_QUOTED));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());
     }

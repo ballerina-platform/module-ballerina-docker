@@ -23,7 +23,7 @@ plugins {
     id 'net.researchgate.release' version '2.6.0'
 }
 
-ext.ballerinaLangVersion = project.version
+ext.ballerinaLangVersion = project.ballerinaLangVersion
 ext.ballerinaSourceDirectory = "$buildDir/../src/main/ballerina"
 ext.commonsCodecVersion = "1.12"
 ext.commonIoVersion = "2.6"

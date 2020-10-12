@@ -14,4 +14,3 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 FROM openjdk:11.0.8-jre-slim
-RUN apk update && apk upgrade

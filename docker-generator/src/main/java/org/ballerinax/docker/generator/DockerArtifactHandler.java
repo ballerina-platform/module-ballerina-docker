@@ -326,19 +326,6 @@ public class DockerArtifactHandler {
         return dockerfileContent.toString();
     }
 
-    private void appendUser(StringBuilder dockerfileContent) {
-        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE)) {
-            dockerfileContent.append("RUN addgroup troupe \\").append(System.lineSeparator());
-            dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
-                    .append("\n");
-            dockerfileContent.append("    && apk add --update --no-cache bash \\").append(System.lineSeparator());
-            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\")
-                    .append(System.lineSeparator());
-            dockerfileContent.append("    && rm -rf /var/cache/apk/*").append(System.lineSeparator());
-            dockerfileContent.append("\n");
-        }
-    }
-
     private String generateThinJarWindowsDockerfile() {
         final String separator = "\\";
         StringBuilder dockerfileContent = new StringBuilder();

@@ -36,10 +36,10 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_11
 
 jacoco {
-    toolVersion = "0.8.5"
+    toolVersion = "0.8.6"
 }
 
 test {
@@ -50,9 +50,10 @@ test {
         exceptionFormat "full"
     }
     jacoco {
-        enabled = true
+        enabled = false
         destinationFile = file("$buildDir/coverage-reports/jacoco.exec")
         includeNoLocationClasses = true
+        excludes = ['jdk.internal.*']
     }
 }
 
@@ -77,12 +78,12 @@ spotbugsTest {
 task validateSpotbugs() {
     doLast {
         if (spotbugsMain.reports.size() > 0 &&
-            spotbugsMain.reports[0].destination.exists() &&
-            spotbugsMain.reports[0].destination.text.readLines().size() > 0) {
+                spotbugsMain.reports[0].destination.exists() &&
+                spotbugsMain.reports[0].destination.text.readLines().size() > 0) {
             spotbugsMain.reports[0].destination?.eachLine {
                 println 'Failure: ' + it
             }
-            throw new GradleException("Spotbugs rule violations were found.");
+            throw new GradleException("Spotbugs rule violations were found.")
         }
     }
 }
@@ -90,7 +91,7 @@ task validateSpotbugs() {
 checkstyle {
     toolVersion '7.8.2'
     configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
-    configProperties = ["suppressionFile" : rootProject.file("build-config/checkstyle/build/suppressions.xml")]
+    configProperties = ["suppressionFile": rootProject.file("build-config/checkstyle/build/suppressions.xml")]
 }
 
 publishing {

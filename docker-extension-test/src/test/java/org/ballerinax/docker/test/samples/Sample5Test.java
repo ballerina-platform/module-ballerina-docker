@@ -70,8 +70,8 @@ public class Sample5Test extends SampleTest {
                 "Unexpected service response.");
         Assert.assertTrue(runOutput.getStdOutput().contains("{'userId': 'jane3@ballerina.com', 'groups': 'esb'}"),
                 "Unexpected service response.");
-//        Assert.assertTrue(runOutput.getStdOutput().contains("{'data': 'Lorem ipsum dolor sit amet.'}"),
-//                "Unexpected service response.");
+        Assert.assertTrue(runOutput.getStdOutput().contains("{'data': 'Lorem ipsum dolor sit amet.'}"),
+                "Unexpected service response.");
     }
 
     @Test

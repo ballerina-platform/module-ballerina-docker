@@ -56,16 +56,16 @@ Annotation based docker extension implementation for ballerina.
 
 ### Prerequisites
 
-1. Download and install JDK 8
+1. Download and install JDK 11
 1. Get a clone or download the source from [this repository](https://github.com/ballerina-platform/module-ballerina-docker).
 1. Export github personal access token & user name as environment variables.
    ```bash
        export packagePAT=<Token>
        export packageUser=<username>
    ```
-1. (optional) Specify the Java home path for JDK 8 ie;
+1. (optional) Specify the Java home path for JDK 11 ie;
     ```bash
-        export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/
+        export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home/
     ```
 1. (optional) Ensure Docker daemon is running (used for building tests).
 

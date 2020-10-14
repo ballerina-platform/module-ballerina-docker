@@ -300,7 +300,7 @@ public class DockerArtifactHandler {
         this.dockerModel.getDependencyJarPaths().forEach(path ->
                 dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(WORK_DIR).append(
                         "/jars/ \n"));
-
+        appendUser(dockerfileContent);
         appendCommonCommands(dockerfileContent);
         if (isBlank(this.dockerModel.getCmd())) {
             PackageID packageID = this.dockerModel.getPkgId();
@@ -324,6 +324,19 @@ public class DockerArtifactHandler {
         dockerfileContent.append("\n");
 
         return dockerfileContent.toString();
+    }
+
+    private void appendUser(StringBuilder dockerfileContent) {
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE)) {
+            dockerfileContent.append("RUN addgroup troupe \\").append(System.lineSeparator());
+            dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
+                    .append("\n");
+            dockerfileContent.append("    && apk add --update --no-cache bash \\").append(System.lineSeparator());
+            dockerfileContent.append("    && chown -R ballerina:troupe /usr/bin/java \\")
+                    .append(System.lineSeparator());
+            dockerfileContent.append("    && rm -rf /var/cache/apk/*").append(System.lineSeparator());
+            dockerfileContent.append("\n");
+        }
     }
 
     private String generateThinJarWindowsDockerfile() {
@@ -391,6 +404,7 @@ public class DockerArtifactHandler {
         }
         dockerfileContent.append(System.lineSeparator());
         if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE)) {
+            dockerfileContent.append("USER ballerina").append("\n");
             dockerfileContent.append(System.lineSeparator());
         }
     }
@@ -409,7 +423,7 @@ public class DockerArtifactHandler {
         dockerfileContent.append(System.lineSeparator());
         dockerfileContent.append("WORKDIR /home/ballerina").append(System.lineSeparator());
         dockerfileContent.append(System.lineSeparator());
-
+        appendUser(dockerfileContent);
         appendCommonCommands(dockerfileContent);
         return appendCMD(dockerfileContent);
     }

@@ -13,4 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -----------------------------------------------------------------------
-FROM openjdk:11.0.8-jre-slim
+FROM alpine:3.11
+RUN apk add --update \
+    openjdk11-jre=11.0.5_p10-r0 \
+    && rm -rf /var/cache/apk/* \
+    && echo "securerandom.source=file:/dev/urandom" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security

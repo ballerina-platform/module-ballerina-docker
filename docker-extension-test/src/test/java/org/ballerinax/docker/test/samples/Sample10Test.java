@@ -69,6 +69,7 @@ public class Sample10Test extends SampleTest {
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"copy_file_function.jar:jars/*\" "
                 + DockerGenConstants.MODULE_INIT_QUOTED + " " +
                 "--b7a.config.file=/home/ballerina/conf/ballerina.conf"));
+        Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());
     }
 

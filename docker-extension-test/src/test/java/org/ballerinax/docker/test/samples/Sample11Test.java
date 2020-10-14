@@ -76,6 +76,7 @@ public class Sample11Test extends SampleTest {
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"hello_world_docker.jar:jars/*\" "
                 + MODULE_INIT_QUOTED));
+        Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());
     }
 

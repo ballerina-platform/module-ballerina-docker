@@ -31,5 +31,5 @@ jobs:
           export VERSION=$(curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
           wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${VERSION:-'0.5.3'}/trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
           tar zxvf trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
-          docker build --no-cache=true -t ballerina/jre8:v1 ./base/base-image
+          docker build --no-cache=true -t ballerina/jre11:v1 ./base/base-image
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./trivy --exit-code 1 --severity HIGH --no-progress ballerina/jre8:v1

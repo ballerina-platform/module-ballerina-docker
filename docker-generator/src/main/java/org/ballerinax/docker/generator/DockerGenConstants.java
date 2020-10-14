@@ -31,8 +31,8 @@ public class DockerGenConstants {
     public static final String REGISTRY_SEPARATOR = "/";
     public static final String TAG_SEPARATOR = ":";
     public static final String ARTIFACT_DIRECTORY = "docker";
-    public static final String OPENJDK_8_JRE_ALPINE_BASE_IMAGE = "ballerina/jre8:v1";
-    public static final String OPENJDK_8_JRE_WINDOWS_BASE_IMAGE = "openjdk:8-windowsservercore";
+    public static final String OPENJDK_11_JRE_SLIM_BASE = "ballerina/jre11:v1";
+    public static final String OPENJDK_11_JRE_WINDOWS_BASE_IMAGE = "openjdk:11-windowsservercore";
     public static final String MODULE_INIT_QUOTED = "'" + MODULE_INIT_CLASS_NAME + "'";
     private static final boolean WINDOWS_BUILD =
             Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));

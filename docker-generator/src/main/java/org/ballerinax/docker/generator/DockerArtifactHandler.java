@@ -297,20 +297,19 @@ public class DockerArtifactHandler {
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
         dockerfileContent.append("WORKDIR ").append(WORK_DIR).append("\n");
-        appendUser(dockerfileContent);
         this.dockerModel.getDependencyJarPaths().forEach(path ->
                 dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(WORK_DIR).append(
                         "/jars/ \n"));
-
+        appendUser(dockerfileContent);
         appendCommonCommands(dockerfileContent);
         if (isBlank(this.dockerModel.getCmd())) {
             PackageID packageID = this.dockerModel.getPkgId();
             final String mainClass = getModuleLevelClassName(packageID.orgName.value, packageID.name.value,
                     packageID.version.value);
             if (this.dockerModel.isEnableDebug()) {
-                dockerfileContent.append("CMD java -Xdebug -Xnoagent -Djava.compiler=NONE " +
-                        "-Xrunjdwp:transport=dt_socket," +
-                        "server=y,suspend=y,address=").append(this.dockerModel.getDebugPort()).append("-Xdiag -cp \"")
+                dockerfileContent.append("CMD java -Xdiag -agentlib:jdwp=transport=dt_socket,server=y,suspend=n," +
+                        "address='*:")
+                        .append(this.dockerModel.getDebugPort()).append("' -cp \"")
                         .append(this.dockerModel.getJarFileName()).append(":jars/*\" ").append(mainClass);
             } else {
                 dockerfileContent.append("CMD java -Xdiag -cp \"").append(this.dockerModel.getJarFileName())
@@ -328,7 +327,7 @@ public class DockerArtifactHandler {
     }
 
     private void appendUser(StringBuilder dockerfileContent) {
-        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE)) {
             dockerfileContent.append("RUN addgroup troupe \\").append(System.lineSeparator());
             dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
                     .append("\n");
@@ -362,9 +361,8 @@ public class DockerArtifactHandler {
             final String mainClass = getModuleLevelClassName(packageID.orgName.value, packageID.name.value,
                     packageID.version.value);
             if (this.dockerModel.isEnableDebug()) {
-                dockerfileContent.append("CMD java -Xdebug -Xnoagent -Djava.compiler=NONE " +
-                        "-Xrunjdwp:transport=dt_socket," +
-                        "server=y,suspend=y,address=").append(this.dockerModel.getDebugPort()).append("-Xdiag -cp \"")
+                dockerfileContent.append("CMD java -Xdiag -agentlib:jdwp=transport=dt_socket,server=y,suspend=n," +
+                        "address='*:").append(this.dockerModel.getDebugPort()).append("' -cp \"")
                         .append(this.dockerModel.getJarFileName()).append(":jars/*\" ").append(mainClass);
             } else {
                 dockerfileContent.append("CMD java -Xdiag -cp \"").append(this.dockerModel.getJarFileName())
@@ -405,7 +403,7 @@ public class DockerArtifactHandler {
             this.dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
         }
         dockerfileContent.append(System.lineSeparator());
-        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE)) {
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE)) {
             dockerfileContent.append("USER ballerina").append("\n");
             dockerfileContent.append(System.lineSeparator());
         }
@@ -423,12 +421,9 @@ public class DockerArtifactHandler {
         dockerfileContent.append(System.lineSeparator());
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append(System.lineSeparator());
-
-        appendUser(dockerfileContent);
-
         dockerfileContent.append("WORKDIR /home/ballerina").append(System.lineSeparator());
         dockerfileContent.append(System.lineSeparator());
-
+        appendUser(dockerfileContent);
         appendCommonCommands(dockerfileContent);
         return appendCMD(dockerfileContent);
     }
@@ -468,8 +463,8 @@ public class DockerArtifactHandler {
     private String appendCMD(StringBuilder stringBuilder) {
         if (isBlank(this.dockerModel.getCmd())) {
             if (this.dockerModel.isEnableDebug()) {
-                stringBuilder.append("CMD java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket," +
-                        "server=y,suspend=y,address=").append(this.dockerModel.getDebugPort())
+                stringBuilder.append("CMD java -Xdiag -agentlib:jdwp=transport=dt_socket,server=y,suspend=n," +
+                        "address='*:").append(this.dockerModel.getDebugPort()).append("'")
                         .append(" -jar ").append(this.dockerModel.getJarFileName());
             } else {
                 stringBuilder.append("CMD java -jar ").append(this.dockerModel.getJarFileName());

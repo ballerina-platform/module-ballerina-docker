@@ -121,7 +121,7 @@ task ballerinaBuild {
                 commandLine 'sh', '-c', "$distributionBinPath/ballerina doc docker"
             }
         }
-        
+
         exec {
             workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"

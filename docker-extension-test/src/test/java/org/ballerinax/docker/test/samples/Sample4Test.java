@@ -75,9 +75,8 @@ public class Sample4Test extends SampleTest {
         Assert.assertEquals(ports.get(1), "9090/tcp");
         List<String> commands = getCommand(this.dockerImage);
         Assert.assertEquals(commands.size(), 3);
-        Assert.assertEquals(commands.get(2), "java -Xdebug -Xnoagent -Djava.compiler=NONE " +
-                "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005-Xdiag -cp \"docker_debug.jar:jars/*\" " +
-                MODULE_INIT_QUOTED);
+        Assert.assertEquals(commands.get(2), "java -Xdiag -agentlib:jdwp=transport=dt_socket,server=y,suspend=n," +
+                "address='*:5005' -cp \"docker_debug.jar:jars/*\" " + MODULE_INIT_QUOTED);
     }
 
     @AfterClass

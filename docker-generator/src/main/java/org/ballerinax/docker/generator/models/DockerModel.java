@@ -71,8 +71,8 @@ public class DockerModel {
         this.tag = "latest";
         this.push = false;
         this.buildImage = true;
-        this.baseImage = WINDOWS_BUILD ? DockerGenConstants.OPENJDK_8_JRE_WINDOWS_BASE_IMAGE :
-                DockerGenConstants.OPENJDK_8_JRE_ALPINE_BASE_IMAGE;
+        this.baseImage = WINDOWS_BUILD ? DockerGenConstants.OPENJDK_11_JRE_WINDOWS_BASE_IMAGE :
+                DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE;
         this.enableDebug = false;
         this.debugPort = 5005;
         this.setDockerAPIVersion(System.getenv(DOCKER_API_VERSION));

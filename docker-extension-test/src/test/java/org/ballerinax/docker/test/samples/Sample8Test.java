@@ -75,7 +75,7 @@ public class Sample8Test extends SampleTest {
 
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testUberJarService() throws IOException, InterruptedException, DockerTestException {
-        containerID = DockerTestUtils.createContainer(dockerImageUber, dockerContainerName + "uber");
+        containerID = DockerTestUtils.createContainer(dockerImageUber, "sample8_uber_jar");
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "ballerina: HTTP access log enabled\n[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");

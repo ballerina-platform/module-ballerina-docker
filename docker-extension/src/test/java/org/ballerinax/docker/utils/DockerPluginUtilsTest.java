@@ -67,6 +67,7 @@ public class DockerPluginUtilsTest {
     public void resolveValueTest() throws Exception {
         Map<String, String> env = new HashMap<>();
         env.put("DOCKER_USERNAME", "anuruddhal");
+        env.put("DOCKER_PASSWORD", "");
         setEnv(env);
         try {
             Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_USERNAME}"), "anuruddhal");
@@ -74,14 +75,12 @@ public class DockerPluginUtilsTest {
             Assert.fail("Unable to resolve environment variable");
         }
         try {
-            DockerPluginUtils.resolveValue("$env{DOCKER_PASSWORD}");
-            Assert.fail("Env value should be resolved");
+            Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_PASSWORD}"), "");
+            Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_UNDEFINED}"), "");
         } catch (DockerPluginException e) {
-            Assert.assertEquals(e.getMessage(), "error resolving value: DOCKER_PASSWORD is not set in the " +
-                    "environment.");
+            Assert.fail("Unable to resolve null/blank environment variable");
         }
         Assert.assertEquals(DockerPluginUtils.resolveValue("demo"), "demo");
-
     }
 
     @Test

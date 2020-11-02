@@ -38,6 +38,7 @@ RUN mkdir -p /ballerina/files \
 
 ENV BALLERINA_HOME /ballerina/runtime
 ENV PATH $BALLERINA_HOME/bin:$PATH
+ENV JAVA_HOME=/usr/lib/jvm/default-jvm
 
 WORKDIR /home/ballerina
 VOLUME /home/ballerina

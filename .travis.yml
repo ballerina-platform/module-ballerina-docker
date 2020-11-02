@@ -46,7 +46,7 @@ script:
     if [ "$TRAVIS_OS_NAME" = "linux" ]
     then
       docker build --no-cache=true -t ballerina/jre8:v1 ./base/base-image
-      ./trivy --exit-code 1 --severity HIGH --no-progress ballerina/jre8:v1
+      ./trivy --exit-code 1 --severity CRITICAL --no-progress ballerina/jre8:v1
       mvn clean install -B -V
     fi
     if [ "$TRAVIS_OS_NAME" = "windows" ]

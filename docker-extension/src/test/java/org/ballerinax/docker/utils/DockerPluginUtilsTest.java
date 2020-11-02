@@ -37,9 +37,9 @@ import java.util.Map;
  * Docker Utils Test Class.
  */
 public class DockerPluginUtilsTest {
-    
+
     private Path tempDirectory;
-    
+
     @BeforeClass
     public void setUp() throws IOException {
         tempDirectory = Files.createTempDirectory("ballerinax-docker-plugin-");
@@ -69,17 +69,9 @@ public class DockerPluginUtilsTest {
         env.put("DOCKER_USERNAME", "anuruddhal");
         env.put("DOCKER_PASSWORD", "");
         setEnv(env);
-        try {
-            Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_USERNAME}"), "anuruddhal");
-        } catch (DockerPluginException e) {
-            Assert.fail("Unable to resolve environment variable");
-        }
-        try {
-            Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_PASSWORD}"), "");
-            Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_UNDEFINED}"), "");
-        } catch (DockerPluginException e) {
-            Assert.fail("Unable to resolve null/blank environment variable");
-        }
+        Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_USERNAME}"), "anuruddhal");
+        Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_PASSWORD}"), "");
+        Assert.assertEquals(DockerPluginUtils.resolveValue("$env{DOCKER_UNDEFINED}"), "");
         Assert.assertEquals(DockerPluginUtils.resolveValue("demo"), "demo");
     }
 
@@ -94,7 +86,7 @@ public class DockerPluginUtilsTest {
         DockerPluginUtils.deleteDirectory(directory.toPath());
         Assert.assertFalse(directory.exists(), "subFolder not deleted");
     }
-    
+
     private void setEnv(Map<String, String> newenv) throws Exception {
         try {
             Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
@@ -122,7 +114,7 @@ public class DockerPluginUtilsTest {
             }
         }
     }
-    
+
     @AfterClass
     public void cleanUp() {
         FileUtils.deleteQuietly(tempDirectory.toFile());

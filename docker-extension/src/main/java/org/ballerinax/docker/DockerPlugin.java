@@ -18,6 +18,7 @@
 
 package org.ballerinax.docker;
 
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
@@ -28,7 +29,6 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
@@ -163,7 +163,8 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 }
             }
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getCurrentPackage()),
+                    serviceNode.getPosition(), e.getMessage());
         }
     }
 
@@ -199,15 +200,16 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 }
             }
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, variableNode.getPosition(), e.getMessage());
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getCurrentPackage()),
+                    variableNode.getPosition(), e.getMessage());
         }
     }
 
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         if (!"main".equals(functionNode.getName().getValue())) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, functionNode.getPosition(), "@docker annotations are " +
-                    "only supported with main function. ");
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getCurrentPackage()),
+                    functionNode.getPosition(), "@docker annotations are only supported with main function. ");
             return;
         }
         DockerDataHolder dataHolder = DockerContext.getInstance().getDataHolder();
@@ -215,7 +217,8 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         try {
             processCommonAnnotations(annotations, dataHolder);
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, functionNode.getPosition(), e.getMessage());
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getCurrentPackage()),
+                    functionNode.getPosition(), e.getMessage());
         }
     }
 

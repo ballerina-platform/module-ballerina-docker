@@ -46,7 +46,7 @@ public class DockerContext {
     }
 
     public void addDataHolder(String packageID) {
-        this.currentPackage = packageID;
+        this.setCurrentPackage(packageID);
         this.dockerContext.put(packageID, new DockerDataHolder());
     }
 
@@ -68,5 +68,9 @@ public class DockerContext {
 
     public void setCompilerContext(CompilerContext compilerContext) {
         this.compilerContext = compilerContext;
+    }
+
+    public String getCurrentPackage() {
+        return currentPackage;
     }
 }

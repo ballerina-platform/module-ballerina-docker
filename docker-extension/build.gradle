@@ -38,7 +38,7 @@ configurations {
         exclude group: "commons-codec"
         exclude group: "org.apache.commons"
         exclude group: "commons-io"
-        exclude group: "commons-logging"        
+        exclude group: "commons-logging"
     }
 }
 
@@ -47,6 +47,7 @@ dependencies {
     implementation "com.github.docker-java:docker-java:${dockerJavaVersion}"
 
     compileOnly "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
+    compileOnly "org.ballerinalang:ballerina-tools-api:${ballerinaLangVersion}"
 
     testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     testImplementation "org.testng:testng:${testngVersion}"

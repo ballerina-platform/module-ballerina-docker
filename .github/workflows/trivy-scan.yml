@@ -14,22 +14,21 @@ on:
       - '*'
     paths:
       - 'base/base-image/*'
-
 jobs:
   build:
     name: Trivy Docker Image Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-      - name: Set up Docker
-        uses: crazy-max/ghaction-docker-buildx@v1
-        with:
-          version: latest
-      - name: Install and run Trivy Scanning
-        run: |
-          export VERSION=$(curl --silent "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-          wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${VERSION:-'0.5.3'}/trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
-          tar zxvf trivy_${VERSION:-'0.5.3'}_Linux-64bit.tar.gz
-          docker build --no-cache=true -t ballerina/jre11:v1 ./base/base-image
-          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./trivy --exit-code 1 --severity HIGH --no-progress ballerina/jre8:v1
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Build an image from Dockerfile
+      run: |
+        docker build --no-cache=true -t ballerina/jre11:v1 ./base/base-image
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'ballerina/jre11:v1'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        severity: 'CRITICAL'

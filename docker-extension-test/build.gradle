@@ -20,8 +20,8 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 configurations {
     bDistributionDir
     dockerExtensionPlugin
-    dockerBallerinaBirDir
-    dockerBallerinaJar
+    dockerBallerinaBalo
+    dockerBallerinaCache
 }
 
 dependencies {
@@ -38,8 +38,8 @@ dependencies {
 
     dockerExtensionPlugin project(path: ":docker-extension", configuration: "shadow")
     bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
-    dockerBallerinaBirDir project(path: ":docker-extension-annotations", configuration: "dockerBallerinaBirDir")
-    dockerBallerinaJar project(path: ":docker-extension-annotations", configuration: "dockerBallerinaJar")
+    dockerBallerinaBalo project(path: ":docker-extension-annotations", configuration: "dockerBallerinaBalo")
+    dockerBallerinaCache project(path: ":docker-extension-annotations", configuration: "dockerBallerinaCache")
 }
 
 description = 'Ballerinax - Docker Extension Tests'
@@ -57,16 +57,16 @@ task copyBalDockerExt {
 }
 
 task copyBallerinaArtifacts {
-    dependsOn configurations.dockerBallerinaBirDir
-    dependsOn configurations.dockerBallerinaJar
+    dependsOn configurations.dockerBallerinaBalo
+    dependsOn configurations.dockerBallerinaCache
     doLast {
         copy {
-            from configurations.dockerBallerinaBirDir
-            into file("${distributionLocation}/bir-cache/ballerina")
+            from configurations.dockerBallerinaCache
+            into file("${distributionLocation}/repo/cache/ballerina")
         }
         copy {
-            from configurations.dockerBallerinaJar
-            into file("${distributionLocation}/bre/lib/")
+            from configurations.dockerBallerinaBalo
+            into file("${distributionLocation}/repo/balo/ballerina")
         }
     }
 }

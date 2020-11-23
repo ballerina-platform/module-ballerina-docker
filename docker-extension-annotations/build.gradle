@@ -22,8 +22,8 @@ description = 'Ballerinax - Docker Extension Annotations'
 configurations {
     bDistributionDir
     balTools
-    dockerBallerinaBirDir
-    dockerBallerinaJar
+    dockerBallerinaCache
+    dockerBallerinaBalo
 }
 
 dependencies {
@@ -42,6 +42,7 @@ clean {
 }
 
 def bDistribution = file("$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
+def artifactBaloParent = file("$project.projectDir/build/cache_parent/balo")
 
 task unzip {
     doLast {
@@ -72,24 +73,11 @@ task copyStdlibs(type: Copy) {
     /* Standard Libraries */
     configurations.ballerinaStdLibs.resolvedConfiguration.resolvedArtifacts.each { artifact ->
         def artifactExtractedPath = "${buildDir}/extracted-distribution/" + artifact.name + "-zip"
-        into("bir-cache/") {
-            from "${artifactExtractedPath}/caches/bir"
+        into("repo/balo") {
+            from "${artifactExtractedPath}/balo/"
         }
-        into("bre/lib/") {
-            from "${artifactExtractedPath}/libs"
-        }
-        into("docs/") {
-            from "${artifactExtractedPath}/docs"
-        }
-        // pack to new cache
-        into("cache/bir/") {
-            from "${artifactExtractedPath}/caches/bir"
-        }
-        into("cache/balo/") {
-            from "${artifactExtractedPath}/caches/balo"
-        }
-        into("cache/jar/") {
-            from "${artifactExtractedPath}/caches/jar"
+        into("repo/cache") {
+            from "${artifactExtractedPath}/cache"
         }
     }
 }
@@ -103,12 +91,11 @@ def ballerinaToml = file("$project.projectDir/Ballerina.toml")
 def semverMatcher = ballerinaToml.getText("UTF-8") =~ /(([0-9]+)\.([0-9]+)\.([0-9]+))/
 def tomlSemver = semverMatcher[0][1]
 
-def artifactDockerBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/ballerina")
-def artifactDockerBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerina/docker/${tomlSemver}/ballerina-docker-${tomlSemver}.jar")
+def artifactDockerBallerinaCache = file("$project.projectDir/target/cache/ballerina/")
 
 task ballerinaBuild {
     dependsOn unzip
-    inputs.dir file("$project.projectDir/src")
+    inputs.dir file("$project.projectDir")
     inputs.file file("$project.projectDir/Ballerina.toml")
     doLast {
         def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
@@ -116,9 +103,9 @@ task ballerinaBuild {
             workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc docker"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc docker"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc"
             }
         }
 
@@ -126,31 +113,30 @@ task ballerinaBuild {
             workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c docker"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c docker"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c"
             }
-        }
-        copy {
-            // Copy the TOML to the same folder as the BIR
-            from file("$project.projectDir/Ballerina.toml")
-            into file("${artifactDockerBallerinaBirDir}/docker/${tomlSemver}")
         }
         copy {
             // Restructure API docs directory
             from file("$project.projectDir/target/apidocs/docker")
             into file("$project.buildDir/apidocs/docs/docker")
         }
+        copy {
+            from file("$project.projectDir/target/balo")
+            into file("$artifactBaloParent/docker/${tomlSemver}")
+        }
     }
-    outputs.dir artifactDockerBallerinaBirDir
+    outputs.dir artifactBaloParent
+    outputs.dir artifactDockerBallerinaCache
     outputs.dir file("$project.buildDir/apidocs")
-    outputs.file artifactDockerBallerinaJar
 }
 
 artifacts {
     bDistributionDir file: bDistribution, builtBy: unzip
-    dockerBallerinaBirDir file: artifactDockerBallerinaBirDir, builtBy: ballerinaBuild
-    dockerBallerinaJar file: artifactDockerBallerinaJar, builtBy: ballerinaBuild
+    dockerBallerinaBalo file: artifactBaloParent, builtBy: ballerinaBuild
+    dockerBallerinaCache file: artifactDockerBallerinaCache, builtBy: ballerinaBuild
 }
 
 task createArtifactZip(type: Zip) {

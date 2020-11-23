@@ -18,23 +18,11 @@
 
 package org.ballerinax.docker.generator.test;
 
-import org.ballerinax.docker.generator.DockerArtifactHandler;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
-import org.ballerinax.docker.generator.models.CopyFileModel;
-import org.ballerinax.docker.generator.models.DockerModel;
-import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.ballerinax.docker.generator.utils.DockerImageName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Docker generator tests.
@@ -43,53 +31,9 @@ public class DockerGeneratorTests {
 
     private final Logger log = LoggerFactory.getLogger(DockerGeneratorTests.class);
 
-    @Test
-    public void testDockerGenerate() throws IOException, NoSuchMethodException, InvocationTargetException,
-            IllegalAccessException, DockerGenException {
-        DockerModel dockerModel = new DockerModel();
-        Set<Integer> ports = new HashSet<>();
-        ports.add(9090);
-        ports.add(9091);
-        ports.add(9092);
-        dockerModel.setPorts(ports);
-        dockerModel.setService(true);
-        dockerModel.setJarFileName("example.jar");
-        dockerModel.setEnableDebug(true);
-        dockerModel.setDebugPort(5005);
-
-        ClassLoader classLoader = getClass().getClassLoader();
-        File confFile = new File(classLoader.getResource("conf/ballerina.conf").getFile());
-        Set<CopyFileModel> files = new HashSet<>();
-        CopyFileModel confFileModel = new CopyFileModel();
-        confFileModel.setSource(confFile.getAbsolutePath());
-        confFileModel.setTarget("/home/ballerina/conf/");
-        confFileModel.setBallerinaConf(true);
-        files.add(confFileModel);
-
-        File dataFile = new File(classLoader.getResource("conf/data.txt").getFile());
-        CopyFileModel dataFileModel = new CopyFileModel();
-        dataFileModel.setSource(dataFile.getAbsolutePath());
-        dataFileModel.setTarget("/home/ballerina/data/");
-        dataFileModel.setBallerinaConf(false);
-        files.add(dataFileModel);
-        dockerModel.setCopyFiles(files);
-
-        DockerArtifactHandler artifactHandler = new DockerArtifactHandler(dockerModel);
-        Method generateDockerfileMethod = DockerArtifactHandler.class.getDeclaredMethod("generateDockerfile");
-        generateDockerfileMethod.setAccessible(true);
-        String dockerfileContent = (String) generateDockerfileMethod.invoke(artifactHandler);
-        File dockerfile = new File("build/docker");
-        Assert.assertTrue(dockerfile.mkdirs());
-        dockerfile = new File("build/docker/Dockerfile");
-        DockerGenUtils.writeToFile(dockerfileContent, dockerfile.toPath());
-        log.info("Dockerfile Content:\n" + dockerfileContent);
-        Assert.assertTrue(dockerfile.exists());
-        dockerfile.deleteOnExit();
-    }
-    
     @Test(expectedExceptions = DockerGenException.class,
-          expectedExceptionsMessageRegExp = "given docker name 'dockerName:latest' is invalid: image name " +
-                                            "'dockerName' is invalid"
+            expectedExceptionsMessageRegExp = "given docker name 'dockerName:latest' is invalid: image name " +
+                    "'dockerName' is invalid"
     )
     public void invalidDockerImageNameTest() throws DockerGenException {
         DockerImageName.validate("dockerName:latest");

@@ -1,3 +1,4 @@
-[project]
-org-name = "panda"
+[package]
+org = "panda"
+name = "annotation"
 version = "0.1.0"

@@ -18,13 +18,15 @@
 
 package org.ballerinax.docker.models;
 
+import org.ballerinalang.model.elements.PackageID;
+
 /**
  * Docker context holder class.
  */
 public class DockerContext {
     private static DockerContext instance;
     private final DockerDataHolder dockerContext;
-    private String packageID;
+    private PackageID packageID;
 
     private DockerContext() {
         dockerContext = new DockerDataHolder();
@@ -44,11 +46,11 @@ public class DockerContext {
         return this.dockerContext;
     }
 
-    public String getPackageID() {
+    public PackageID getPackageID() {
         return packageID;
     }
 
-    public void setPackageID(String packageID) {
+    public void setPackageID(PackageID packageID) {
         this.packageID = packageID;
     }
 }

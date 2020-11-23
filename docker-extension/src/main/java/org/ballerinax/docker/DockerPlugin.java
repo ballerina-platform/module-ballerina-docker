@@ -22,7 +22,6 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -94,14 +93,14 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(PackageNode packageNode) {
         BLangPackage bPackage = (BLangPackage) packageNode;
-        String pkgID = bPackage.packageID.toString();
+        PackageID pkgID = bPackage.packageID;
         DockerContext.getInstance().setPackageID(pkgID);
         // Get the imports with alias _
         List<BLangImportPackage> dockerImports = bPackage.getImports().stream()
                 .filter(i -> i.symbol.toString().startsWith("ballerina/docker") && i.getAlias().toString().equals("_"))
                 .collect(toList());
         if (dockerImports.size() > 0) {
-
+            DockerContext.getInstance().setPackageID(pkgID);
             for (BLangImportPackage dockerImport : dockerImports) {
                 // Get the units of the file which has docker import as _
                 List<TopLevelNode> topLevelNodes = bPackage.getCompilationUnits().stream()
@@ -163,7 +162,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 }
             }
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getPackageID()),
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, DockerContext.getInstance().getPackageID(),
                     serviceNode.getPosition(), e.getMessage());
         }
     }
@@ -200,7 +199,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 }
             }
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getPackageID()),
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, DockerContext.getInstance().getPackageID(),
                     variableNode.getPosition(), e.getMessage());
         }
     }
@@ -208,7 +207,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         if (!"main".equals(functionNode.getName().getValue())) {
-            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getPackageID()),
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, DockerContext.getInstance().getPackageID(),
                     functionNode.getPosition(), "@docker annotations are only supported with main function. ");
             return;
         }
@@ -217,7 +216,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         try {
             processCommonAnnotations(annotations, dataHolder);
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getPackageID()),
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, DockerContext.getInstance().getPackageID(),
                     functionNode.getPosition(), e.getMessage());
         }
     }
@@ -355,10 +354,10 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        final PackageId packageId = project.currentPackage().packageId();
         DockerContext.getInstance().getDataHolder().getDockerModel()
                 .addDependencyJarPaths(new HashSet<>(jarResolver.getJarFilePathsRequiredForExecution()));
-        codeGeneratedInternal(new PackageID(packageId.toString()), target.getExecutablePath(project.currentPackage()));
+        codeGeneratedInternal(DockerContext.getInstance().getPackageID(),
+                target.getExecutablePath(project.currentPackage()));
     }
 
 

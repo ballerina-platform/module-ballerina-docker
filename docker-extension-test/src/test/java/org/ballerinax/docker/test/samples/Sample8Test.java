@@ -44,25 +44,20 @@ public class Sample8Test extends SampleTest {
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample8");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
     private final String dockerImageThin = "cmd_thin_jar:latest";
-    private final String dockerImageUber = "cmd_uber_jar:latest";
-    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
-    private String containerID;
+    private final String dockerContainerName = "ballerinax_docker_thin";
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(
                 DockerTestUtils.compileBallerinaFile(sourceDirPath, "cmd_thin_jar.bal").getExitCode(), 0);
         DockerTestUtils.stopContainer(this.dockerContainerName);
-        Assert.assertEquals(
-                DockerTestUtils.compileBallerinaFile(sourceDirPath, "cmd_uber_jar.bal").getExitCode(), 0);
-        DockerTestUtils.stopContainer(this.dockerContainerName);
     }
 
     @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
     public void testService() throws IOException, InterruptedException, DockerTestException {
-        containerID = DockerTestUtils.createContainer(dockerImageThin, dockerContainerName);
+        String containerID = DockerTestUtils.createContainer(dockerImageThin, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
-                "ballerina: HTTP access log enabled\n[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
+                "ballerina: HTTP access log enabled"),
                 "Service did not start properly.");
 
         // send request
@@ -73,20 +68,6 @@ public class Sample8Test extends SampleTest {
         DockerTestUtils.stopContainer(containerID);
     }
 
-    @Test(dependsOnMethods = "validateDockerImage", timeOut = 45000)
-    public void testUberJarService() throws IOException, InterruptedException, DockerTestException {
-        containerID = DockerTestUtils.createContainer(dockerImageUber, "sample8_uber_jar");
-        Assert.assertTrue(DockerTestUtils.startContainer(containerID,
-                "ballerina: HTTP access log enabled\n[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
-                "Service did not start properly.");
-
-        // send request
-        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample8_client.bal");
-        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
-        Assert.assertEquals(runOutput.getStdOutput(), "Hello, World from service helloWorld ! ",
-                "Unexpected service response.");
-        DockerTestUtils.stopContainer(containerID);
-    }
 
     @Test
     public void validateDockerfile() {
@@ -99,15 +80,11 @@ public class Sample8Test extends SampleTest {
         List<String> ports = getExposedPorts(this.dockerImageThin);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9090/tcp");
-        ports = getExposedPorts(this.dockerImageUber);
-        Assert.assertEquals(ports.size(), 1);
-        Assert.assertEquals(ports.get(0), "9090/tcp");
     }
 
     @AfterClass
     public void cleanUp() throws DockerPluginException {
         DockerPluginUtils.deleteDirectory(targetPath);
         DockerTestUtils.deleteDockerImage(dockerImageThin);
-        DockerTestUtils.deleteDockerImage(dockerImageUber);
     }
 }

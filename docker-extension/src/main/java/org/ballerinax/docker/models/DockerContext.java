@@ -18,22 +18,16 @@
 
 package org.ballerinax.docker.models;
 
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Docker context holder class.
  */
 public class DockerContext {
     private static DockerContext instance;
-    private final Map<String, DockerDataHolder> dockerContext;
-    private String currentPackage;
-    private CompilerContext compilerContext;
+    private final DockerDataHolder dockerContext;
+    private String packageID;
 
     private DockerContext() {
-        dockerContext = new HashMap<>();
+        dockerContext = new DockerDataHolder();
     }
 
     public static DockerContext getInstance() {
@@ -45,32 +39,16 @@ public class DockerContext {
         return instance;
     }
 
-    public void addDataHolder(String packageID) {
-        this.setCurrentPackage(packageID);
-        this.dockerContext.put(packageID, new DockerDataHolder());
-    }
-
-    public void setCurrentPackage(String packageID) {
-        this.currentPackage = packageID;
-    }
 
     public DockerDataHolder getDataHolder() {
-        return this.dockerContext.get(this.currentPackage);
+        return this.dockerContext;
     }
 
-    public DockerDataHolder getDataHolder(String packageID) {
-        return this.dockerContext.get(packageID);
+    public String getPackageID() {
+        return packageID;
     }
 
-    public CompilerContext getCompilerContext() {
-        return compilerContext;
-    }
-
-    public void setCompilerContext(CompilerContext compilerContext) {
-        this.compilerContext = compilerContext;
-    }
-
-    public String getCurrentPackage() {
-        return currentPackage;
+    public void setPackageID(String packageID) {
+        this.packageID = packageID;
     }
 }

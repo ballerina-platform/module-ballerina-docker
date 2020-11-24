@@ -22,14 +22,15 @@ description = 'Ballerinax - Docker Extension Annotations'
 configurations {
     bDistributionDir
     balTools
-    dockerBallerinaCache
-    dockerBallerinaBalo
+    zipPartent
+    extensionPlugin
 }
 
 dependencies {
     balTools("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
         transitive = false
     }
+    extensionPlugin project(path: ":docker-extension", configuration: "shadow")
 }
 
 jar {
@@ -42,7 +43,6 @@ clean {
 }
 
 def bDistribution = file("$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
-def artifactBaloParent = file("$project.projectDir/build/cache_parent/balo")
 
 task unzip {
     doLast {
@@ -91,7 +91,10 @@ def ballerinaToml = file("$project.projectDir/Ballerina.toml")
 def semverMatcher = ballerinaToml.getText("UTF-8") =~ /(([0-9]+)\.([0-9]+)\.([0-9]+))/
 def tomlSemver = semverMatcher[0][1]
 
-def artifactDockerBallerinaCache = file("$project.projectDir/target/cache/ballerina/")
+def artifactParent = file("$project.projectDir/build/target/docker-ballerina-zip/")
+def artifactDocs = file("$project.buildDir/apidocs/docs/")
+def artifactBalo = file("$project.projectDir/target/balo")
+def artifactCache = file("$project.projectDir/target/cache/")
 
 task ballerinaBuild {
     dependsOn unzip
@@ -108,7 +111,10 @@ task ballerinaBuild {
                 commandLine 'sh', '-c', "$distributionBinPath/ballerina doc"
             }
         }
-
+        copy {
+            from file("$project.projectDir/target/apidocs/docker")
+            into file("$project.buildDir/apidocs/docs/docker")
+        }
         exec {
             workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
@@ -119,24 +125,28 @@ task ballerinaBuild {
             }
         }
         copy {
-            // Restructure API docs directory
-            from file("$project.projectDir/target/apidocs/docker")
-            into file("$project.buildDir/apidocs/docs/docker")
+            from file("$artifactBalo")
+            into file("$artifactParent/balo/ballerina/docker/$tomlSemver")
         }
         copy {
-            from file("$project.projectDir/target/balo")
-            into file("$artifactBaloParent/docker/${tomlSemver}")
+            from file("$artifactDocs")
+            into file("$artifactParent/docs")
+        }
+        copy {
+            from configurations.extensionPlugin
+            into file("${artifactParent}/libs")
+        }
+        copy {
+            from file("$artifactCache")
+            into file("$artifactParent/cache")
         }
     }
-    outputs.dir artifactBaloParent
-    outputs.dir artifactDockerBallerinaCache
-    outputs.dir file("$project.buildDir/apidocs")
+    outputs.dir file("$artifactParent")
 }
 
 artifacts {
     bDistributionDir file: bDistribution, builtBy: unzip
-    dockerBallerinaBalo file: artifactBaloParent, builtBy: ballerinaBuild
-    dockerBallerinaCache file: artifactDockerBallerinaCache, builtBy: ballerinaBuild
+    zipPartent file: artifactParent, builtBy: ballerinaBuild
 }
 
 task createArtifactZip(type: Zip) {

@@ -20,8 +20,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 configurations {
     bDistributionDir
     dockerExtensionPlugin
-    dockerBallerinaBalo
-    dockerBallerinaCache
+    zipPartent
 }
 
 dependencies {
@@ -38,13 +37,13 @@ dependencies {
 
     dockerExtensionPlugin project(path: ":docker-extension", configuration: "shadow")
     bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
-    dockerBallerinaBalo project(path: ":docker-extension-annotations", configuration: "dockerBallerinaBalo")
-    dockerBallerinaCache project(path: ":docker-extension-annotations", configuration: "dockerBallerinaCache")
+    zipPartent project(path: ":docker-extension-annotations", configuration: "zipPartent")
 }
 
-description = 'Ballerinax - Docker Extension Tests'
+description = 'Ballerina - Docker Extension Tests'
 
 def distributionLocation = configurations.bDistributionDir.singleFile
+def zipDirLocation = configurations.zipPartent.singleFile
 
 task copyBalDockerExt {
     dependsOn configurations.dockerExtensionPlugin
@@ -57,17 +56,17 @@ task copyBalDockerExt {
 }
 
 task copyBallerinaArtifacts {
-    dependsOn configurations.dockerBallerinaBalo
-    dependsOn configurations.dockerBallerinaCache
+    dependsOn configurations.zipPartent
     doLast {
         copy {
-            from configurations.dockerBallerinaCache
-            into file("${distributionLocation}/repo/cache/ballerina")
-        }
-        copy {
-            from configurations.dockerBallerinaBalo
+            from file("$zipDirLocation/balo/ballerina")
             into file("${distributionLocation}/repo/balo/ballerina")
         }
+        copy {
+            from file("$zipDirLocation/cache/ballerina")
+            into file("${distributionLocation}/repo/cache/ballerina")
+        }
+
     }
 }
 
@@ -81,11 +80,11 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
         systemProperties = [
-            sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
-            ballerinaPack: System.getProperty('ballerinaPack', "$configurations.bDistributionDir.singleFile.absolutePath"),
-            jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true,exclclassloader=jdk.internal.reflect.DelegatingClassLoader"
+                sampleDir      : System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
+                ballerinaPack  : System.getProperty('ballerinaPack', "$configurations.bDistributionDir.singleFile.absolutePath"),
+                jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true,exclclassloader=jdk.internal.reflect.DelegatingClassLoader"
         ]
-	}
+    }
 }
 
 // Disable publishing artifacts

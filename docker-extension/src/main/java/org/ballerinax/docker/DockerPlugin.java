@@ -326,11 +326,6 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                     DockerPluginUtils.deleteDirectory(dockerOutputPath);
                     DockerModel dockerModel = DockerContext.getInstance().getDataHolder().getDockerModel();
                     dockerModel.setPkgId(moduleID);
-//                    if (!dockerModel.isUberJar()) {
-//                        JarResolver jarResolver =
-//                                DockerContext.getInstance().getCompilerContext().get(JAR_RESOLVER_KEY);
-//                        executableJarFile = jarResolver.moduleJar(moduleID);
-//                    }
                     dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(),
                             executableJarFile, dockerOutputPath);
                 } catch (DockerPluginException e) {

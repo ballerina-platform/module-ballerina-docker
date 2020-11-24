@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -356,8 +357,14 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         DockerContext.getInstance().getDataHolder().getDockerModel()
                 .addDependencyJarPaths(new HashSet<>(jarResolver.getJarFilePathsRequiredForExecution()));
-        codeGeneratedInternal(DockerContext.getInstance().getPackageID(),
-                target.getExecutablePath(project.currentPackage()));
+        try {
+            codeGeneratedInternal(DockerContext.getInstance().getPackageID(),
+                    target.getExecutablePath(project.currentPackage()));
+        } catch (IOException e) {
+            String errorMessage = "error while accessing executable path " + e.getMessage();
+            printError(errorMessage);
+            pluginLog.error(errorMessage, e);
+        }
     }
 
 

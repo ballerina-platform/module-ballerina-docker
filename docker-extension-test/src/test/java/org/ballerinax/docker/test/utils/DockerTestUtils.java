@@ -429,13 +429,8 @@ public class DockerTestUtils {
      */
     public static void stopContainer(String containerID) {
         try {
-            InspectContainerResponse containerInfo = getDockerClient().inspectContainerCmd(containerID).exec();
-            if ((null != containerInfo.getState().getRestarting() && containerInfo.getState().getRestarting()) ||
-                    (null != containerInfo.getState().getPaused() && containerInfo.getState().getPaused()) ||
-                    (null != containerInfo.getState().getRunning() && containerInfo.getState().getRunning())) {
-                log.info("Stopping container: " + containerID);
-                getDockerClient().stopContainerCmd(containerID).exec();
-            }
+            log.info("Stopping container: " + containerID);
+            getDockerClient().stopContainerCmd(containerID).exec();
             log.info("Removing container: " + containerID);
             getDockerClient().removeContainerCmd(containerID).exec();
         } catch (NotFoundException | NotModifiedException e) {

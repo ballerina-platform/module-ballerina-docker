@@ -37,7 +37,7 @@
     <test name="ballerinax-docker-integration-tests" parallel="false">
         <classes>
             <class name="org.ballerinax.docker.test.NoImageBuildTest"/>
-            <class name="org.ballerinax.docker.test.EnvVarTest"/>
+<!--            <class name="org.ballerinax.docker.test.EnvVarTest"/>-->
         </classes>
     </test>
 

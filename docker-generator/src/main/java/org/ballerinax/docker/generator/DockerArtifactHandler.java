@@ -286,11 +286,15 @@ public class DockerArtifactHandler {
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
-        dockerfileContent.append("WORKDIR ").append(WORK_DIR).append("\n");
-        this.dockerModel.getDependencyJarPaths().forEach(path ->
-                dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(WORK_DIR).append(
-                        "/jars/ \n"));
+        this.dockerModel.getDependencyJarPaths().forEach(path -> {
+            dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(WORK_DIR).append(
+                    "/jars/ \n");
+            //TODO: Remove onece https://github.com/moby/moby/issues/37965 is fixed.
+            dockerfileContent.append("RUN true \n");
+        }
+        );
         appendUser(dockerfileContent);
+        dockerfileContent.append("WORKDIR ").append(WORK_DIR).append("\n");
         appendCommonCommands(dockerfileContent);
         if (isBlank(this.dockerModel.getCmd())) {
             PackageID packageID = this.dockerModel.getPkgId();

@@ -18,8 +18,13 @@
 
 package org.ballerinax.docker;
 
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
@@ -49,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -56,9 +62,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
+import static java.util.stream.Collectors.toList;
 import static org.ballerinax.docker.generator.DockerGenConstants.ARTIFACT_DIRECTORY;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.extractJarName;
 import static org.ballerinax.docker.utils.DockerPluginUtils.createAnnotation;
@@ -84,36 +89,31 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     public void setCompilerContext(CompilerContext context) {
         super.setCompilerContext(context);
-        DockerContext.getInstance().setCompilerContext(context);
     }
 
     @Override
     public void process(PackageNode packageNode) {
         BLangPackage bPackage = (BLangPackage) packageNode;
-        String pkgID = bPackage.packageID.toString();
-        DockerContext.getInstance().addDataHolder(pkgID);
+        PackageID pkgID = bPackage.packageID;
+        DockerContext.getInstance().setPackageID(pkgID);
         // Get the imports with alias _
         List<BLangImportPackage> dockerImports = bPackage.getImports().stream()
                 .filter(i -> i.symbol.toString().startsWith("ballerina/docker") && i.getAlias().toString().equals("_"))
-                .collect(Collectors.toList());
-        JarResolver jarResolver = DockerContext.getInstance().getCompilerContext().get(JAR_RESOLVER_KEY);
-        if (jarResolver != null) {
-            Set<Path> dependencyJarPaths = new HashSet<>(jarResolver.allDependencies(bPackage));
-            DockerContext.getInstance().getDataHolder(pkgID).getDockerModel().addDependencyJarPaths(dependencyJarPaths);
-        }
+                .collect(toList());
         if (dockerImports.size() > 0) {
+            DockerContext.getInstance().setPackageID(pkgID);
             for (BLangImportPackage dockerImport : dockerImports) {
                 // Get the units of the file which has docker import as _
                 List<TopLevelNode> topLevelNodes = bPackage.getCompilationUnits().stream()
                         .filter(cu -> cu.getName().equals(dockerImport.compUnit.getValue()))
                         .flatMap(cu -> cu.getTopLevelNodes().stream())
-                        .collect(Collectors.toList());
+                        .collect(toList());
 
                 // Filter out the services
                 List<ServiceNode> serviceNodes = topLevelNodes.stream()
                         .filter(tln -> tln instanceof ServiceNode)
                         .map(tln -> (ServiceNode) tln)
-                        .collect(Collectors.toList());
+                        .collect(toList());
 
                 // Generate artifacts for services for all services
                 serviceNodes.forEach(sn -> process(sn, Collections.singletonList(createAnnotation("Config"))));
@@ -125,7 +125,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                         .filter(aex -> aex instanceof BLangSimpleVarRef)
                         .map(aex -> (BLangSimpleVarRef) aex)
                         .map(BLangSimpleVarRef::toString)
-                        .collect(Collectors.toList());
+                        .collect(toList());
 
                 // Generate artifacts for listeners attached to services
                 topLevelNodes.stream()
@@ -163,7 +163,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 }
             }
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getCurrentPackage()),
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, DockerContext.getInstance().getPackageID(),
                     serviceNode.getPosition(), e.getMessage());
         }
     }
@@ -200,7 +200,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                 }
             }
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getCurrentPackage()),
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, DockerContext.getInstance().getPackageID(),
                     variableNode.getPosition(), e.getMessage());
         }
     }
@@ -208,7 +208,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         if (!"main".equals(functionNode.getName().getValue())) {
-            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getCurrentPackage()),
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, DockerContext.getInstance().getPackageID(),
                     functionNode.getPosition(), "@docker annotations are only supported with main function. ");
             return;
         }
@@ -217,7 +217,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         try {
             processCommonAnnotations(annotations, dataHolder);
         } catch (DockerPluginException e) {
-            dlog.logDiagnostic(DiagnosticSeverity.ERROR, new PackageID(DockerContext.getInstance().getCurrentPackage()),
+            dlog.logDiagnostic(DiagnosticSeverity.ERROR, DockerContext.getInstance().getPackageID(),
                     functionNode.getPosition(), e.getMessage());
         }
     }
@@ -246,7 +246,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             if (bListener.argsExpr.get(1) instanceof BLangRecordLiteral) {
                 BLangRecordLiteral bConfigRecordLiteral = (BLangRecordLiteral) bListener.argsExpr.get(1);
                 listenerConfig = bConfigRecordLiteral.getFields().stream().map(x ->
-                        (BLangRecordLiteral.BLangRecordKeyValueField) x).collect(Collectors.toList());
+                        (BLangRecordLiteral.BLangRecordKeyValueField) x).collect(toList());
             } else {
                 // expression is in config = {} format.
                 listenerConfig = getKeyValuePairs((BLangRecordLiteral) ((BLangNamedArgsExpression)
@@ -304,9 +304,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
         return null;
     }
 
-    @Override
-    public void codeGenerated(PackageID moduleID, Path executableJarFile) {
-        DockerContext.getInstance().setCurrentPackage(moduleID.toString());
+    private void codeGeneratedInternal(PackageID moduleID, Path executableJarFile) {
         if (DockerContext.getInstance().getDataHolder().isCanProcess()) {
             executableJarFile = executableJarFile.toAbsolutePath();
             if (null != executableJarFile.getParent() && Files.exists(executableJarFile.getParent())) {
@@ -328,11 +326,6 @@ public class DockerPlugin extends AbstractCompilerPlugin {
                     DockerPluginUtils.deleteDirectory(dockerOutputPath);
                     DockerModel dockerModel = DockerContext.getInstance().getDataHolder().getDockerModel();
                     dockerModel.setPkgId(moduleID);
-                    if (!dockerModel.isUberJar()) {
-                        JarResolver jarResolver =
-                                DockerContext.getInstance().getCompilerContext().get(JAR_RESOLVER_KEY);
-                        executableJarFile = jarResolver.moduleJar(moduleID);
-                    }
                     dockerAnnotationProcessor.processDockerModel(DockerContext.getInstance().getDataHolder(),
                             executableJarFile, dockerOutputPath);
                 } catch (DockerPluginException e) {
@@ -351,6 +344,24 @@ public class DockerPlugin extends AbstractCompilerPlugin {
             }
         }
     }
+
+
+    public void codeGenerated(Project project, Target target) {
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+        DockerContext.getInstance().getDataHolder().getDockerModel()
+                .addDependencyJarPaths(new HashSet<>(jarResolver.getJarFilePathsRequiredForExecution()));
+        try {
+            codeGeneratedInternal(DockerContext.getInstance().getPackageID(),
+                    target.getExecutablePath(project.currentPackage()));
+        } catch (IOException e) {
+            String errorMessage = "error while accessing executable path " + e.getMessage();
+            printError(errorMessage);
+            pluginLog.error(errorMessage, e);
+        }
+    }
+
 
     private enum DockerAnnotation {
         Config,

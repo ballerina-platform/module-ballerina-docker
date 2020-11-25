@@ -260,7 +260,7 @@ public class DockerTestUtils {
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
 
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, "-a");
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD);
         log.info(COMPILING + sourceDirectory.normalize());
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());

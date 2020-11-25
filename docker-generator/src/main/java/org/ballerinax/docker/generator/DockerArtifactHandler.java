@@ -28,7 +28,6 @@ import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.github.dockerjava.core.command.PushImageResultCallback;
-import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
@@ -105,20 +104,11 @@ public class DockerArtifactHandler {
             throws DockerGenException {
         String dockerContent;
         if (!WINDOWS_BUILD) {
-            if (!this.dockerModel.isUberJar()) {
-                dockerContent = generateThinJarDockerfile();
-                copyNativeJars(outputDir);
-            } else {
-                dockerContent = generateDockerfile();
-            }
+            dockerContent = generateThinJarDockerfile();
         } else {
-            if (!this.dockerModel.isUberJar()) {
-                dockerContent = generateThinJarWindowsDockerfile();
-                copyNativeJars(outputDir);
-            } else {
-                dockerContent = generateDockerfileForWindows();
-            }
+            dockerContent = generateThinJarWindowsDockerfile();
         }
+        copyNativeJars(outputDir);
         try {
             String logStepCount = this.dockerModel.isBuildImage() ? (this.dockerModel.isPush() ? "3" : "2") : "1";
             outStream.print(logAppender + " - complete 0/" + logStepCount + " \r");
@@ -407,79 +397,6 @@ public class DockerArtifactHandler {
             dockerfileContent.append("USER ballerina").append("\n");
             dockerfileContent.append(System.lineSeparator());
         }
-    }
-
-    /**
-     * Generate Dockerfile content.
-     *
-     * @return Dockerfile content as a string
-     */
-    private String generateDockerfile() {
-        StringBuilder dockerfileContent = new StringBuilder();
-        dockerfileContent.append("# Auto Generated Dockerfile\n");
-        dockerfileContent.append("FROM ").append(this.dockerModel.getBaseImage()).append("\n");
-        dockerfileContent.append(System.lineSeparator());
-        dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
-        dockerfileContent.append(System.lineSeparator());
-        dockerfileContent.append("WORKDIR /home/ballerina").append(System.lineSeparator());
-        dockerfileContent.append(System.lineSeparator());
-        appendUser(dockerfileContent);
-        appendCommonCommands(dockerfileContent);
-        return appendCMD(dockerfileContent);
-    }
-
-    private String generateDockerfileForWindows() {
-        String dockerBase = "# Auto Generated Dockerfile\n" +
-                "\n" +
-                "FROM " + this.dockerModel.getBaseImage() + "\n" +
-                "LABEL maintainer=\"dev@ballerina.io\"\n" +
-                "\n" +
-                "COPY " + this.dockerModel.getJarFileName() + " C:\\\\ballerina\\\\home \n\n";
-
-        StringBuilder stringBuilder = new StringBuilder(dockerBase);
-        this.dockerModel.getCopyFiles().forEach(file -> {
-            // Extract the source filename relative to docker folder.
-            String sourceFileName = String.valueOf(Paths.get(file.getSource()).getFileName());
-            stringBuilder.append("COPY ")
-                    .append(FilenameUtils.separatorsToWindows(sourceFileName))
-                    .append(" ")
-                    .append(FilenameUtils.separatorsToWindows(file.getTarget()))
-                    .append("\n");
-        });
-
-        this.dockerModel.getEnv().forEach((key, value) ->
-                stringBuilder.append("ENV ").append(key).append("=").append(value));
-
-        if (this.dockerModel.isService() && this.dockerModel.getPorts().size() > 0) {
-            stringBuilder.append("EXPOSE ");
-            this.dockerModel.getPorts().forEach(port -> stringBuilder.append(" ").append(port));
-        }
-
-        stringBuilder.append("\n");
-
-        return appendCMD(stringBuilder);
-    }
-
-    private String appendCMD(StringBuilder stringBuilder) {
-        if (isBlank(this.dockerModel.getCmd())) {
-            if (this.dockerModel.isEnableDebug()) {
-                stringBuilder.append("CMD java -Xdiag -agentlib:jdwp=transport=dt_socket,server=y,suspend=n," +
-                        "address='*:").append(this.dockerModel.getDebugPort()).append("'")
-                        .append(" -jar ").append(this.dockerModel.getJarFileName());
-            } else {
-                stringBuilder.append("CMD java -jar ").append(this.dockerModel.getJarFileName());
-            }
-        } else {
-            stringBuilder.append(this.dockerModel.getCmd());
-        }
-        stringBuilder.append(System.lineSeparator());
-        if (!DockerGenUtils.isBlank(this.dockerModel.getCommandArg())) {
-            stringBuilder.append(this.dockerModel.getCommandArg());
-        }
-
-        stringBuilder.append(System.lineSeparator());
-
-        return stringBuilder.toString();
     }
 
     /**

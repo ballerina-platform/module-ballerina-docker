@@ -43,38 +43,19 @@ public class Sample6Test extends SampleTest {
 
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample6");
     private final Path targetDirPath = sourceDirPath.resolve("target");
-    private final Path burgerTargetPath = targetDirPath.resolve("docker").resolve("burger");
     private final Path pizzaTargetPath = targetDirPath.resolve("docker").resolve("pizza");
-    private final String burgerDockerImage = "foody-burger-0.0.1:latest";
-    private final String burgerContainerName = "ballerinax_docker_burger_" +
-                                               this.getClass().getSimpleName().toLowerCase();
-    private String burgerContainerID;
-    private final String pizzaDockerImage = "foody-pizza-0.0.1:latest";
+    private final String pizzaDockerImage = "pizza:latest";
     private final String pizzaContainerName = "ballerinax_docker_pizza_" +
-                                              this.getClass().getSimpleName().toLowerCase();
+            this.getClass().getSimpleName().toLowerCase();
     private String pizzaContainerID;
 
     @BeforeClass
     public void compileSample() throws IOException, InterruptedException {
         Assert.assertEquals(DockerTestUtils.compileBallerinaProject(sourceDirPath), 0);
-        DockerTestUtils.stopContainer(this.burgerContainerName);
         DockerTestUtils.stopContainer(this.pizzaContainerName);
     }
-    
-    @Test(dependsOnMethods = "validateBurgerDockerImage", timeOut = 45000)
-    public void testBurgerService() throws IOException, InterruptedException, DockerTestException {
-        burgerContainerID = DockerTestUtils.createContainer(burgerDockerImage, burgerContainerName,
-                Collections.singletonList(9096));
-        Assert.assertTrue(DockerTestUtils.startContainer(burgerContainerID,
-                "[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9096"),
-                "Service did not start properly.");
-        
-        // send request
-        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample6_burger_client.bal");
-        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
-        Assert.assertEquals(runOutput.getStdOutput(), "Burger menu ", "Unexpected service response.");
-    }
-    
+
+
     @Test(dependsOnMethods = "validatePizzaDockerImage", timeOut = 45000)
     public void testPizzaService() throws IOException, InterruptedException, DockerTestException {
         pizzaContainerID = DockerTestUtils.createContainer(pizzaDockerImage, pizzaContainerName,
@@ -82,17 +63,11 @@ public class Sample6Test extends SampleTest {
         Assert.assertTrue(DockerTestUtils.startContainer(pizzaContainerID,
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9099"),
                 "Service did not start properly.");
-        
+
         // send request
         ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample6_pizza_client.bal");
         Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
         Assert.assertEquals(runOutput.getStdOutput(), "Pizza menu ", "Unexpected service response.");
-    }
-
-    @Test
-    public void validateBurgerDockerfile() {
-        File dockerFile = burgerTargetPath.resolve("Dockerfile").toFile();
-        Assert.assertTrue(dockerFile.exists());
     }
 
     @Test
@@ -102,26 +77,16 @@ public class Sample6Test extends SampleTest {
     }
 
     @Test
-    public void validateBurgerDockerImage() {
-        List<String> ports = getExposedPorts(burgerDockerImage);
-        Assert.assertEquals(ports.size(), 1);
-        Assert.assertEquals(ports.get(0), "9096/tcp");
-    }
-
-    @Test
     public void validatePizzaDockerImage() {
         List<String> ports = getExposedPorts(pizzaDockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9099/tcp");
     }
-    
+
     @AfterClass
     public void cleanUp() throws DockerPluginException {
-        DockerTestUtils.stopContainer(burgerContainerID);
         DockerTestUtils.stopContainer(pizzaContainerID);
         DockerPluginUtils.deleteDirectory(pizzaTargetPath);
-        DockerPluginUtils.deleteDirectory(burgerTargetPath);
-        DockerTestUtils.deleteDockerImage(burgerDockerImage);
         DockerTestUtils.deleteDockerImage(pizzaDockerImage);
     }
 }

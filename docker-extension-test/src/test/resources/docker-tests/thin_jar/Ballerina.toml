@@ -1,3 +1,4 @@
-[project]
-org-name="foody"
-version="0.0.1"
+[package]
+org = "foody"
+name = "pizza"
+version = "0.0.1"

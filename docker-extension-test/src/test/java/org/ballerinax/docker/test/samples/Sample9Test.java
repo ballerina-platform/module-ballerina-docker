@@ -44,7 +44,7 @@ public class Sample9Test extends SampleTest {
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample9");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
     private final String dockerImage = "hello_world_function:latest";
-    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
+    private final String dockerContainerName = "ballerinax_docker_sample9";
     private String containerID;
 
     @BeforeClass
@@ -60,6 +60,7 @@ public class Sample9Test extends SampleTest {
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "Hello, World!"),
                 "Container did not start properly.");
+        DockerTestUtils.stopContainer(containerID);
     }
 
     @Test

@@ -44,7 +44,7 @@ public class Sample10Test extends SampleTest {
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample10");
     private final Path targetPath = sourceDirPath.resolve(ARTIFACT_DIRECTORY);
     private final String dockerImage = "copy_file_function:latest";
-    private final String dockerContainerName = "ballerinax_docker_" + this.getClass().getSimpleName().toLowerCase();
+    private final String dockerContainerName = "ballerinax_docker_sample10";
     private String containerID;
 
     @BeforeClass

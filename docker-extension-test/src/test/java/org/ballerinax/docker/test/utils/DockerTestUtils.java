@@ -143,7 +143,11 @@ public class DockerTestUtils {
      * @param imageName Docker image Name
      */
     public static void deleteDockerImage(String imageName) {
-        getDockerClient().removeImageCmd(imageName).withForce(true).withNoPrune(false).exec();
+        try {
+            getDockerClient().removeImageCmd(imageName).withForce(true).withNoPrune(false).exec();
+        } catch (NotFoundException | NotModifiedException e) {
+            //ignored
+        }
     }
 
     /**

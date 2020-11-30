@@ -60,6 +60,7 @@ public class Sample10Test extends SampleTest {
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
                 "Lorem ipsum dolor sit amet."),
                 "Container did not start properly.");
+        DockerTestUtils.stopContainer(this.containerID);
     }
 
     @Test

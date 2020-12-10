@@ -18,14 +18,9 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/docker as _;
 
-@http:ServiceConfig {
-    basePath: "/helloWorld"
-}
-service helloWorld1 on new http:Listener(9090) {
-    resource function sayHello(http:Caller outboundEP, http:Request request) {
-        http:Response response = new;
-        response.setTextPayload("Hello, World from service helloWorld ! \n");
-        var responseResult = outboundEP->respond(response);
+service http:Service /helloWorld on new http:Listener(9090) {
+    resource function get sayHello(http:Caller caller) {
+        var responseResult = caller->ok("Hello, World from service helloWorld ! \n");
         if (responseResult is error) {
             log:printError("error responding back to client.", responseResult);
         }

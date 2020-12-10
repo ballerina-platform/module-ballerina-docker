@@ -21,14 +21,11 @@ import ballerina/docker;
 @docker:Config {
     buildImage: false
 }
-service hello on new http:Listener(9090) {
-
-    // Resource functions are invoked with the HTTP caller and the incoming request as arguments.
-    resource function sayHello(http:Caller caller, http:Request req) {
-        // Send a response back to the caller.
-        var result = caller->respond("Hello, World!");
-        if (result is error) {
-            log:printError("Error sending response", result);
+service http:Service /helloWorld on new http:Listener(9090) {
+    resource function get sayHello(http:Caller caller) {
+        var responseResult = caller->ok("Hello, World! \n");
+        if (responseResult is error) {
+            log:printError("error responding back to client.", responseResult);
         }
     }
 }

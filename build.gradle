@@ -39,6 +39,7 @@ allprojects {
     apply plugin: 'jacoco'
     repositories {
         mavenLocal()
+        mavenCentral()
         maven {
             url = 'https://maven.wso2.org/nexus/content/repositories/releases/'
         }

@@ -19,7 +19,7 @@ service http:Service /helloWorld on helloWorldEP {
         var responseResult = caller->ok("Hello World from Docker! \n");
         if (responseResult is error) {
             error err = responseResult;
-            log:printError("Error sending response", err);
+            log:printError("Error sending response", err = err);
         }
     }
 }

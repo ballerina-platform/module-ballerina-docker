@@ -26,7 +26,7 @@ service http:Service /pizza on pizzaEP {
     resource function get menu(http:Caller caller) {
         var responseResult = caller->ok("Pizza menu \n");
         if (responseResult is error) {
-            log:printError("error responding back to client.", responseResult);
+            log:printError("error responding back to client.", err = responseResult);
         }
     }
 }

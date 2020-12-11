@@ -24,7 +24,7 @@ service http:Service /helloWorld on helloWorldEP {
         response.setTextPayload(payload + "\n");
         var responseResult = caller->ok(response);
         if (responseResult is error) {
-            log:printError("error responding back to client.", responseResult);
+            log:printError("error responding back to client.", err = responseResult);
         }
     }
 
@@ -34,7 +34,7 @@ service http:Service /helloWorld on helloWorldEP {
         response.setTextPayload("{'data': '" + <@untainted> payload + "'}\n");
         var responseResult = caller->ok(response);
         if (responseResult is error) {
-            log:printError("error responding back to client.", responseResult);
+            log:printError("error responding back to client.", err = responseResult);
         }
     }
 }

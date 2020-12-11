@@ -103,6 +103,17 @@ publishing {
             from components.java
         }
     }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ballerina-platform/module-ballerina-docker")
+            credentials {
+                username = System.getenv("packageUser")
+                password = System.getenv("packagePAT")
+            }
+        }
+    }
 }
 
 spotbugsMain.finalizedBy validateSpotbugs

@@ -17,7 +17,7 @@ listener http:Listener helloWorldEPSecured = new(9696, {
 
 
 @docker:Config {}
-service http:Service /helloWorld on new http:Listener(9090) {
+service http:Service /helloWorld on helloWorldEPSecured,helloWorldEP {
     resource function get sayHello(http:Caller caller) {
         var responseResult = caller->ok("Hello, World from service helloWorld ! \n");
         if (responseResult is error) {

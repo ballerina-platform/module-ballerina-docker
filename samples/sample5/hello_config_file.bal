@@ -15,7 +15,7 @@ import ballerina/docker;
 @docker:Expose {}
 listener http:Listener helloWorldEP = new(9090);
 
-service http:Service /helloWorld on new http:Listener(9090) {
+service http:Service /helloWorld on helloWorldEP {
     resource function get config/[string user](http:Caller caller, http:Request request) returns @tainted error? {
         http:Response response = new;
         string userId = getConfigValue(user, "userid");

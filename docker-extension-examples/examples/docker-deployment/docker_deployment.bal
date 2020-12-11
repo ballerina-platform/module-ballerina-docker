@@ -14,14 +14,9 @@ listener http:Listener helloWorldEP = new(9090);
     //Docker image version should be v1.0.
     tag: "v1.0"
 }
-@http:ServiceConfig {
-    basePath: "/helloWorld"
-}
-service helloWorld on helloWorldEP {
-    resource function sayHello(http:Caller outboundEP, http:Request request) {
-        http:Response response = new;
-        response.setTextPayload("Hello World from Docker ! \n");
-        var responseResult = outboundEP->respond(response);
+service http:Service /helloWorld on helloWorldEP {
+    resource function get sayHello(http:Caller caller) {
+        var responseResult = caller->ok("Hello World from Docker! \n");
         if (responseResult is error) {
             error err = responseResult;
             log:printError("Error sending response", err);

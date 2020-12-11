@@ -12,19 +12,14 @@ listener http:Listener helloWorldEP = new(9090, {
     }
 });
 
-@http:ServiceConfig {
-      basePath: "/helloWorld"
-}
 @docker:Config {
     registry: "docker.abc.com",
     name: "helloworld",
     tag: "v1.0"
 }
-service helloWorld on helloWorldEP {
-    resource function sayHello (http:Caller outboundEP, http:Request request) {
-        http:Response response = new;
-        response.setTextPayload("Hello, World! \n");
-        var responseResult = outboundEP->respond(response);
+service http:Service /helloWorld on helloWorldEP {
+    resource function get sayHello(http:Caller caller) {
+        var responseResult = caller->ok("Hello, World! \n");
         if (responseResult is error) {
             log:printError("error responding back to client.", responseResult);
         }

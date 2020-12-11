@@ -20,62 +20,73 @@ import org.apache.tools.ant.taskdefs.condition.Os
 description = 'Ballerinax - Docker Extension Examples'
 
 configurations {
-   bDistributionDir
+    bDistributionDir
 }
 
 dependencies {
-   bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
+    bDistributionDir project(path: ":docker-extension-annotations", configuration: "bDistributionDir")
 }
 
 jar {
-   enabled = false
+    enabled = false
 }
 
 task buildExamples {
-   dependsOn configurations.bDistributionDir
-   dependsOn ':docker-extension-test:prepareDistribution'
-   doLast {
-      if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-         def distributionLocation = configurations.bDistributionDir.singleFile
-         // Example - "docker-deployment"
-         exec {
-            workingDir file("${project.projectDir}/examples/docker-deployment")
-            commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment.bal"
-         }
-         exec {
-            commandLine 'sh', '-c', "docker rmi helloworld:v1.0"
-         }
-         file("${project.projectDir}/examples/docker-deployment/docker_deployment.jar").delete()
-         file("${project.projectDir}/examples/docker-deployment/docker").deleteDir()
+    dependsOn configurations.bDistributionDir
+    dependsOn ':docker-extension-test:prepareDistribution'
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def distributionLocation = configurations.bDistributionDir.singleFile
+            // Example - "docker-deployment"
+            exec {
+                workingDir file("${project.projectDir}/examples/docker-deployment")
+                commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment.bal"
+            }
+            exec {
+                commandLine 'sh', '-c', "docker rmi helloworld:v1.0"
+            }
+            file("${project.projectDir}/examples/docker-deployment/docker_deployment.jar").delete()
+            file("${project.projectDir}/examples/docker-deployment/docker").deleteDir()
 
-         // Example - "docker-deployment-without-annotations"
-         exec {
-            workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
-            commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment_without_annotations.bal"
-         }
-         exec {
-            commandLine 'sh', '-c', "docker rmi docker_deployment_without_annotations:latest"
-         }
-         file("${project.projectDir}/examples/docker-deployment-without-annotations/docker_deployment_without_annotations.jar").delete()
-         file("${project.projectDir}/examples/docker-deployment-without-annotations/docker").deleteDir()
-      }
-   }
+            // Example - "docker-deployment-without-annotations"
+            exec {
+                workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
+                commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment_without_annotations.bal"
+            }
+            exec {
+                commandLine 'sh', '-c', "docker rmi docker_deployment_without_annotations:latest"
+            }
+            file("${project.projectDir}/examples/docker-deployment-without-annotations/docker_deployment_without_annotations.jar").delete()
+            file("${project.projectDir}/examples/docker-deployment-without-annotations/docker").deleteDir()
+        }
+    }
 }
 
 task zipExamples(type: Zip) {
-   from 'examples/'
-   include '*'
-   include '*/*'
-   archiveFileName = "docker-extension-examples-${ballerinaLangVersion}.zip"
-   destinationDirectory = file(project.buildDir.absolutePath)
+    from 'examples/'
+    include '*'
+    include '*/*'
+    archiveFileName = "docker-extension-examples-${ballerinaLangVersion}.zip"
+    destinationDirectory = file(project.buildDir.absolutePath)
 }
 
 publishing {
-   publications {
-      mavenJava(MavenPublication) {
-         artifact source: zipExamples, extension: 'zip'
-      }
-   }
+    publications {
+        mavenJava(MavenPublication) {
+            artifact source: zipExamples, extension: 'zip'
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ballerina-platform/module-ballerina-docker")
+            credentials {
+                username = System.getenv("packageUser")
+                password = System.getenv("packagePAT")
+            }
+        }
+    }
 }
 
 //zipExamples.dependsOn buildExamples

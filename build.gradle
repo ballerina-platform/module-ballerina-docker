@@ -39,6 +39,7 @@ allprojects {
     apply plugin: 'jacoco'
     repositories {
         mavenLocal()
+        mavenCentral()
         maven {
             url = 'https://maven.wso2.org/nexus/content/repositories/releases/'
         }
@@ -192,22 +193,6 @@ subprojects {
 
         // mimepull JAR
         thirdPartyJars "org.jvnet.mimepull:mimepull:1.9.11"
-    }
-
-    publishing {
-        repositories {
-            maven {
-                if (project.version.endsWith('-SNAPSHOT')) {
-                    url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
-                } else {
-                    url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
-                }
-                credentials {
-                    username System.getenv("NEXUS_USERNAME")
-                    password System.getenv("NEXUS_PASSWORD")
-                }
-            }
-        }
     }
 
     release {

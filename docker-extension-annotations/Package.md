@@ -15,21 +15,16 @@ import ballerina/docker;
 @docker:Expose{}
 listener http:Listener helloWorldEP = new(9090);
 
-@http:ServiceConfig {
-      basePath: "/helloWorld"
-}
 @docker:Config {
     registry: "docker.abc.com",
     name: "helloworld",
     tag: "v1.0"
 }
-service helloWorld on helloWorldEP {
-    resource function sayHello(http:Caller caller, http:Request request) {
-        http:Response response = new;
-        response.setTextPayload("Hello, World from service helloWorld ! \n");
-        var responseResult = caller->respond(response);
+service http:Service /helloWorld on helloWorldEP {
+    resource function get sayHello(http:Caller caller) {
+        var responseResult = caller->ok("Hello, World! \n");
         if (responseResult is error) {
-            log:printError("error responding back to client.", err = responseResult);
+            log:printError("error responding back to client.", responseResult);
         }
     }
 }

@@ -34,6 +34,7 @@ jobs:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          CI_BUILD: true
         run: |
           ./gradlew release -Prelease.useAutomaticVersion=true
           ./gradlew -Pversion=${VERSION} publish -x test

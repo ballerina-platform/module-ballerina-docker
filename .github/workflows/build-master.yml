@@ -24,6 +24,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
+          CI_BUILD: true
         run: |
           set -e
           ./gradlew clean publish codeCoverageReport --stacktrace --scan --console=plain --no-daemon

@@ -287,11 +287,14 @@ public class DockerArtifactHandler {
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
         this.dockerModel.getDependencyJarPaths().forEach(path -> {
-            dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(WORK_DIR).append(
-                    "/jars/ \n");
-            //TODO: Remove onece https://github.com/moby/moby/issues/37965 is fixed.
-            dockerfileContent.append("RUN true \n");
-        }
+                    dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(WORK_DIR)
+                            .append("/jars/ \n");
+                    //TODO: Remove once https://github.com/moby/moby/issues/37965 is fixed.
+                    boolean isCiBuild = "true".equals(System.getenv().get("CI_BUILD"));
+                    if (isCiBuild) {
+                        dockerfileContent.append("RUN true \n");
+                    }
+                }
         );
         appendUser(dockerfileContent);
         dockerfileContent.append("WORKDIR ").append(WORK_DIR).append("\n");

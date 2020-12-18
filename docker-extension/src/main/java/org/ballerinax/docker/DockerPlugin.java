@@ -20,7 +20,7 @@ package org.ballerinax.docker;
 
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.internal.model.Target;
@@ -348,7 +348,7 @@ public class DockerPlugin extends AbstractCompilerPlugin {
 
     public void codeGenerated(Project project, Target target) {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         DockerContext.getInstance().getDataHolder().getDockerModel()
                 .addDependencyJarPaths(new HashSet<>(jarResolver.getJarFilePathsRequiredForExecution()));

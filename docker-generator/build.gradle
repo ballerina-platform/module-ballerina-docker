@@ -27,7 +27,7 @@ dependencies {
     testImplementation "org.testng:testng:${testngVersion}"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     compileOnly "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
-    compileOnly "org.ballerinalang:ballerina-packerina:${ballerinaLangVersion}"
+    compileOnly "org.ballerinalang:ballerina-cli:${ballerinaLangVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }
 

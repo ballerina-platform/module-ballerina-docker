@@ -1,5 +1,3 @@
-dependency = []
-
 [package]
 org = "ballerina"
 name = "docker"

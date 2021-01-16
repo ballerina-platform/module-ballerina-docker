@@ -2,7 +2,6 @@
  
 Annotation based docker extension implementation for ballerina. 
 
-[![Build Status](https://wso2.org/jenkins/job/ballerinax/job/docker-pipeline/badge/icon)](https://wso2.org/jenkins/job/ballerinax/job/docker-pipeline/)
 ![Daily build](https://github.com/ballerina-platform/module-ballerina-docker/workflows/Daily%20build/badge.svg)
 ![Build master branch](https://github.com/ballerina-platform/module-ballerina-docker/workflows/Build%20master%20branch/badge.svg)
 ![Trivy Scan](https://github.com/ballerina-platform/module-ballerina-docker/workflows/Trivy%20Docker%20Image%20Scan/badge.svg)

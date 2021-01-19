@@ -34,7 +34,7 @@ export DOCKER_PASSWORD=<password>
 
 3. Compile the  docker_push_sample.bal file. 
 ```bash
-$> ballerina build docker_push_sample.bal
+$> bal build docker_push_sample.bal
 Compiling source
         docker_push_sample.bal
 

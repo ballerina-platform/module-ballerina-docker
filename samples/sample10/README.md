@@ -17,7 +17,7 @@
 
 1. Compile the  copy_file_function.bal file. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build copy_file_function.bal
+$> bal build copy_file_function.bal
 Compiling source
         copy_file_function.bal
 

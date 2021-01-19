@@ -16,7 +16,7 @@
 
 1. Compile the hello-world-docker.bal file. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build hello_world_docker.bal 
+$> bal build hello_world_docker.bal 
 Compiling source
         hello_world_docker.bal
 

@@ -40,7 +40,7 @@ task buildExamples {
             // Example - "docker-deployment"
             exec {
                 workingDir file("${project.projectDir}/examples/docker-deployment")
-                commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment.bal"
+                commandLine 'sh', '-c', "$distributionLocation/bin/bal build docker_deployment.bal"
             }
             exec {
                 commandLine 'sh', '-c', "docker rmi helloworld:v1.0"
@@ -51,7 +51,7 @@ task buildExamples {
             // Example - "docker-deployment-without-annotations"
             exec {
                 workingDir file("${project.projectDir}/examples/docker-deployment-without-annotations")
-                commandLine 'sh', '-c', "$distributionLocation/bin/ballerina build docker_deployment_without_annotations.bal"
+                commandLine 'sh', '-c', "$distributionLocation/bin/bal build docker_deployment_without_annotations.bal"
             }
             exec {
                 commandLine 'sh', '-c', "docker rmi docker_deployment_without_annotations:latest"

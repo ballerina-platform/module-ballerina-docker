@@ -20,7 +20,7 @@
 
 1. Compile the  hello_config_file.bal file. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build hello_config_file.bal
+$> bal build hello_config_file.bal
 Compiling source
         hello_config_file.bal
 

@@ -24,7 +24,7 @@
 ### How to run:
 1. Compile all modules. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build -a
+$> bal build -a
 Compiling source
         foody/burger:0.0.1
         foody/pizza:0.0.1

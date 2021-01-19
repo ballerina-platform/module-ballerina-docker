@@ -24,7 +24,7 @@ public function main(string... args) {
 }
 
 function testEndpoint(string host) {
-    http:Client helloWorldEP = new("http://" + host + ":9090");
+    http:Client helloWorldEP = checkpanic new("http://" + host + ":9090");
 
     var response = helloWorldEP->get("/helloWorld/sayHello");
     if (response is http:Response) {
@@ -35,7 +35,7 @@ function testEndpoint(string host) {
 }
 
 function testSecuredEndpoint(string host) {
-    http:Client helloWorldSecuredEP = new("https://" + host + ":9696", {
+    http:Client helloWorldSecuredEP = checkpanic new("https://" + host + ":9696", {
             secureSocket: {
                 trustStore: {
                     path: "security/ballerinaTruststore.p12",

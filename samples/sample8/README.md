@@ -18,7 +18,7 @@
 
 1. Compile the  cmd_thin_jar.bal file. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build cmd_thin_jar.bal
+$> bal build cmd_thin_jar.bal
 Compiling source
 	cmd_thin_jar.bal
 

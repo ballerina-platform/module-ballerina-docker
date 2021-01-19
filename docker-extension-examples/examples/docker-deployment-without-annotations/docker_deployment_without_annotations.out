@@ -1,5 +1,5 @@
 # Build the Ballerina program to generate the Docker image and Dockerfile.
-$ ballerina build docker_deployment_without_annotations.bal
+$ bal build docker_deployment_without_annotations.bal
 Compiling source
     docker_deployment_without_annotations.bal
 

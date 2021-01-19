@@ -66,7 +66,7 @@ public class DockerTestUtils {
     private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH +
             File.separator + "bin" +
             File.separator + (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
-            "ballerina.bat" : "ballerina");
+            "bal.bat" : "bal");
     private static final String BUILD = "build";
     private static final String RUN = "run";
     private static final String EXECUTING_COMMAND = "Executing command: ";

@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 public function main(string... args) {
-    http:Client helloWorldEP = new("http://" + <@untainted> args[0] + ":9099");
+    http:Client helloWorldEP = checkpanic new("http://" + <@untainted> args[0] + ":9099");
 
     var response = helloWorldEP->get("/pizza/menu");
     if (response is http:Response) {

@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 public function main(string... args) {
-    http:Client helloWorldEP1 = new("http://" + <@untainted> args[0] + ":9090");
+    http:Client helloWorldEP1 = checkpanic new("http://" + <@untainted> args[0] + ":9090");
     var response1 = helloWorldEP1->get("/helloWorld/sayHello");
     if (response1 is http:Response) {
         io:println(response1.getTextPayload());

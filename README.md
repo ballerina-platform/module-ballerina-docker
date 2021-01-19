@@ -79,7 +79,7 @@ Annotation based docker extension implementation for ballerina.
 ./gradlew clean build :docker-extension-test:prepareDistribution -x test
 ```
 1. Copy `docker-extension/build/docker-extension-***.jar` file to `<BALLERINA_HOME>/bre/lib` directory.
-1. Run `ballerina build <.bal filename>` to generate artifacts.
+1. Run `bal build <.bal filename>` to generate artifacts.
 
 The docker artifacts will be created in a folder called docker with following structure.
 ```bash

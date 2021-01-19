@@ -16,7 +16,7 @@
 
 1. Compile the docker_debug.bal  file. Command to run docker image will be printed on success:
 ```bash
-$> ballerina build docker_debug.bal 
+$> bal build docker_debug.bal 
 Compiling source
         docker_debug.bal
 

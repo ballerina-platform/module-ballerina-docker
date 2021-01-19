@@ -23,7 +23,7 @@ do
 	echo "======================== Testing sample-$number ========================"
 	pushd "$docker_sample_dir"/sample"$number"
 	if [[ number -eq 1 ]]; then
-		ballerina build hello_world_docker.bal
+		bal build hello_world_docker.bal
 		dockerId=$(docker run -d -p 9090:9090 hello_world_docker:latest)
 		sleep 2
 		curl http://localhost:9090/helloWorld/sayHello
@@ -31,7 +31,7 @@ do
 	fi
 
 	if [[ number -eq 2 ]]; then
-		ballerina build hello_world_docker.bal
+		bal build hello_world_docker.bal
 		dockerId=$(docker run -d -p 9090:9090 docker.abc.com/helloworld:v1.0)
 		sleep 2
 		curl https://localhost:9090/helloWorld/sayHello -k
@@ -39,7 +39,7 @@ do
 	fi
 
 	if [[ number -eq 3 ]]; then
-		ballerina build docker_push_sample.bal
+		bal build docker_push_sample.bal
 		dockerId=$(docker run -d -p 9090:9090 index.docker.io/$DOCKER_USERNAME/helloworld-push:v2.0.0)
 		sleep 2
 		curl http://localhost:9090/HelloWorld/sayHello
@@ -47,7 +47,7 @@ do
 	fi
 
 	if [[ number -eq 4 ]]; then
-		ballerina build docker_debug.bal
+		bal build docker_debug.bal
 		dockerId=$(docker run -d -p 9090:9090 -p 5005:5005 helloworld-debug:latest)
 		sleep 2
 		docker logs $dockerId
@@ -55,7 +55,7 @@ do
 	fi
 
 	if [[ number -eq 5 ]]; then
-		ballerina build hello_config_file.bal
+		bal build hello_config_file.bal
 		dockerId=$(docker run -d -p 9090:9090 hello_config_file:latest)
 		sleep 2
 		curl http://localhost:9090/helloWorld/config/john

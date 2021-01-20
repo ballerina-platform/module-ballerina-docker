@@ -23,7 +23,7 @@ import ballerina/docker as _;
 }
 service http:Service /helloWorld on new http:Listener(9091) {
     resource function get sayHello(http:Caller caller) {
-        var responseResult = caller->ok("Hello, World from service helloWorld ! \n");
+        var responseResult = caller->respond("Hello, World from service helloWorld ! \n");
         if (responseResult is error) {
             log:printError("error responding back to client.", err = responseResult);
         }

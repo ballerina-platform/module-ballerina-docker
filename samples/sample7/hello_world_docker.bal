@@ -19,7 +19,7 @@ listener http:Listener helloWorldEPSecured = new(9696, {
 @docker:Config {}
 service http:Service /helloWorld on helloWorldEPSecured,helloWorldEP {
     resource function get sayHello(http:Caller caller) {
-        var responseResult = caller->ok("Hello, World from service helloWorld ! \n");
+        var responseResult = caller->respond("Hello, World from service helloWorld ! \n");
         if (responseResult is error) {
             log:printError("error responding back to client.", err = responseResult);
         }

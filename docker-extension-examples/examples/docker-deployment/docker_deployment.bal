@@ -16,7 +16,7 @@ listener http:Listener helloWorldEP = new(9090);
 }
 service http:Service /helloWorld on helloWorldEP {
     resource function get sayHello(http:Caller caller) {
-        var responseResult = caller->ok("Hello World from Docker! \n");
+        var responseResult = caller->respond("Hello World from Docker! \n");
         if (responseResult is error) {
             error err = responseResult;
             log:printError("Error sending response", err = err);

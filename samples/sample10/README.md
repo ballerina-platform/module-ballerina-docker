@@ -59,7 +59,7 @@ $> docker run -d copy_file_function:latest
 5. Verify docker container is running:
 ```bash
 $> docker logs 68eb4160ac769f131ebd3ed59f8ee0f6fe6a2e1924e290b04a4cd7513e9b71d1
-{'userId': 'jane3@ballerina.com', 'groups': 'esb'}
+Configuration: john@ballerina.com,jane@ballerian.com apim,esb
 Lorem ipsum dolor sit amet.
 ```
 

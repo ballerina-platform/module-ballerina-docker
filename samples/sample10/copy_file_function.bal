@@ -18,17 +18,18 @@ import ballerina/config;
 import ballerina/io;
 import ballerina/docker;
 
+configurable string users = "Not found";
+configurable string groups = "Not found";
+
 @docker:Config {}
 @docker:CopyFiles {
     files: [
-        { sourceFile: "./conf/ballerina.conf", target: "/home/ballerina/conf/ballerina.conf", isBallerinaConf: true },
+        { sourceFile: "./conf/Config.toml", target: "/home/ballerina/conf/Config.toml", isBallerinaConf: true },
         { sourceFile: "./conf/data.txt", target: "/home/ballerina/data/data.txt" }
     ]
 }
 public function main() {
-    string userId = getConfigValue("jane", "userid");
-    string groups = getConfigValue("jane", "groups");
-    string config = "{'userId': '" + userId + "', 'groups': '" + groups + "'}";
+    string config = "Configuration: " + users + " " + groups;
     io:println(config);
     string data = readFile("./data/data.txt");
     io:println(data);

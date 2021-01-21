@@ -21,6 +21,7 @@ package org.ballerinax.docker.test.samples;
 import org.ballerinax.docker.exceptions.DockerPluginException;
 import org.ballerinax.docker.test.utils.DockerTestException;
 import org.ballerinax.docker.test.utils.DockerTestUtils;
+import org.ballerinax.docker.test.utils.ProcessOutput;
 import org.ballerinax.docker.utils.DockerPluginUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -62,13 +63,10 @@ public class Sample5Test extends SampleTest {
                 "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
 
-        // TODO:Enable after config api resolved
-//        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample5_client.bal");
-//        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
-//        Assert.assertTrue(runOutput.getStdOutput().contains("{'userId': 'john@ballerina.com', 'groups': 'apim,esb'}"),
-//                "Unexpected service response.");
-//        Assert.assertTrue(runOutput.getStdOutput().contains("{'userId': 'jane3@ballerina.com', 'groups': 'esb'}"),
-//                "Unexpected service response.");
+        ProcessOutput runOutput = DockerTestUtils.runBallerinaFile(CLIENT_BAL_FOLDER, "sample5_client.bal");
+        Assert.assertEquals(runOutput.getExitCode(), 0, "Error executing client.");
+        Assert.assertTrue(runOutput.getStdOutput().contains("john@ballerina.com"),
+                "Unexpected service response.");
     }
 
     @Test
@@ -80,8 +78,7 @@ public class Sample5Test extends SampleTest {
     @Test
     public void validateDockerImage() {
         Assert.assertEquals(getCommand(this.dockerImage).toString(), "[/bin/sh, -c, java -Xdiag -cp " +
-                "\"hello_config_file.jar:jars/*\" " + MODULE_INIT_QUOTED + " --b7a.config.file=/home/ballerina/conf" +
-                "/ballerina.conf]");
+                "\"hello_config_file.jar:jars/*\" " + MODULE_INIT_QUOTED + "]");
         List<String> ports = getExposedPorts(this.dockerImage);
         Assert.assertEquals(ports.size(), 1);
         Assert.assertEquals(ports.get(0), "9090/tcp");

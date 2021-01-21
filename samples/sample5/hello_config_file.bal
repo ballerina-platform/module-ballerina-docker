@@ -1,4 +1,3 @@
-import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 import ballerina/io;
@@ -7,7 +6,7 @@ import ballerina/docker;
 @docker:Config {}
 @docker:CopyFiles {
     files: [
-        { sourceFile: "./conf/ballerina.conf", target: "/home/ballerina/conf/ballerina.conf", isBallerinaConf: true },
+        { sourceFile: "./conf/Config.toml", target: "/home/ballerina/conf/Config.toml", isBallerinaConf: true },
         { sourceFile: "./conf/data.txt", target: "/home/ballerina/data/data.txt" }
     ]
 }
@@ -15,12 +14,13 @@ import ballerina/docker;
 @docker:Expose {}
 listener http:Listener helloWorldEP = new(9090);
 
+configurable string users = "Not found";
+configurable string groups = "Not found";
+
 service http:Service /helloWorld on helloWorldEP {
-    resource function get config/[string user](http:Caller caller, http:Request request) returns @tainted error? {
+    resource function get config(http:Caller caller, http:Request request) returns @tainted error? {
         http:Response response = new;
-        string userId = getConfigValue(user, "userid");
-        string groups = getConfigValue(user, "groups");
-        string payload = "{'userId': '" + userId + "', 'groups': '" + groups + "'}";
+        string payload = "Configuration: " + users + " " + groups;
         response.setTextPayload(payload + "\n");
         var responseResult = caller->respond(response);
         if (responseResult is error) {
@@ -37,11 +37,6 @@ service http:Service /helloWorld on helloWorldEP {
             log:printError("error responding back to client.", err = responseResult);
         }
     }
-}
-
-function getConfigValue(string instanceId, string property) returns (string) {
-    string key = <@untainted> instanceId + "." + <@untainted> property;
-    return config:getAsString(key, "Invalid User");
 }
 
 function readFile(string filePath) returns  string {

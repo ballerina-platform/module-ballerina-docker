@@ -20,14 +20,9 @@ import ballerina/http;
 public function main(string... args) {
     http:Client helloWorldEP = checkpanic new("http://" + <@untainted> args[0] + ":9090");
 
-    var johnResp = helloWorldEP->get("/helloWorld/config/john");
+    var johnResp = helloWorldEP->get("/helloWorld/config");
     if (johnResp is http:Response) {
         io:println(johnResp.getTextPayload());
-    }
-
-    var janeResp = helloWorldEP->get("/helloWorld/config/jane");
-    if (janeResp is http:Response) {
-        io:println(janeResp.getTextPayload());
     }
 
     var dataResp = helloWorldEP->get("/helloWorld/data");

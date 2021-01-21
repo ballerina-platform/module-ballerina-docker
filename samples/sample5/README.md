@@ -12,7 +12,7 @@
     ├── docker
     │   ├── Dockerfile
     │   ├── data.txt
-    │   └── ballerina.conf
+    │   └── Config.toml
     ├── hello_config_file.bal
     └── hello_config_file.jar
     ```
@@ -41,11 +41,11 @@ $> tree
 ├── README.md
 ├── conf
 │   ├── data.txt
-│   └── ballerina.conf
+│   └── Config.toml
 ├── docker
 │   ├── Dockerfile
 │   ├── data.txt
-│   └── ballerina.conf
+│   └── Config.toml
 ├── hello_config_file.bal
 └── hello_config_file.jar
 ```
@@ -73,10 +73,8 @@ CONTAINER ID        IMAGE                            COMMAND                  CR
 
 6. Access the hello world service with curl command:
 ```bash
-$> curl http://localhost:9090/helloWorld/config/john
-   {userId: john@ballerina.com, groups: apim,esb}
-$> curl http://localhost:9090/helloWorld/config/jane
-   {userId: jane3@ballerina.com, groups: esb}
+$> curl http://localhost:9090/helloWorld/config
+   Configuration: john@ballerina.com,jane@ballerian.com apim,esb
 $> curl http://localhost:9090/helloWorld/data
    Data: Lorem ipsum dolor sit amet.
 ```

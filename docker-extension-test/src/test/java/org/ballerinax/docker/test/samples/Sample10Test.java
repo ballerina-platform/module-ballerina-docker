@@ -68,8 +68,7 @@ public class Sample10Test extends SampleTest {
         File dockerFile = new File(targetPath + File.separator + "Dockerfile");
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"copy_file_function.jar:jars/*\" "
-                + DockerGenConstants.MODULE_INIT_QUOTED + " " +
-                "--b7a.config.file=/home/ballerina/conf/ballerina.conf"));
+                + DockerGenConstants.MODULE_INIT_QUOTED));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
         Assert.assertTrue(dockerFile.exists());
     }

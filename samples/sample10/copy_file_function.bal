@@ -13,8 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import ballerina/config;
 import ballerina/io;
 import ballerina/docker;
 
@@ -33,11 +31,6 @@ public function main() {
     io:println(config);
     string data = readFile("./data/data.txt");
     io:println(data);
-}
-
-function getConfigValue(string instanceId, string property) returns (string) {
-    string key = <@untainted> instanceId + "." + <@untainted> property;
-    return config:getAsString(key, "Invalid User");
 }
 
 function readFile(string filePath) returns  string {

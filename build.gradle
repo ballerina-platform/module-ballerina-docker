@@ -231,9 +231,6 @@ subprojects {
             requireBranch = null
         }
     }
-
-    afterReleaseBuild.dependsOn publishToMavenLocal
-    afterReleaseBuild.dependsOn publish
 }
 
 task codeCoverageReport(type: JacocoReport) {

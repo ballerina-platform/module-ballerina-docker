@@ -59,8 +59,8 @@ task copyBallerinaArtifacts {
     dependsOn configurations.zipPartent
     doLast {
         copy {
-            from file("$zipDirLocation/balo/ballerina")
-            into file("${distributionLocation}/repo/balo/ballerina")
+            from file("$zipDirLocation/bala/ballerina")
+            into file("${distributionLocation}/repo/bala/ballerina")
         }
         copy {
             from file("$zipDirLocation/cache/ballerina")

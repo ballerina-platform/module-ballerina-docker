@@ -38,4 +38,4 @@ target
 samples/*/docker
 velocity.log*
 *Ballerina.lock
-docker/docker-extension-balo/src/main/ballerina/ballerinax/target
+docker/docker-extension-bala/src/main/ballerina/ballerinax/target

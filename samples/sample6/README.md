@@ -29,9 +29,9 @@ Compiling source
         foody/burger:0.0.1
         foody/pizza:0.0.1
 
-Creating balos
-        target/balo/burger-2019r3-any-0.0.1.balo
-        target/balo/pizza-2019r3-any-0.0.1.balo
+Creating balas
+        target/bala/burger-2019r3-any-0.0.1.bala
+        target/bala/pizza-2019r3-any-0.0.1.bala
 
 Running tests
         foody/burger:0.0.1

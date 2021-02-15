@@ -43,8 +43,8 @@ public class Sample6Test extends SampleTest {
 
     private final Path sourceDirPath = SAMPLE_DIR.resolve("sample6");
     private final Path targetDirPath = sourceDirPath.resolve("target");
-    private final Path pizzaTargetPath = targetDirPath.resolve("docker").resolve("pizza");
-    private final String pizzaDockerImage = "pizza:latest";
+    private final Path pizzaTargetPath = targetDirPath.resolve("docker").resolve("pizza-0.0.1");
+    private final String pizzaDockerImage = "pizza-0.0.1:latest";
     private final String pizzaContainerName = "ballerinax_docker_pizza_" +
             this.getClass().getSimpleName().toLowerCase();
     private String pizzaContainerID;

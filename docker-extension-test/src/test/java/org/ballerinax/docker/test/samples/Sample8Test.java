@@ -57,7 +57,7 @@ public class Sample8Test extends SampleTest {
     public void testService() throws IOException, InterruptedException, DockerTestException {
         String containerID = DockerTestUtils.createContainer(dockerImageThin, dockerContainerName);
         Assert.assertTrue(DockerTestUtils.startContainer(containerID,
-                "ballerina: HTTP access log enabled"),
+                "[ballerina/http] started HTTP/WS listener 0.0.0.0:9090"),
                 "Service did not start properly.");
 
         // send request

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-codecov:
-  ci:
-    - travis
-    - !appveyor                # ignore CI builds by AppVeyor
+# codecov:
+#   ci:
+#     - travis
+#     - !appveyor                # ignore CI builds by AppVeyor

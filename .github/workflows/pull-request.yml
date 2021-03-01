@@ -24,3 +24,6 @@ jobs:
         run: |
           set -e
           ./gradlew clean build codeCoverageReport --stacktrace --scan --console=plain --no-daemon
+      - name: Generate Codecov Report
+        if:  github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v1

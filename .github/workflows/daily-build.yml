@@ -28,3 +28,4 @@ jobs:
           ./gradlew clean build codeCoverageReport --stacktrace --scan --console=plain --no-daemon
       - name: Generate Codecov Report
         uses: codecov/codecov-action@v1
+

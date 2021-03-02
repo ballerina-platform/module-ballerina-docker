@@ -26,4 +26,6 @@ jobs:
         run: |
           set -e
           ./gradlew clean build codeCoverageReport --stacktrace --scan --console=plain --no-daemon
-          bash <(curl -s https://codecov.io/bash)
+      - name: Generate Codecov Report
+        uses: codecov/codecov-action@v1
+

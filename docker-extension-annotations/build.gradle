@@ -95,6 +95,7 @@ def artifactParent = file("$project.projectDir/build/target/docker-ballerina-zip
 def artifactDocs = file("$project.buildDir/apidocs/docs/")
 def artifactBala = file("$project.projectDir/target/bala")
 def artifactCache = file("$project.projectDir/target/cache/")
+def platform = "any"
 
 task ballerinaBuild {
     dependsOn unzip
@@ -124,9 +125,12 @@ task ballerinaBuild {
                 commandLine 'sh', '-c', "$distributionBinPath/bal build -c"
             }
         }
-        copy {
-            from file("$artifactBala")
-            into file("$artifactParent/bala/ballerina/docker/$tomlSemver")
+        // extract bala file to artifact cache directory
+        file("$artifactBala").eachFileMatch(~/.*.bala/) { balaFile ->
+            copy {
+                from zipTree(balaFile)
+                into file("$artifactParent/bala/ballerina/docker/$tomlSemver/$platform")
+            }
         }
         copy {
             from file("$artifactDocs")

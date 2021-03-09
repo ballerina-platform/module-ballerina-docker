@@ -1,3 +1,0 @@
-//Ballerina supports generating Docker images and the Dockerfile for services by only adding the `ballerina/docker` import.
-//Docker should be configured to run the sample.<br/><br/>
-//For more information, see the [Docker Deployment Guide](https://ballerina.io/learn/deployment/docker/).

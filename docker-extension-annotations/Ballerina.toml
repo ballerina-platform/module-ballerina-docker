@@ -1,4 +1,0 @@
-[package]
-org = "ballerina"
-name = "docker"
-version = "1.0.0"

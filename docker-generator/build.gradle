@@ -26,7 +26,7 @@ dependencies {
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
     testImplementation "org.testng:testng:${testngVersion}"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    compileOnly "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
+    implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     compileOnly "org.ballerinalang:ballerina-cli:${ballerinaLangVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 }

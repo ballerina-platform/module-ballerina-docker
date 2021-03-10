@@ -1,5 +1,0 @@
-*.jar
-Dockerfile
-/docker
-/target
-Ballerina.lock

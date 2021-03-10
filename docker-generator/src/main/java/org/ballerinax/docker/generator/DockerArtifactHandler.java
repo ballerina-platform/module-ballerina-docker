@@ -20,14 +20,12 @@ package org.ballerinax.docker.generator;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.BuildResponseItem;
-import com.github.dockerjava.api.model.PushResponseItem;
 import com.github.dockerjava.api.model.ResponseItem;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
-import com.github.dockerjava.core.command.PushImageResultCallback;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
@@ -61,7 +59,6 @@ public class DockerArtifactHandler {
     private static final boolean WINDOWS_BUILD =
             Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
     private final DockerError dockerBuildError = new DockerError();
-    private final DockerError dockerPushError = new DockerError();
     private DockerModel dockerModel;
     private DockerClient dockerClient;
     private DefaultDockerClientConfig dockerClientConfig;
@@ -110,7 +107,7 @@ public class DockerArtifactHandler {
         }
         copyNativeJars(outputDir);
         try {
-            String logStepCount = this.dockerModel.isBuildImage() ? (this.dockerModel.isPush() ? "3" : "2") : "1";
+            String logStepCount = this.dockerModel.isBuildImage() ? "2" : "1";
             outStream.print(logAppender + " - complete 0/" + logStepCount + " \r");
             DockerGenUtils.writeToFile(dockerContent, outputDir.resolve("Dockerfile"));
             outStream.print(logAppender + " - complete 1/" + logStepCount + " \r");
@@ -130,16 +127,9 @@ public class DockerArtifactHandler {
             if (this.dockerModel.isBuildImage()) {
                 buildImage(outputDir);
                 outStream.print(logAppender + " - complete 2/" + logStepCount + " \r");
-                //push only if image push is enabled.
-                if (this.dockerModel.isPush()) {
-                    pushImage();
-                    outStream.print(logAppender + " - complete 3/" + logStepCount + " \r");
-                }
             }
         } catch (IOException e) {
             throw new DockerGenException("unable to write content to " + outputDir);
-        } catch (InterruptedException e) {
-            throw new DockerGenException("unable to create Docker images " + e.getMessage());
         }
     }
 
@@ -249,24 +239,6 @@ public class DockerArtifactHandler {
         handleError(this.dockerBuildError);
     }
 
-    /**
-     * Push docker image.
-     *
-     * @throws InterruptedException When error with docker build process
-     */
-    public void pushImage() throws InterruptedException, DockerGenException {
-        printDebug("pushing docker image `" + this.dockerModel.getName() + "`.");
-
-        try {
-            this.dockerClient.pushImageCmd(this.dockerModel.getName())
-                    .exec(new DockerImagePushCallback()).
-                    awaitCompletion();
-        } catch (RuntimeException ex) {
-            this.dockerBuildError.setErrorMsg(cleanErrorMessage(ex.getMessage()));
-        }
-
-        handleError(this.dockerPushError);
-    }
 
     private void handleError(DockerError dockerError) throws DockerGenException {
         if (dockerError.isError()) {
@@ -470,46 +442,4 @@ public class DockerArtifactHandler {
         }
     }
 
-    private class DockerImagePushCallback extends PushImageResultCallback {
-        @Override
-        public void onNext(PushResponseItem item) {
-            // handling error
-            if (item.isErrorIndicated()) {
-                StringBuilder errString = new StringBuilder("[push][error]: ");
-
-                ResponseItem.ErrorDetail errDetail = null;
-                if (null != item.getErrorDetail()) {
-                    errDetail = item.getErrorDetail();
-                }
-                if (null != errDetail && null != errDetail.getCode()) {
-                    errString.append("(").append(errDetail.getCode()).append(") ");
-                }
-
-                if (null != errDetail && null != errDetail.getMessage()) {
-                    errString.append(errDetail.getMessage());
-                }
-
-                String errorMessage = errString.toString();
-                printDebug(errorMessage);
-                dockerPushError.setErrorMsg("unable to push docker image: " + errorMessage);
-            }
-
-            String streamLog = item.getStream();
-            if (null != streamLog && !"".equals(streamLog.replaceAll("\n", ""))) {
-                printDebug("[push][stream] " + streamLog.replaceAll("\n", ""));
-            }
-
-            String statusLog = item.getStatus();
-            if (null != statusLog && !"".equals(statusLog.replaceAll("\n", ""))) {
-                printDebug("[push][status] " + statusLog.replaceAll("\n", ""));
-            }
-
-            String idLog = item.getId();
-            if (null != idLog) {
-                printDebug("[push][ID]: " + idLog);
-            }
-
-            super.onNext(item);
-        }
-    }
 }

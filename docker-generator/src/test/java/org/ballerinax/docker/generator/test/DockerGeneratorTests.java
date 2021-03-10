@@ -25,6 +25,7 @@ import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
 import org.ballerinax.docker.generator.test.utils.DockerTestUtils;
+import org.ballerinax.docker.generator.utils.DockerGenUtils;
 import org.ballerinax.docker.generator.utils.DockerImageName;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -38,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,6 +62,34 @@ public class DockerGeneratorTests {
     }
 
     @Test
+    public void validDockerImageNameTest() throws DockerGenException {
+        DockerImageName imageName = DockerImageName.parseName(DOCKER_IMAGE);
+        Assert.assertEquals(imageName.getRepository(), "anuruddhal/test-image");
+        Assert.assertEquals(imageName.getNameWithoutTag(), "anuruddhal/test-image");
+        Assert.assertEquals(imageName.getTag(), "v1");
+        Assert.assertEquals(imageName.getFullName(), "anuruddhal/test-image:v1");
+        Assert.assertEquals(imageName.getSimpleName(), "test-image");
+        Assert.assertEquals(imageName.getUser(), "anuruddhal");
+    }
+
+    @Test
+    public void testErrorMessageCleanup() {
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("unable to find valid certification path"), "unable to " +
+                "find docker cert path.");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("Connection refused"), "connection refused to docker " +
+                "host");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("Unable to connect to server: Timeout: GET"), "unable to" +
+                " connect to docker host: ");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("permission denied"), "permission denied for docker");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("javax.ws.rs.ProcessingException:"), "");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("java.io.IOException:"), "");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("java.util.concurrent.ExecutionException:"), "");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("java.lang.IllegalArgumentException:"), "");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("org.apache.http.conn.HttpHostConnectException:"), "");
+        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("org.apache.http.client.ClientProtocolException:"), "");
+    }
+
+    @Test
     public void buildDockerImageTest() throws DockerGenException, IOException {
         DockerModel dockerModel = new DockerModel();
         dockerModel.setName("test-image");
@@ -75,11 +105,18 @@ public class DockerGeneratorTests {
         PackageID packageID = new PackageID(new Name("wso2"), new Name("bal"), new Name("1.0.0"));
         dockerModel.setPkgId(packageID);
         dockerModel.setDependencyJarPaths(jarFilePaths);
-        CopyFileModel copyFileModel = new CopyFileModel();
-        copyFileModel.setSource(SOURCE_DIR_PATH.resolve("conf").resolve("Config.toml").toString());
-        copyFileModel.setTarget("/home/ballerina/conf/");
-        copyFileModel.setBallerinaConf(true);
-        dockerModel.setCopyFiles(Collections.singleton(copyFileModel));
+        CopyFileModel configFile = new CopyFileModel();
+        configFile.setSource(SOURCE_DIR_PATH.resolve("conf").resolve("Config.toml").toString());
+        configFile.setTarget("/home/ballerina/conf/");
+        configFile.setBallerinaConf(true);
+        CopyFileModel dataFile = new CopyFileModel();
+        dataFile.setSource(SOURCE_DIR_PATH.resolve("conf").resolve("data.txt").toString());
+        dataFile.setTarget("/home/ballerina/data/");
+        dataFile.setBallerinaConf(true);
+        Set<CopyFileModel> externalFiles = new HashSet<>();
+        externalFiles.add(configFile);
+        externalFiles.add(dataFile);
+        dockerModel.setCopyFiles(externalFiles);
         Path outputDir = SOURCE_DIR_PATH.resolve("target");
         Files.createDirectories(outputDir);
         handler.createArtifacts(out, "\t@kubernetes:Docker \t\t\t", jarFilePath, outputDir);

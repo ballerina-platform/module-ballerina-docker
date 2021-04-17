@@ -1,10 +1,10 @@
 name: Timestamped Build
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   build:
@@ -24,6 +24,8 @@ jobs:
           updatedVersion=$VERSION-$startTime-$latestCommit
           echo $updatedVersion
           sed -i "s/version=\(.*\)/version=$updatedVersion/g" gradle.properties
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
       - name: Build with Gradle
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}

@@ -18,8 +18,6 @@
 
 package org.ballerinax.docker.generator;
 
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
-
 /**
  * Constants used in docker annotation processor.
  */
@@ -30,10 +28,8 @@ public class DockerGenConstants {
     public static final String EXECUTABLE_JAR = ".jar";
     public static final String REGISTRY_SEPARATOR = "/";
     public static final String TAG_SEPARATOR = ":";
-    public static final String ARTIFACT_DIRECTORY = "docker";
     public static final String OPENJDK_11_JRE_SLIM_BASE = "ballerina/jre11:v1";
     public static final String OPENJDK_11_JRE_WINDOWS_BASE_IMAGE = "openjdk:11-windowsservercore";
-    public static final String MODULE_INIT_QUOTED = "'" + MODULE_INIT_CLASS_NAME + "'";
     private static final boolean WINDOWS_BUILD =
             Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
     public static final String WORK_DIR = WINDOWS_BUILD ? "C:\\ballerina\\home\\" : "/home/ballerina";

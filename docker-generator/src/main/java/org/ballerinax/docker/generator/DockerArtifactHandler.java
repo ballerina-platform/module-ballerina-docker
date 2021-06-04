@@ -282,7 +282,7 @@ public class DockerArtifactHandler {
                         .append(this.dockerModel.getJarFileName()).append(":jars/*\" ").append(mainClass);
             } else {
                 dockerfileContent.append("CMD java -Xdiag -cp \"").append(this.dockerModel.getJarFileName())
-                        .append(":jars/*\" ").append(mainClass);
+                        .append(":jars/*\" ").append(mainClass).append(" || cat ballerina-internal.log");
             }
         } else {
             dockerfileContent.append(this.dockerModel.getCmd());

@@ -138,6 +138,8 @@ public class DockerGeneratorTests {
         Assert.assertEquals(DockerTestUtils.getExposedPorts(DOCKER_IMAGE).size(), 1);
         Assert.assertEquals(Objects.requireNonNull(DockerTestUtils.getDockerImage(DOCKER_IMAGE).getConfig()
                 .getEnv()).length, 2);
+        Assert.assertEquals(DockerTestUtils.getCommand(DOCKER_IMAGE).get(2), "java -Xdiag -cp \"hello.jar:jars/*\" " +
+                "'wso2/bal/1_0_0/$_init' || cat ballerina-internal.log");
     }
 
     private Set<Path> getJarFilePaths() throws IOException {

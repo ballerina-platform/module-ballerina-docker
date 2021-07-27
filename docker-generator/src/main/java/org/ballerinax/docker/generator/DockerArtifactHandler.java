@@ -19,13 +19,13 @@
 package org.ballerinax.docker.generator;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.BuildImageResultCallback;
 import com.github.dockerjava.api.model.BuildResponseItem;
 import com.github.dockerjava.api.model.ResponseItem;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
-import com.github.dockerjava.core.command.BuildImageResultCallback;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
@@ -59,8 +59,8 @@ public class DockerArtifactHandler {
     private static final boolean WINDOWS_BUILD =
             Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
     private final DockerError dockerBuildError = new DockerError();
-    private DockerModel dockerModel;
-    private DockerClient dockerClient;
+    private final DockerModel dockerModel;
+    private final DockerClient dockerClient;
     private DefaultDockerClientConfig dockerClientConfig;
 
     public DockerArtifactHandler(DockerModel dockerModel) {
@@ -204,8 +204,7 @@ public class DockerArtifactHandler {
         } else {
             printDebug("docker client TLS verify: false");
         }
-
-        return DockerClientBuilder.getInstance(dockerClientConfig).build();
+        return DockerClientBuilder.getInstance(dockerClientConfig.build()).build();
     }
 
     /**

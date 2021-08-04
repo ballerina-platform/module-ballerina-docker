@@ -21,6 +21,7 @@ description = 'Ballerinax - Docker Generator'
 
 dependencies {
     implementation "com.github.docker-java:docker-java:${dockerJavaVersion}"
+    implementation "com.github.docker-java:docker-java-transport-httpclient5:${dockerJavaVersion}"
     implementation "commons-io:commons-io:${commonIoVersion}"
     testImplementation "org.slf4j:slf4j-api:${slf4jVersion}"
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"

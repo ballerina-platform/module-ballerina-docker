@@ -26,6 +26,8 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.transport.DockerHttpClient;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
@@ -37,6 +39,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Locale;
 
@@ -146,48 +149,49 @@ public class DockerArtifactHandler {
     }
 
     private DockerClient createClient() {
-        DefaultDockerClientConfig.Builder dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder();
+        DefaultDockerClientConfig.Builder dockerClientConfigBuilder =
+                DefaultDockerClientConfig.createDefaultConfigBuilder();
 
         // if windows, consider DOCKER_HOST as "tcp://localhost:2375"
         if (System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win")) {
-            dockerClientConfig.withDockerHost("tcp://localhost:2375");
+            dockerClientConfigBuilder.withDockerHost("tcp://localhost:2375");
         }
 
         // set docker host
         if (null != this.dockerModel.getDockerHost()) {
-            dockerClientConfig.withDockerHost(this.dockerModel.getDockerHost());
+            dockerClientConfigBuilder.withDockerHost(this.dockerModel.getDockerHost());
         }
 
         // set docker cert path
         if (null != this.dockerModel.getDockerCertPath()) {
-            dockerClientConfig.withDockerCertPath(this.dockerModel.getDockerCertPath());
+            dockerClientConfigBuilder.withDockerCertPath(this.dockerModel.getDockerCertPath());
         }
 
         // set docker API version
         if (null != this.dockerModel.getDockerAPIVersion()) {
-            dockerClientConfig.withApiVersion(this.dockerModel.getDockerAPIVersion());
+            dockerClientConfigBuilder.withApiVersion(this.dockerModel.getDockerAPIVersion());
         }
 
         // set docker registry url
         if (null != this.dockerModel.getRegistry()) {
-            dockerClientConfig.withRegistryUrl(this.dockerModel.getRegistry());
+            dockerClientConfigBuilder.withRegistryUrl(this.dockerModel.getRegistry());
         }
 
         // set docker registry username
         if (null != this.dockerModel.getUsername()) {
-            dockerClientConfig.withRegistryUsername(this.dockerModel.getUsername());
+            dockerClientConfigBuilder.withRegistryUsername(this.dockerModel.getUsername());
         }
 
         // set docker registry password
         if (null != this.dockerModel.getPassword()) {
-            dockerClientConfig.withRegistryPassword(this.dockerModel.getPassword());
+            dockerClientConfigBuilder.withRegistryPassword(this.dockerModel.getPassword());
         }
 
         if (null != this.dockerModel.getDockerConfig()) {
-            dockerClientConfig.withDockerConfig(this.dockerModel.getDockerConfig());
+            dockerClientConfigBuilder.withDockerConfig(this.dockerModel.getDockerConfig());
         }
 
-        this.dockerClientConfig = dockerClientConfig.build();
+        this.dockerClientConfig = dockerClientConfigBuilder.build();
         printDebug("docker client host: " + this.dockerClientConfig.getDockerHost());
 
         if (!this.dockerClientConfig.getApiVersion().equals(RemoteApiVersion.unknown())) {
@@ -204,7 +208,15 @@ public class DockerArtifactHandler {
         } else {
             printDebug("docker client TLS verify: false");
         }
-        return DockerClientBuilder.getInstance(dockerClientConfig.build()).build();
+        DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
+                .dockerHost(dockerClientConfig.getDockerHost())
+                .sslConfig(dockerClientConfig.getSSLConfig())
+                .maxConnections(100)
+                .connectionTimeout(Duration.ofSeconds(60))
+                .responseTimeout(Duration.ofSeconds(60))
+                .build();
+
+        return DockerClientBuilder.getInstance(dockerClientConfig).withDockerHttpClient(httpClient).build();
     }
 
     /**

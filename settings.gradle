@@ -22,10 +22,6 @@ plugins {
 rootProject.name = 'docker-extension-parent'
 include(':build-config:checkstyle')
 include(':docker-generator')
-include(':docker-extension')
-include(':docker-extension-annotations')
-include(':docker-extension-test')
-include(':docker-extension-examples')
 
 gradleEnterprise {
     buildScan {

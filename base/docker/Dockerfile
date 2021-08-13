@@ -14,7 +14,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM alpine:3.11
+FROM alpine:3.11.11
 LABEL maintainer="dev@ballerina.io"
 
 # Ballerina runtime distribution filename.
@@ -27,6 +27,7 @@ COPY ${BALLERINA_DIST} /root/
 RUN mkdir -p /ballerina/files \
     && addgroup troupe \
     && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \
+    && apk add --upgrade apk-tools \
     && apk upgrade \
     && apk add --update --no-cache bash openjdk11-jre=11.0.5_p10-r0 \
     && unzip /root/${BALLERINA_DIST} -d /ballerina/ > /dev/null 2>&1 \

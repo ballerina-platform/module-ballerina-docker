@@ -26,8 +26,4 @@ public class DockerGenException extends Exception {
     public DockerGenException(String msg) {
         super(msg);
     }
-
-    public DockerGenException(String msg, Throwable e) {
-        super(msg, e);
-    }
 }

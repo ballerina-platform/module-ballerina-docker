@@ -46,7 +46,6 @@ import java.util.Locale;
 import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
 import static org.ballerinax.docker.generator.DockerGenConstants.TAG_SEPARATOR;
-import static org.ballerinax.docker.generator.DockerGenConstants.WORK_DIR;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.cleanErrorMessage;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.copyFileOrDirectory;
 import static org.ballerinax.docker.generator.utils.DockerGenUtils.isBlank;
@@ -59,8 +58,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
  */
 public class DockerArtifactHandler {
 
-    private static final boolean WINDOWS_BUILD =
-            Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
     private final DockerError dockerBuildError = new DockerError();
     private final DockerModel dockerModel;
     private final DockerClient dockerClient;
@@ -103,7 +100,7 @@ public class DockerArtifactHandler {
     public void createArtifacts(PrintStream outStream, String logAppender, Path jarFilePath, Path outputDir)
             throws DockerGenException {
         String dockerContent;
-        if (!WINDOWS_BUILD) {
+        if (!isWindowsBuild()) {
             dockerContent = generateThinJarDockerfile();
         } else {
             dockerContent = generateThinJarWindowsDockerfile();
@@ -175,16 +172,6 @@ public class DockerArtifactHandler {
         // set docker registry url
         if (null != this.dockerModel.getRegistry()) {
             dockerClientConfigBuilder.withRegistryUrl(this.dockerModel.getRegistry());
-        }
-
-        // set docker registry username
-        if (null != this.dockerModel.getUsername()) {
-            dockerClientConfigBuilder.withRegistryUsername(this.dockerModel.getUsername());
-        }
-
-        // set docker registry password
-        if (null != this.dockerModel.getPassword()) {
-            dockerClientConfigBuilder.withRegistryPassword(this.dockerModel.getPassword());
         }
 
         if (null != this.dockerModel.getDockerConfig()) {
@@ -270,7 +257,7 @@ public class DockerArtifactHandler {
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
         dockerfileContent.append("\n");
         this.dockerModel.getDependencyJarPaths().forEach(path -> {
-                    dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(WORK_DIR)
+            dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(getWorkDir())
                             .append("/jars/ \n");
                     //TODO: Remove once https://github.com/moby/moby/issues/37965 is fixed.
                     boolean isCiBuild = "true".equals(System.getenv().get("CI_BUILD"));
@@ -280,7 +267,7 @@ public class DockerArtifactHandler {
                 }
         );
         appendUser(dockerfileContent);
-        dockerfileContent.append("WORKDIR ").append(WORK_DIR).append("\n");
+        dockerfileContent.append("WORKDIR ").append(getWorkDir()).append("\n");
         appendCommonCommands(dockerfileContent);
         if (isBlank(this.dockerModel.getCmd())) {
             PackageID packageID = this.dockerModel.getPkgId();
@@ -327,10 +314,10 @@ public class DockerArtifactHandler {
         dockerfileContent.append(System.lineSeparator());
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append(System.lineSeparator());
         dockerfileContent.append(System.lineSeparator());
-        dockerfileContent.append("WORKDIR ").append(WORK_DIR).append(System.lineSeparator());
+        dockerfileContent.append("WORKDIR ").append(getWorkDir()).append(System.lineSeparator());
 
         for (Path path : this.dockerModel.getDependencyJarPaths()) {
-            dockerfileContent.append("COPY ").append(path.getFileName()).append(WORK_DIR)
+            dockerfileContent.append("COPY ").append(path.getFileName()).append(getWorkDir())
                     .append("jars").append(separator);
             dockerfileContent.append(System.lineSeparator());
         }
@@ -361,7 +348,7 @@ public class DockerArtifactHandler {
     }
 
     private void appendCommonCommands(StringBuilder dockerfileContent) {
-        dockerfileContent.append("COPY ").append(this.dockerModel.getJarFileName()).append(" ").append(WORK_DIR)
+        dockerfileContent.append("COPY ").append(this.dockerModel.getJarFileName()).append(" ").append(getWorkDir())
                 .append(System.lineSeparator());
         this.dockerModel.getEnv().forEach((key, value) -> dockerfileContent.append("ENV ").
                 append(key).append("=").append(value).append(System.lineSeparator()));
@@ -388,6 +375,15 @@ public class DockerArtifactHandler {
             dockerfileContent.append(System.lineSeparator());
         }
     }
+
+    private boolean isWindowsBuild() {
+        return Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
+    }
+
+    private String getWorkDir() {
+        return isWindowsBuild() ? "C:\\ballerina\\home\\" : "/home/ballerina";
+    }
+
 
     /**
      * Class to hold docker errors.

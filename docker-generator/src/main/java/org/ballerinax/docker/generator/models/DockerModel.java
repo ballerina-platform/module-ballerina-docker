@@ -39,14 +39,11 @@ import static org.ballerinax.docker.generator.DockerGenConstants.DOCKER_API_VERS
  */
 @Data
 public class DockerModel {
-    private static final boolean WINDOWS_BUILD =
+    private final boolean windowsBuild =
             Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
     private String name;
     private String registry;
     private String tag;
-    private boolean push;
-    private String username;
-    private String password;
     private boolean buildImage;
     private String baseImage;
     private Set<Integer> ports;
@@ -63,15 +60,13 @@ public class DockerModel {
     private Map<String, String> env;
     private String dockerConfig;
     private Set<Path> dependencyJarPaths;
-    private boolean uberJar;
     private PackageID pkgId;
 
     public DockerModel() {
         // Initialize with default values except for image name
         this.tag = "latest";
-        this.push = false;
         this.buildImage = true;
-        this.baseImage = WINDOWS_BUILD ? DockerGenConstants.OPENJDK_11_JRE_WINDOWS_BASE_IMAGE :
+        this.baseImage = windowsBuild ? DockerGenConstants.OPENJDK_11_JRE_WINDOWS_BASE_IMAGE :
                 DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE;
         this.enableDebug = false;
         this.debugPort = 5005;
@@ -80,7 +75,6 @@ public class DockerModel {
         commandArg = "";
         env = new HashMap<>();
         dependencyJarPaths = new HashSet<>();
-        uberJar = false;
     }
 
     public void setDockerAPIVersion(String dockerAPIVersion) {
@@ -109,7 +103,7 @@ public class DockerModel {
             if (Files.isDirectory(Paths.get(externalFile.getSource()))) {
                 throw new DockerGenException("invalid config file given: " + externalFile.getSource());
             }
-            this.env.put("BALCONFIGFILE" , externalFile.getTarget());
+            this.env.put("BALCONFIGFILE", externalFile.getTarget());
         }
     }
 
@@ -135,27 +129,4 @@ public class DockerModel {
                 .replace("${CONFIG_FILE}", configFile);
     }
 
-    @Override
-    public String toString() {
-        return "DockerModel{" +
-                "name='" + name + '\'' +
-                ", registry='" + registry + '\'' +
-                ", tag='" + tag + '\'' +
-                ", push=" + push +
-                ", username='" + username + '\'' +
-                ", buildImage" + "=" + buildImage +
-                ", baseImage='" + baseImage + '\'' +
-                ", ports=" + ports +
-                ", enableDebug=" + enableDebug +
-                ", debugPort=" + debugPort +
-                ", dockerAPIVersion='" + dockerAPIVersion + '\'' +
-                ", dockerHost='" + dockerHost + '\'' +
-                ", dockerCertPath='" + dockerCertPath + '\'' +
-                ", isService=" + isService +
-                ", jarFileName='" + jarFileName + '\'' +
-                ", externalFiles=" + externalFiles +
-                ", commandArg='" + commandArg + '\'' +
-                ", cmd='" + cmd + '\'' +
-                '}';
-    }
 }

@@ -137,8 +137,7 @@ public class DockerGenUtils {
                 FileUtils.copyDirectory(src, dst);
             }
         } catch (IOException e) {
-            throw new DockerGenException("error while copying file/folder '" + source + "' to '" + destination + "'",
-                    e);
+            throw new DockerGenException("error while copying file/folder '" + source + "' to '" + destination + "'");
         }
     }
     

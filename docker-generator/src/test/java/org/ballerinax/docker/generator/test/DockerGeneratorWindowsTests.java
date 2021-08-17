@@ -24,9 +24,6 @@ import org.ballerinax.docker.generator.DockerArtifactHandler;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
 import org.ballerinax.docker.generator.models.CopyFileModel;
 import org.ballerinax.docker.generator.models.DockerModel;
-import org.ballerinax.docker.generator.test.utils.DockerTestUtils;
-import org.ballerinax.docker.generator.utils.DockerGenUtils;
-import org.ballerinax.docker.generator.utils.DockerImageName;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -40,66 +37,31 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.ballerinax.docker.generator.test.utils.DockerTestUtils.removeEnv;
+import static org.ballerinax.docker.generator.test.utils.DockerTestUtils.updateEnv;
 
 /**
  * Docker generator tests.
  */
-public class DockerGeneratorTests {
+public class DockerGeneratorWindowsTests {
 
     private static final Path SOURCE_DIR_PATH = Paths.get("src", "test", "resources");
-    private static final String DOCKER_IMAGE = "anuruddhal/test-image:v1";
     private final PrintStream out = System.out;
 
-    @Test(expectedExceptions = DockerGenException.class,
-            expectedExceptionsMessageRegExp = "given docker name 'dockerName:latest' is invalid: image name " +
-                    "'dockerName' is invalid"
-    )
-    public void invalidDockerImageNameTest() throws DockerGenException {
-        DockerImageName.validate("dockerName:latest");
-    }
-
     @Test
-    public void validDockerImageNameTest() throws DockerGenException {
-        DockerImageName imageName = DockerImageName.parseName(DOCKER_IMAGE);
-        Assert.assertEquals(imageName.getRepository(), "anuruddhal/test-image");
-        Assert.assertEquals(imageName.getNameWithoutTag(), "anuruddhal/test-image");
-        Assert.assertEquals(imageName.getTag(), "v1");
-        Assert.assertEquals(imageName.getFullName(), "anuruddhal/test-image:v1");
-        Assert.assertEquals(imageName.getSimpleName(), "test-image");
-        Assert.assertEquals(imageName.getUser(), "anuruddhal");
-    }
-
-    @Test
-    public void testErrorMessageCleanup() {
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("unable to find valid certification path"), "unable to " +
-                "find docker cert path.");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("Connection refused"), "connection refused to docker " +
-                "host");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("Unable to connect to server: Timeout: GET"), "unable to" +
-                " connect to docker host: ");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("permission denied"), "permission denied for docker");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("javax.ws.rs.ProcessingException:"), "");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("java.io.IOException:"), "");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("java.util.concurrent.ExecutionException:"), "");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("java.lang.IllegalArgumentException:"), "");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("org.apache.http.conn.HttpHostConnectException:"), "");
-        Assert.assertEquals(DockerGenUtils.cleanErrorMessage("org.apache.http.client.ClientProtocolException:"), "");
-    }
-
-    @Test
-    public void buildDockerImageTest() throws DockerGenException, IOException {
+    public void buildDockerImageWindowsTest() throws DockerGenException, IOException, ReflectiveOperationException {
+        updateEnv("BAL_DOCKER_WINDOWS", "true");
         DockerModel dockerModel = new DockerModel();
         dockerModel.setName("test-image");
         dockerModel.setRegistry("anuruddhal");
         dockerModel.setTag("v1");
         dockerModel.setJarFileName("hello.jar");
         dockerModel.setPorts(Collections.singleton(9090));
-        dockerModel.setBuildImage(true);
+        dockerModel.setBuildImage(false);
         dockerModel.setService(true);
-        DockerArtifactHandler handler = new DockerArtifactHandler(dockerModel);
         Path jarFilePath = SOURCE_DIR_PATH.resolve("docker-test").resolve("hello.jar");
         Set<Path> jarFilePaths = getJarFilePaths();
         PackageID packageID = new PackageID(new Name("wso2"), new Name("bal"), new Name("1.0.0"));
@@ -119,29 +81,19 @@ public class DockerGeneratorTests {
         dockerModel.setCopyFiles(externalFiles);
         Path outputDir = SOURCE_DIR_PATH.resolve("target");
         Files.createDirectories(outputDir);
+        DockerArtifactHandler handler = new DockerArtifactHandler(dockerModel);
         handler.createArtifacts(out, "\t@kubernetes:Docker \t\t\t", jarFilePath, outputDir);
-        File dockerFile = SOURCE_DIR_PATH.resolve("target").resolve("Dockerfile").toFile();
-        Assert.assertTrue(dockerFile.exists());
+        removeEnv("BAL_DOCKER_WINDOWS");
     }
 
-    @Test(dependsOnMethods = {"buildDockerImageTest"})
+    @Test(dependsOnMethods = {"buildDockerImageWindowsTest"})
     public void validateDockerFile() throws IOException {
         File dockerFile = SOURCE_DIR_PATH.resolve("target").resolve("Dockerfile").toFile();
         Assert.assertTrue(dockerFile.exists());
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"hello.jar:jars/*\" " +
                 "'wso2/bal/1_0_0/$_init'"));
-        Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
-    }
-
-    @Test(dependsOnMethods = {"buildDockerImageTest"})
-    public void validateDockerImage() {
-        Assert.assertNotNull(DockerTestUtils.getDockerImage(DOCKER_IMAGE));
-        Assert.assertEquals(DockerTestUtils.getExposedPorts(DOCKER_IMAGE).size(), 1);
-        Assert.assertEquals(Objects.requireNonNull(DockerTestUtils.getDockerImage(DOCKER_IMAGE).getConfig()
-                .getEnv()).length, 2);
-        Assert.assertEquals(DockerTestUtils.getCommand(DOCKER_IMAGE).get(2), "java -Xdiag -cp \"hello.jar:jars/*\" " +
-                "'wso2/bal/1_0_0/$_init' || cat ballerina-internal.log");
+        Assert.assertTrue(dockerFileContent.contains("FROM openjdk:11-windowsservercore"));
     }
 
     private Set<Path> getJarFilePaths() throws IOException {
@@ -149,9 +101,8 @@ public class DockerGeneratorTests {
     }
 
     @AfterClass
-    public void cleanUp() throws IOException {
+    public void cleanUp() throws IOException, ReflectiveOperationException {
         FileUtils.deleteDirectory(SOURCE_DIR_PATH.resolve("target").toFile());
-        DockerTestUtils.deleteDockerImage(DOCKER_IMAGE);
     }
 
 }

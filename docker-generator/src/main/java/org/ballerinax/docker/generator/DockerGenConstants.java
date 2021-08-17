@@ -30,7 +30,5 @@ public class DockerGenConstants {
     public static final String TAG_SEPARATOR = ":";
     public static final String OPENJDK_11_JRE_SLIM_BASE = "ballerina/jre11:v1";
     public static final String OPENJDK_11_JRE_WINDOWS_BASE_IMAGE = "openjdk:11-windowsservercore";
-    private static final boolean WINDOWS_BUILD =
-            Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));
-    public static final String WORK_DIR = WINDOWS_BUILD ? "C:\\ballerina\\home\\" : "/home/ballerina";
+
 }

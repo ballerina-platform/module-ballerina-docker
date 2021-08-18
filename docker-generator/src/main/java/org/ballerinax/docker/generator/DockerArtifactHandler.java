@@ -81,6 +81,7 @@ public class DockerArtifactHandler {
 
         if (!moduleName.equals(".")) {
             if (!version.equals("")) {
+                version = "0";
                 className = cleanupName(version) + "/" + className;
             }
             className = cleanupName(moduleName) + "/" + className;

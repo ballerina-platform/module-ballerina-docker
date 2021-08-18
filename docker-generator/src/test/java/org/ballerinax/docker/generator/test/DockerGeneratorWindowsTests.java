@@ -92,7 +92,7 @@ public class DockerGeneratorWindowsTests {
         Assert.assertTrue(dockerFile.exists());
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
         Assert.assertTrue(dockerFileContent.contains("CMD java -Xdiag -cp \"hello.jar:jars/*\" " +
-                "'wso2/bal/0/$_init'"));
+                "'wso2/bal/1/$_init'"));
         Assert.assertTrue(dockerFileContent.contains("FROM openjdk:11-windowsservercore"));
     }
 

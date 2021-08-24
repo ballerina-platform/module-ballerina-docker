@@ -15,6 +15,6 @@
 # -----------------------------------------------------------------------
 FROM alpine:3.11.11
 RUN apk add --upgrade apk-tools && \
-    apk add --update openjdk11-jre=11.0.5_p10-r0 &&  \
+    apk add --update openjdk11-jre=11.0.11_p9-r0 &&  \
     rm -rf /var/cache/apk/* &&  \
     echo "securerandom.source=file:/dev/urandom" >> /usr/lib/jvm/default-jvm/jre/lib/security/java.security

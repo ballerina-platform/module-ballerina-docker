@@ -14,7 +14,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM alpine:3.11.11
+FROM alpine:3.14.1
 LABEL maintainer="dev@ballerina.io"
 
 # Ballerina runtime distribution filename.

@@ -13,6 +13,11 @@ Execute the following command(s)
 Copy the ballerina distribution zip file to `docker/` folder and execute the following command(s)    
 ```cd docker```  
 ```docker build --no-cache=true --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE> -t ballerina/ballerina:<version> .```
+#### Devcontainer Image
+Copy the ballerina distribution deb installer to `devcontainer/` folder and execute the following command(s)    
+```cd docker```  
+```docker build --no-cache=true --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE.deb> -t ballerina/ballerina-devcontainer:<version> .```
+
 
 ### For windows platform
 #### Tools image

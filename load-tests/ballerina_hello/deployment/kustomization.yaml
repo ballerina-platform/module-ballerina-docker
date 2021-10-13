@@ -1,0 +1,10 @@
+resources:
+  - ballerina_hello.yaml
+  - ingress.yaml
+patches:
+- path: deployment-patch.yaml
+  target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: ballerina-hello-deployment

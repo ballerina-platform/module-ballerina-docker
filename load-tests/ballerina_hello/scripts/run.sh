@@ -20,18 +20,3 @@ set -e
 source base-scenario.sh
 
 jmeter -n -t "$scriptsDir/"http-get-request.jmx -l "$resultsDir/"original.jtl -Jusers="$concurrent_users" -Jduration=1200 -Jhost=bal.perf.test -Jport=80 -Jprotocol=http -Jpath=hello $payload_flags
-
-echo "--------Processing Results--------"
-pushd ../results/
-echo "--------Splitting Results--------"
-jtl-splitter.sh -- -f original.jtl -t 120 -u SECONDS -s
-echo "--------Splitting Completed--------"
-
-echo "--------Generating CSV--------"
-JMeterPluginsCMD.sh --generate-csv new_summary.csv --input-jtl original-measurement.jtl --plugin-type AggregateReport
-echo "--------CSV generated--------"
-
-echo "--------Merge CSV--------"
-create-csv.sh new_summary.csv ~/"${repo_name}"/load-tests/"$scenario_name"/results/summary.csv "0" "$concurrent_users"
-echo "--------CSV merged--------"
-popd

@@ -139,7 +139,7 @@ public class DockerGeneratorTests {
         Assert.assertNotNull(DockerTestUtils.getDockerImage(DOCKER_IMAGE));
         Assert.assertEquals(DockerTestUtils.getExposedPorts(DOCKER_IMAGE).size(), 1);
         Assert.assertEquals(Objects.requireNonNull(DockerTestUtils.getDockerImage(DOCKER_IMAGE).getConfig()
-                .getEnv()).length, 2);
+                .getEnv()).length, 3);
         Assert.assertEquals(DockerTestUtils.getCommand(DOCKER_IMAGE).get(2), "java -Xdiag -cp \"hello.jar:jars/*\" " +
                 "'wso2/bal/1/$_init' || cat ballerina-internal.log");
     }

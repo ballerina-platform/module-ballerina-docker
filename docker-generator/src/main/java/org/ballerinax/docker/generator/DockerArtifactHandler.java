@@ -256,9 +256,9 @@ public class DockerArtifactHandler {
         dockerfileContent.append("FROM ").append(this.dockerModel.getBaseImage()).append("\n");
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
-        dockerfileContent.append("\n");
+        dockerfileContent.append("ENV DOCKER_API_VERSION 1.38 ").append("\n");
         this.dockerModel.getDependencyJarPaths().forEach(path -> {
-            dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(getWorkDir())
+                    dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(getWorkDir())
                             .append("/jars/ \n");
                     //TODO: Remove once https://github.com/moby/moby/issues/37965 is fixed.
                     boolean isCiBuild = "true".equals(System.getenv().get("CI_BUILD"));

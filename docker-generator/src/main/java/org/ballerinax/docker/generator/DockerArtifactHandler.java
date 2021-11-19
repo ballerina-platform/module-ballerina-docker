@@ -42,6 +42,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.EXECUTABLE_JAR;
 import static org.ballerinax.docker.generator.DockerGenConstants.REGISTRY_SEPARATOR;
@@ -256,17 +258,29 @@ public class DockerArtifactHandler {
         dockerfileContent.append("FROM ").append(this.dockerModel.getBaseImage()).append("\n");
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
-        dockerfileContent.append("ENV DOCKER_API_VERSION 1.38 ").append("\n");
-        this.dockerModel.getDependencyJarPaths().forEach(path -> {
-                    dockerfileContent.append("COPY ").append(path.getFileName()).append(" ").append(getWorkDir())
-                            .append("/jars/ \n");
-                    //TODO: Remove once https://github.com/moby/moby/issues/37965 is fixed.
-                    boolean isCiBuild = "true".equals(System.getenv().get("CI_BUILD"));
-                    if (isCiBuild) {
-                        dockerfileContent.append("RUN true \n");
-                    }
-                }
-        );
+        this.dockerModel.getDependencyJarPaths()
+                .stream()
+                .map(Path::getFileName)
+                .filter(path -> !path.toString().endsWith("-observability-symbols.jar"))
+                .collect(Collectors.toCollection(TreeSet::new))
+                .forEach(path -> {
+                            dockerfileContent.append("COPY ")
+                                    .append(path)
+                                    .append(" ").append(getWorkDir())
+                                    .append("/jars/ \n");
+                            //TODO: Remove once https://github.com/moby/moby/issues/37965 is fixed.
+                            boolean isCiBuild = "true".equals(System.getenv().get("CI_BUILD"));
+                            if (isCiBuild) {
+                                dockerfileContent.append("RUN true \n");
+                            }
+                        }
+                );
+        this.dockerModel.getDependencyJarPaths().stream()
+                .filter(path -> path.toString().endsWith("observability-symbols.jar"))
+                .findFirst().ifPresent(path -> dockerfileContent.append("COPY ")
+                        .append(path.getFileName())
+                        .append(" ").append(getWorkDir())
+                        .append("/jars/ \n"));
         appendUser(dockerfileContent);
         dockerfileContent.append("WORKDIR ").append(getWorkDir()).append("\n");
         appendCommonCommands(dockerfileContent);
@@ -276,7 +290,7 @@ public class DockerArtifactHandler {
                     packageID.version.value);
             if (this.dockerModel.isEnableDebug()) {
                 dockerfileContent.append("CMD java -Xdiag -agentlib:jdwp=transport=dt_socket,server=y,suspend=n," +
-                        "address='*:")
+                                "address='*:")
                         .append(this.dockerModel.getDebugPort()).append("' -cp \"")
                         .append(this.dockerModel.getJarFileName()).append(":jars/*\" ").append(mainClass);
             } else {

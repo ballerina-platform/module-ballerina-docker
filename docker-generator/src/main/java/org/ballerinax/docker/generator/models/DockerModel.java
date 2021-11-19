@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.ballerinax.docker.generator.DockerGenConstants.DOCKER_API_VERSION;
 
@@ -74,7 +76,7 @@ public class DockerModel {
         externalFiles = new HashSet<>();
         commandArg = "";
         env = new HashMap<>();
-        dependencyJarPaths = new HashSet<>();
+        dependencyJarPaths = new TreeSet<>();
     }
 
     public void setDockerAPIVersion(String dockerAPIVersion) {
@@ -87,6 +89,10 @@ public class DockerModel {
 
     public void addDependencyJarPaths(Set<Path> paths) {
         this.dependencyJarPaths.addAll(paths);
+    }
+
+    public Set<Path> getDependencyJarPaths() {
+        return this.dependencyJarPaths.stream().sorted().collect(Collectors.toSet());
     }
 
     public Set<CopyFileModel> getCopyFiles() {

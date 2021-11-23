@@ -258,10 +258,12 @@ public class DockerArtifactHandler {
         dockerfileContent.append("FROM ").append(this.dockerModel.getBaseImage()).append("\n");
         dockerfileContent.append("\n");
         dockerfileContent.append("LABEL maintainer=\"dev@ballerina.io\"").append("\n");
+        // Append Jar copy instructions without observability jar and executable jar
         this.dockerModel.getDependencyJarPaths()
                 .stream()
                 .map(Path::getFileName)
-                .filter(path -> !path.toString().endsWith("-observability-symbols.jar"))
+                .filter(path -> !(path.toString().endsWith("-observability-symbols.jar") ||
+                        path.toString().endsWith(dockerModel.getJarFileName())))
                 .collect(Collectors.toCollection(TreeSet::new))
                 .forEach(path -> {
                             dockerfileContent.append("COPY ")
@@ -275,12 +277,17 @@ public class DockerArtifactHandler {
                             }
                         }
                 );
-        this.dockerModel.getDependencyJarPaths().stream()
-                .filter(path -> path.toString().endsWith("observability-symbols.jar"))
-                .findFirst().ifPresent(path -> dockerfileContent.append("COPY ")
-                        .append(path.getFileName())
-                        .append(" ").append(getWorkDir())
-                        .append("/jars/ \n"));
+        // Append Jar copy for observability jar and executable jar
+        this.dockerModel.getDependencyJarPaths().forEach(path -> {
+                    if (path.toString().endsWith("observability-symbols.jar") ||
+                            path.toString().endsWith(dockerModel.getJarFileName())) {
+                        dockerfileContent.append("COPY ")
+                                .append(path.getFileName())
+                                .append(" ").append(getWorkDir())
+                                .append("/jars/ \n");
+                    }
+                }
+        );
         appendUser(dockerfileContent);
         dockerfileContent.append("WORKDIR ").append(getWorkDir()).append("\n");
         appendCommonCommands(dockerfileContent);

@@ -1,0 +1,15 @@
+name: Benchmark github hook.
+on:
+  repository_dispatch:
+    types: [perf]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Prints payload
+      run: |
+        echo ${{ github.event.client_payload.status }}
+        results="${{ github.event.client_payload.result }}"
+        echo $results
+        echo ${{ github.event.client_payload.errorRate }}

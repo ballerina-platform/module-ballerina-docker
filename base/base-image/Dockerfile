@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -----------------------------------------------------------------------
-FROM alpine:3.14.2
+FROM alpine:3.14.3
 RUN apk add --upgrade apk-tools && \
     apk add --update openjdk11-jre=11.0.11_p9-r0 &&  \
     rm -rf /var/cache/apk/* &&  \

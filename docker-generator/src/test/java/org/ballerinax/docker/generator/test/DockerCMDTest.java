@@ -80,6 +80,7 @@ public class DockerCMDTest {
         File dockerFile = SOURCE_DIR_PATH.resolve("target").resolve("Dockerfile").toFile();
         Assert.assertTrue(dockerFile.exists());
         String dockerFileContent = new String(Files.readAllBytes(dockerFile.toPath()));
+        Assert.assertTrue(dockerFileContent.contains("COPY hello.jar /home/ballerina/jars/"));
         Assert.assertTrue(dockerFileContent.contains("USER ballerina"));
     }
 

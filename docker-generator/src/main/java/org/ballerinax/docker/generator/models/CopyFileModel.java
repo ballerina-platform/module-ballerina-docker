@@ -18,12 +18,14 @@
 
 package org.ballerinax.docker.generator.models;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Docker:CopyFiles annotation model class.
  */
-@Data
+@Getter
+@Setter
 public class CopyFileModel {
     private String source;
     private String target;

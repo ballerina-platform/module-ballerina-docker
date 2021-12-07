@@ -18,7 +18,8 @@
 
 package org.ballerinax.docker.generator.models;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinax.docker.generator.DockerGenConstants;
 import org.ballerinax.docker.generator.exceptions.DockerGenException;
@@ -39,7 +40,8 @@ import static org.ballerinax.docker.generator.DockerGenConstants.DOCKER_API_VERS
 /**
  * Docker annotations model class.
  */
-@Data
+@Getter
+@Setter
 public class DockerModel {
     private final boolean windowsBuild =
             Boolean.parseBoolean(System.getenv(DockerGenConstants.ENABLE_WINDOWS_BUILD));

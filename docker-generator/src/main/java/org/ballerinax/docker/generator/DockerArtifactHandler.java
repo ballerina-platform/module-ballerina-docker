@@ -228,12 +228,13 @@ public class DockerArtifactHandler {
                     .exec(new DockerBuildImageCallback())
                     .awaitImageId();
         } catch (RuntimeException ex) {
-            if (ex.getMessage().contains("java.net.SocketException: Connection refused")) {
+            String message = ex.getMessage();
+            if (message.contains("java.net.SocketException: Connection refused")) {
                 this.dockerBuildError.setErrorMsg("unable to connect to docker host: " +
                         this.dockerClientConfig.getDockerHost());
             } else {
                 this.dockerBuildError.setErrorMsg("unable to build docker image: " +
-                        cleanErrorMessage(ex.getMessage()));
+                        cleanErrorMessage(message));
             }
         }
 
@@ -468,6 +469,16 @@ public class DockerArtifactHandler {
             }
 
             super.onNext(item);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            printDebug(throwable.getMessage());
+            try {
+                super.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

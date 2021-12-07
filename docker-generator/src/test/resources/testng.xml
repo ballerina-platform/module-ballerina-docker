@@ -21,6 +21,7 @@
     <test name="ballerina-docker-tests" parallel="false">
         <classes>
             <class name="org.ballerinax.docker.generator.test.DockerGeneratorTests"/>
+            <class name="org.ballerinax.docker.generator.test.DockerGeneratorNegativeTests"/>
             <class name="org.ballerinax.docker.generator.test.DockerCMDTest"/>
             <class name="org.ballerinax.docker.generator.test.DockerInvalidCopyTest"/>
             <class name="org.ballerinax.docker.generator.test.DockerGeneratorWindowsTests"/>

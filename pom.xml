@@ -284,7 +284,7 @@
         <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
         <commons.codec.version>1.12</commons.codec.version>
-        <commons.io.version>2.6</commons.io.version>
+        <commons.io.version>2.11.0</commons.io.version>
         <docker.java.version>3.1.5</docker.java.version>
         <jackson.version>2.9.8</jackson.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>

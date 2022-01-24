@@ -8,8 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Prints payload
+      env:
+        json_var: ${{ toJson(github.event.client_payload.results) }}
       run: |
-        echo ${{ github.event.client_payload.status }}
-        results="${{ github.event.client_payload.result }}"
-        echo $results
-        echo ${{ github.event.client_payload.errorRate }}
+        echo $json_var | jq 

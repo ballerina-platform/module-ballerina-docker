@@ -1,6 +1,5 @@
 resources:
   - ballerina_hello.yaml
-  - ingress.yaml
 patches:
 - path: deployment-patch.yaml
   target:

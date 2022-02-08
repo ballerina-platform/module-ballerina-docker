@@ -1,6 +1,6 @@
 [container.image]
 repository= "ballerina"
-name="observability_enabled"
+name="route_guide_unary"
 
 [cloud.deployment]
 min_memory="256Mi"
@@ -11,3 +11,7 @@ max_cpu="1000m"
 [cloud.deployment.autoscaling]
 min_replicas=1
 max_replicas=1
+
+[[cloud.config.maps]]
+file="./resources/route_guide_db.json"
+mount_path="/home/ballerina/resources/route_guide_db.json"

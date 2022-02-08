@@ -1,8 +1,8 @@
 [package]
 org = "wso2"
-name = "observability_enabled"
+name = "route_guide_unary"
 version = "0.0.1"
 
 [build-options]
+observabilityIncluded = false
 cloud = "k8s"
-observabilityIncluded = true

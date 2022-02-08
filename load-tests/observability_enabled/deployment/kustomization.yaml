@@ -1,3 +1,0 @@
-resources:
-  - ingress.yaml
-  - observability_enabled.yaml

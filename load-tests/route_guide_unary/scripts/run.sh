@@ -14,8 +14,11 @@
 # limitations under the License.
 #
 # ----------------------------------------------------------------------------
-# Execusion script for ballerina performance tests
+# Execution script for ballerina performance tests
 # ----------------------------------------------------------------------------
 set -e
 source base-scenario.sh
-jmeter -n -t "$scriptsDir/"http-get-request.jmx -l "$resultsDir/"original.jtl -Jusers="$concurrent_users" -Jduration=1200 -Jhost=bal.perf.test -Jport=80 -Jprotocol=http -Jpath=hello
+
+echo "----------Running load tests----------"
+./ghz --skipTLS --proto $scriptsDir/route_guide.proto --rps 1000 --duration 1800s --concurrency 10 --duration-stop wait --call routeguide.RouteGuide.GetFeature -d '{"latitude": 406109563, "longitude": -742186778}' route-guide-una.default.svc.cluster.local:9090 --format influx-summary --output $scriptsDir/ghz_output.csv
+head $scriptsDir/ghz_output.csv

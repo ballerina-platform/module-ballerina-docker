@@ -241,7 +241,6 @@ public class DockerArtifactHandler {
         handleError(this.dockerBuildError);
     }
 
-
     private void handleError(DockerError dockerError) throws DockerGenException {
         if (dockerError.isError()) {
             throw new DockerGenException(dockerError.getErrorMsg());
@@ -277,7 +276,7 @@ public class DockerArtifactHandler {
                                 dockerfileContent.append("RUN true \n");
                             }
                         }
-                );
+                        );
         // Append Jar copy for observability jar and executable jar
         this.dockerModel.getDependencyJarPaths().forEach(path -> {
                     if (path.toString().endsWith("observability-symbols.jar") ||
@@ -288,7 +287,7 @@ public class DockerArtifactHandler {
                                 .append("/jars/ \n");
                     }
                 }
-        );
+                                                        );
         appendUser(dockerfileContent);
         dockerfileContent.append("WORKDIR ").append(getWorkDir()).append("\n");
         appendCommonCommands(dockerfileContent);
@@ -298,12 +297,13 @@ public class DockerArtifactHandler {
                     packageID.version.value);
             if (this.dockerModel.isEnableDebug()) {
                 dockerfileContent.append("CMD java -Xdiag -agentlib:jdwp=transport=dt_socket,server=y,suspend=n," +
-                                "address='*:")
+                        "address='*:")
                         .append(this.dockerModel.getDebugPort()).append("' -cp \"")
                         .append(this.dockerModel.getJarFileName()).append(":jars/*\" ").append(mainClass);
             } else {
                 dockerfileContent.append("CMD java -Xdiag -cp \"").append(this.dockerModel.getJarFileName())
-                        .append(":jars/*\" ").append(mainClass).append(" || cat ballerina-internal.log");
+                        .append(":jars/*\" ").append(mainClass)
+                        .append(" || [ -f \"ballerina-internal.log\" ] && cat ballerina-internal.log");
             }
         } else {
             dockerfileContent.append(this.dockerModel.getCmd());
@@ -407,11 +407,11 @@ public class DockerArtifactHandler {
         return isWindowsBuild() ? "C:\\ballerina\\home\\" : "/home/ballerina";
     }
 
-
     /**
      * Class to hold docker errors.
      */
     private static class DockerError {
+
         private boolean error;
         private String errorMsg;
 
@@ -434,6 +434,7 @@ public class DockerArtifactHandler {
     }
 
     private class DockerBuildImageCallback extends BuildImageResultCallback {
+
         @Override
         public void onNext(BuildResponseItem item) {
             // handling error

@@ -48,6 +48,4 @@ RUN rm -rf /var/cache/apk/*
 
 RUN ln -s /opt/java/openjdk/bin/java /usr/bin/java
 
-RUN echo Verifying install ... \
-    && echo java --version && java --version \
-    && echo Complete.
+RUN java --version 

@@ -15,7 +15,7 @@
  *
  */
 
-apply plugin: "java"
+apply plugin: "java-library"
 apply plugin: "com.github.spotbugs"
 apply plugin: "checkstyle"
 apply plugin: "jacoco"
@@ -36,10 +36,10 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
 
 jacoco {
-    toolVersion = "0.8.6"
+    toolVersion = "0.8.10"
 }
 
 test {
@@ -89,7 +89,7 @@ task validateSpotbugs() {
 }
 
 checkstyle {
-    toolVersion '7.8.2'
+    toolVersion '10.12.1'
     configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
     configProperties = ["suppressionFile": rootProject.file("build-config/checkstyle/build/suppressions.xml")]
 }
@@ -118,3 +118,4 @@ publishing {
 
 spotbugsMain.finalizedBy validateSpotbugs
 checkstyleMain.dependsOn(":build-config:checkstyle:downloadMultipleFiles")
+checkstyleTest.dependsOn(":build-config:checkstyle:downloadMultipleFiles")

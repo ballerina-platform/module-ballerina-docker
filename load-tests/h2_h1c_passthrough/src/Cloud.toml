@@ -1,7 +1,7 @@
 [container.image]
 repository = "ballerina"
 name = "h2_h1c_passthrough"
-base = "xlight05/jre11:v1"
+base = "xlight05/jre17:v1"
 
 [[container.copy.files]]
 sourceFile="./security/ballerinaKeystore.p12"

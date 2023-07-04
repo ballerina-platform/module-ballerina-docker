@@ -316,7 +316,7 @@ public class DockerArtifactHandler {
     }
 
     private void appendUser(StringBuilder dockerfileContent) {
-        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE)) {
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_17_JRE_SLIM_BASE)) {
             dockerfileContent.append("RUN addgroup troupe \\").append(System.lineSeparator());
             dockerfileContent.append("    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \\")
                     .append("\n");
@@ -392,7 +392,7 @@ public class DockerArtifactHandler {
             this.dockerModel.getPorts().forEach(port -> dockerfileContent.append(" ").append(port));
         }
         dockerfileContent.append(System.lineSeparator());
-        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_11_JRE_SLIM_BASE)) {
+        if (this.dockerModel.getBaseImage().equals(DockerGenConstants.OPENJDK_17_JRE_SLIM_BASE)) {
             dockerfileContent.append("USER ballerina").append("\n");
             dockerfileContent.append(System.lineSeparator());
         }

@@ -17,4 +17,11 @@
   ~ under the License.
   -->
 <FindBugsFilter>
+    <Match>
+        <Class name="org.ballerinax.docker.generator.utils.DockerImageName"/>
+        <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP, EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>

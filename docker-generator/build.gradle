@@ -36,4 +36,5 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+    jvmArgs = ['--add-opens=java.base/java.util=ALL-UNNAMED']
 }

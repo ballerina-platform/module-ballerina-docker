@@ -29,7 +29,7 @@ RUN mkdir -p /ballerina/files \
     && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \
     && apk add --upgrade apk-tools \
     && apk upgrade \
-    && apk add --update --no-cache bash openjdk17-jre=17.0.7_p7-r0 docker-cli libc6-compat gcompat \
+    && apk add --update --no-cache bash openjdk17-jre-17.0.8_p7-r0 docker-cli libc6-compat gcompat \
     && unzip /root/${BALLERINA_DIST} -d /ballerina/ > /dev/null 2>&1 \
     && mv /ballerina/ballerina* /ballerina/runtime \
     && mkdir -p /ballerina/runtime/logs \

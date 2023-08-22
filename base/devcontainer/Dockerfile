@@ -14,7 +14,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu21.04
+FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu21.04.1
 LABEL maintainer="dev@ballerina.io"
 
 # Ballerina deb installer filename.

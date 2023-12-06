@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -----------------------------------------------------------------------
-FROM alpine:3.17.3
+FROM alpine:3.17.6
 RUN apk add --upgrade apk-tools
 
 ENV JAVA_VERSION jdk-11.0.15+10

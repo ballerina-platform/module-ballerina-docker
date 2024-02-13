@@ -24,7 +24,7 @@
     </parent>
 
     <groupId>org.ballerinax.docker</groupId>
-    <version>1.2.48-SNAPSHOT</version>
+    <version>1.2.49</version>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>docker-extension-parent</artifactId>
     <packaging>pom</packaging>
@@ -275,7 +275,7 @@
         <url>https://github.com/ballerinax/docker.git</url>
         <developerConnection>scm:git:https://github.com/ballerinax/docker.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinax/docker.git</connection>
-        <tag>HEAD</tag>
+        <tag>v1.2.49</tag>
     </scm>
 
     <properties>

@@ -44,6 +44,22 @@
             <artifactId>docker-java</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-jersey</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -142,6 +158,10 @@
                                     <include>org.glassfish.jersey.core:jersey-client</include>
                                     <include>org.ballerinax.docker:docker-generator</include>
                                     <include>com.github.docker-java:docker-java</include>
+                                    <include>com.github.docker-java:docker-java-api</include>
+                                    <include>com.github.docker-java:docker-java-core</include>
+                                    <include>com.github.docker-java:docker-java-transport</include>
+                                    <include>com.github.docker-java:docker-java-transport-jersey</include>
                                     <include>commons-lang:commons-lang</include>
                                     <include>org.apache.httpcomponents:httpclient</include>
                                     <include>org.apache.httpcomponents:httpcore</include>

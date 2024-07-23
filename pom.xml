@@ -186,6 +186,11 @@
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.woodstox</groupId>
+                <artifactId>woodstox-core</artifactId>
+                <version>6.5.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

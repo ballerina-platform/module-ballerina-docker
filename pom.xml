@@ -77,114 +77,246 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-lang</artifactId>
                 <version>${ballerina.lang.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina</artifactId>
                 <version>${ballerina.lang.version}</version>
                 <type>zip</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.ballerinax.docker</groupId>
                 <artifactId>docker-extension</artifactId>
                 <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.ballerinax.docker</groupId>
                 <artifactId>docker-extension-test</artifactId>
                 <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java</artifactId>
                 <version>${docker.java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-api</artifactId>
                 <version>${docker.java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-core</artifactId>
                 <version>${docker.java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-transport</artifactId>
                 <version>${docker.java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-transport-jersey</artifactId>
                 <version>${docker.java.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-packerina</artifactId>
                 <version>${ballerina.lang.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>testerina-core</artifactId>
                 <version>${ballerina.lang.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${com.fasterxml.jackson.dataformat.yaml.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
                 <version>${com.fasterxml.jackson.core.annotations.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.ballerinax.docker</groupId>
                 <artifactId>docker-generator</artifactId>
                 <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons.io.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons.codec.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
@@ -300,7 +432,7 @@
         <url>https://github.com/ballerinax/docker.git</url>
         <developerConnection>scm:git:https://github.com/ballerinax/docker.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinax/docker.git</connection>
-        <tag>HEAD</tag>
+        <tag>v1.2.54</tag>
     </scm>
 
     <properties>

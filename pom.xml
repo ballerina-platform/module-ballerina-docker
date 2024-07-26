@@ -432,7 +432,7 @@
         <url>https://github.com/ballerinax/docker.git</url>
         <developerConnection>scm:git:https://github.com/ballerinax/docker.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinax/docker.git</connection>
-        <tag>v1.2.54</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>

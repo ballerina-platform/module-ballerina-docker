@@ -21,25 +21,8 @@ FROM ballerina/ballerina:${BALLERINA_VERSION}
 
 USER root
 
-RUN bal pull ballerinax/postgresql \
-    && bal pull ballerinax/postgresql.driver \
-    && bal pull ballerinax/mysql \
-    && bal pull ballerinax/mysql.driver \
-    && bal pull ballerinax/mssql \
-    && bal pull ballerinax/mssql.driver \
-    && bal pull ballerinax/mongodb \
-    && bal pull ballerinax/oracledb \
-    && bal pull ballerinax/oracledb.driver \
-    && bal pull ballerinax/snowflake \
-    && bal pull ballerinax/snowflake.driver \
-    && bal pull ballerinax/redis \
-    && bal pull ballerinax/kafka \
-    && bal pull ballerinax/rabbitmq \
-    && bal pull ballerinax/nats \
-    && bal pull ballerinax/jaeger \
-    && bal pull ballerinax/choreo \
-    && bal pull ballerinax/prometheus \
-    && bal pull ballerinax/zipkin \
-    && bal pull ballerinax/newrelic \
-    && bal pull ballerina/sql:1.13.2 \
-    && bal pull ballerina/crypto:2.7.2
+# Copy null import ballerina project.
+COPY ./extension /home/ballerina/extension
+WORKDIR /home/ballerina
+
+RUN bal build extension

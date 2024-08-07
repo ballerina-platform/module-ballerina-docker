@@ -21,8 +21,8 @@ FROM ballerina/ballerina:${BALLERINA_VERSION}
 
 USER root
 
-# Copy null import ballerina project.
-COPY ./extension /home/ballerina/extension
+# Copy null import ballerina file.
+COPY ./extension.bal /home/ballerina
 WORKDIR /home/ballerina
 
-RUN bal build extension
+RUN bal build extension.bal && rm extension.bal

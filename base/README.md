@@ -24,3 +24,9 @@ Copy the ballerina distribution deb installer to `devcontainer/` folder and exec
 Copy the ballerina distribution zip file to `docker/` folder and execute the following command(s)  
 ```cd docker```  
 ```docker build --no-cache=true --build-arg BALLERINA_DIST=<BALLERINA_DISTRIBUTION_FILE> -t ballerina/ballerina-runtime:<version> -f DockerfileWindows .```
+
+### For image with ballerinax dependencies
+
+Execute the following command(s)  
+```cd docker```  
+```docker build --no-cache=true --build-arg BALLERINA_VERSION=<version> -f DockerfilePacked -t ballerina/ballerina-extension:<version> .```

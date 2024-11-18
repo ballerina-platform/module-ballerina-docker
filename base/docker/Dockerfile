@@ -14,7 +14,10 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM alpine:3.17.3
+FROM alpine:3.20.3
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 LABEL maintainer="dev@ballerina.io"
 
 # Ballerina runtime distribution filename.
@@ -29,8 +32,41 @@ RUN mkdir -p /ballerina/files \
     && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \
     && apk add --upgrade apk-tools \
     && apk upgrade \
-    && apk add --update --no-cache bash openjdk17-jre=17.0.11_p9-r0 docker-cli libc6-compat gcompat \
-    && unzip /root/${BALLERINA_DIST} -d /ballerina/ > /dev/null 2>&1 \
+    && apk add --update --no-cache bash docker-cli libc6-compat gcompat
+
+RUN set -eux; \
+    ARCH="$(apk --print-arch)"; \
+    case "${ARCH}" in \
+      amd64|x86_64) \
+          ESUM='8da7da49101d45f646272616f20e8b10d57472bbf5961d64ffb07d7ba93c6909'; \
+          BINARY_URL='https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.5%2B11/OpenJDK21U-jdk_x64_alpine-linux_hotspot_21.0.5_11.tar.gz'; \
+         ;; \
+      aarch64) \
+          ESUM='f22e32b869dd0e5e3f248646f62bffaa307b360299488ac8764e622923d7e747'; \
+          BINARY_URL='https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.5%2B11/OpenJDK21U-jdk_aarch64_alpine-linux_hotspot_21.0.5_11.tar.gz'; \
+        ;;\
+      *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+      ;; \
+    esac; \
+	wget -O /tmp/openjdk.tar.gz ${BINARY_URL}; \
+	echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
+	mkdir -p /opt/java/openjdk; \
+	tar --extract \
+	    --file /tmp/openjdk.tar.gz \
+	    --directory /opt/java/openjdk \
+	    --strip-components 1 \
+	    --no-same-owner \
+	  ; \
+    rm -rf /tmp/openjdk.tar.gz;
+
+ENV LD_PRELOAD=/lib/libgcompat.so.0
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"
+
+RUN unzip /root/${BALLERINA_DIST} -d /ballerina/ > /dev/null 2>&1 \
     && mv /ballerina/ballerina* /ballerina/runtime \
     && mkdir -p /ballerina/runtime/logs \
     && chown -R ballerina:troupe /ballerina \
@@ -39,7 +75,6 @@ RUN mkdir -p /ballerina/files \
 
 ENV BALLERINA_HOME /ballerina/runtime
 ENV PATH $BALLERINA_HOME/bin:$PATH
-ENV JAVA_HOME=/usr/lib/jvm/default-jvm
 
 WORKDIR /home/ballerina
 VOLUME /home/ballerina

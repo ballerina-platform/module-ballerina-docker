@@ -186,6 +186,11 @@
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-common</artifactId>
+                <version>${org.glassfish.jersey.core.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -234,7 +239,7 @@
         <repository>
             <id>wso2.stage</id>
             <name>WSO2 Stage Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1778</url>
+            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1779</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
@@ -299,12 +304,12 @@
     </scm>
 
     <properties>
-        <ballerina.lang.version>1.2.54</ballerina.lang.version>
+        <ballerina.lang.version>1.2.55</ballerina.lang.version>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
         <commons.codec.version>1.15</commons.codec.version>
-        <commons.io.version>2.11.0</commons.io.version>
+        <commons.io.version>2.14.0</commons.io.version>
         <docker.java.version>3.4.0</docker.java.version>
         <jackson.version>2.9.8</jackson.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
@@ -315,5 +320,6 @@
         <slf4j.version>1.7.26</slf4j.version>
         <testng.version>6.14.3</testng.version>
         <lombok.version>1.18.10</lombok.version>
+        <org.glassfish.jersey.core.version>2.34</org.glassfish.jersey.core.version>
     </properties>
 </project>

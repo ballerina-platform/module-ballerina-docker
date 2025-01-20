@@ -310,7 +310,7 @@
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
         <commons.codec.version>1.15</commons.codec.version>
         <commons.io.version>2.14.0</commons.io.version>
-        <docker.java.version>3.4.0</docker.java.version>
+        <docker.java.version>3.4.1</docker.java.version>
         <jackson.version>2.9.8</jackson.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
@@ -320,6 +320,6 @@
         <slf4j.version>1.7.26</slf4j.version>
         <testng.version>6.14.3</testng.version>
         <lombok.version>1.18.10</lombok.version>
-        <org.glassfish.jersey.core.version>2.34</org.glassfish.jersey.core.version>
+        <org.glassfish.jersey.core.version>2.30.1</org.glassfish.jersey.core.version>
     </properties>
 </project>

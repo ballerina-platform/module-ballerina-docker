@@ -32,7 +32,7 @@ RUN mkdir -p /ballerina/files \
     && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \
     && apk add --upgrade apk-tools \
     && apk upgrade \
-    && apk add --update --no-cache bash docker-cli libc6-compat gcompat
+    && apk add --update --no-cache bash docker-cli libc6-compat gcompat libgcc
 
 RUN set -eux; \
     ARCH="$(apk --print-arch)"; \

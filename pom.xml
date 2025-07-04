@@ -239,7 +239,7 @@
         <repository>
             <id>wso2.stage</id>
             <name>WSO2 Stage Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1783</url>
+            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1784</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
@@ -304,7 +304,7 @@
     </scm>
 
     <properties>
-        <ballerina.lang.version>1.2.58</ballerina.lang.version>
+        <ballerina.lang.version>1.2.59</ballerina.lang.version>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
@@ -320,6 +320,6 @@
         <slf4j.version>1.7.26</slf4j.version>
         <testng.version>6.14.3</testng.version>
         <lombok.version>1.18.10</lombok.version>
-        <org.glassfish.jersey.core.version>2.30.1</org.glassfish.jersey.core.version>
+        <org.glassfish.jersey.core.version>2.34</org.glassfish.jersey.core.version>
     </properties>
 </project>

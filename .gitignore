@@ -30,6 +30,7 @@ dependency-reduced-pom.xml
 *.iml
 *.ipr
 *.iws
+*.gradle
 
 # MacOS
 *.DS_Store

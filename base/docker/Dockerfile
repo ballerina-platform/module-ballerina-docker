@@ -14,7 +14,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM openjdk:8-jre-alpine
+FROM eclipse-temurin:8-jre-alpine
 LABEL maintainer="dev@ballerina.io"
 
 # Ballerina runtime distribution filename.

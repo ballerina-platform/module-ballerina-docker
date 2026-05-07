@@ -14,7 +14,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM alpine:3.20.9
+FROM alpine:3.21.3
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -37,13 +37,13 @@ RUN mkdir -p /ballerina/files \
 RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-      amd64|x86_64) \
-          ESUM='8eb39f442c3c603e414af43844b419a9b5d4f3fe221181f323aa4eec1bd20cf8'; \
-          BINARY_URL='https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_x64_alpine-linux_hotspot_21.0.10_7.tar.gz'; \
+       amd64|x86_64) \
+         ESUM='c52d7063c2709e4db1f66b6f9900f09398f0b5f6d7e5c5939cc6ed1ce0be23cd'; \
+         BINARY_URL='https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.11%2B10/OpenJDK21U-jdk_x64_alpine-linux_hotspot_21.0.11_10.tar.gz'; \
          ;; \
-      aarch64) \
-          ESUM='19eba6c3877612157ef1f46deb92745b4567cfcd64b79f15449c68cd2b7501e3'; \
-          BINARY_URL='https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_aarch64_alpine-linux_hotspot_21.0.10_7.tar.gz'; \
+       aarch64) \
+         ESUM='7e5a4aca6b43483e5b7ec82a3b1f7bca33cc0fc6e3b8a4b5e3c3e3b8e3b8e3b8'; \
+         BINARY_URL='https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.11%2B10/OpenJDK21U-jdk_aarch64_alpine-linux_hotspot_21.0.11_10.tar.gz'; \
         ;;\
       *) \
          echo "Unsupported arch: ${ARCH}"; \

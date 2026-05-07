@@ -38,11 +38,11 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        amd64|x86_64) \
-         ESUM='c52d7063c2709e4db1f66b6f9900f09398f0b5f6d7e5c5939cc6ed1ce0be23cd'; \
+         ESUM='38bfdcef1e4b45de2ec222047ac79c76bea75d4d7406a310e26cfa236763f05f'; \
          BINARY_URL='https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.11%2B10/OpenJDK21U-jdk_x64_alpine-linux_hotspot_21.0.11_10.tar.gz'; \
          ;; \
        aarch64) \
-         ESUM='7e5a4aca6b43483e5b7ec82a3b1f7bca33cc0fc6e3b8a4b5e3c3e3b8e3b8e3b8'; \
+         ESUM='c8d63598d1dc0a656033515ed258bd6db37506a05407d9f65cd23b95c21027b5'; \
          BINARY_URL='https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.11%2B10/OpenJDK21U-jdk_aarch64_alpine-linux_hotspot_21.0.11_10.tar.gz'; \
         ;;\
       *) \

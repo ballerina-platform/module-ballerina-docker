@@ -17,14 +17,14 @@
 
 plugins {
     id "base"
-    id "com.github.spotbugs" version "5.0.14"
+    id "com.github.spotbugs" version "${spotbugsPluginVersion}"
     id "com.github.johnrengelman.shadow" version "8.1.1"
     id "de.undercouch.download" version "5.4.0"
-    id 'net.researchgate.release' version '2.8.0'
+    id 'net.researchgate.release' version "${releasePluginVersion}"
 }
 
 ext.ballerinaLangVersion = project.ballerinaLangVersion
-ext.ballerinaSourceDirectory = "$buildDir/../src/main/ballerina"
+ext.ballerinaSourceDirectory = "${rootDir}/../src/main/ballerina"
 ext.commonsCodecVersion = "1.12"
 ext.commonIoVersion = "2.6"
 ext.dockerJavaVersion = "3.3.2"
@@ -33,7 +33,7 @@ ext.projectBuildSourceEncoding = "UTF-8"
 ext.projectReportingOutputEncoding = "UTF-8"
 ext.slf4jVersion = "1.7.26"
 ext.testngVersion = "7.6.1"
-ext.lombokVersion = "1.18.28"
+ext.lombokVersion = "1.18.38"
 
 allprojects {
     apply plugin: 'jacoco'
@@ -75,6 +75,14 @@ subprojects {
         thirdPartyJars
     }
 
+    plugins.withId('java') {
+        java {
+            toolchain {
+                languageVersion = JavaLanguageVersion.of(25)
+            }
+        }
+    }
+
     release {
         // Disable check snapshots temporarily
         buildTasks = []
@@ -102,9 +110,9 @@ task codeCoverageReport(type: JacocoReport) {
         xml.required = true
         html.required = true
         csv.required = true
-        xml.destination = new File("${buildDir}/reports/jacoco/report.xml")
-        html.destination = new File("${buildDir}/reports/jacoco/report.html")
-        csv.destination = new File("${buildDir}/reports/jacoco/report.csv")
+        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/report.xml")
+        html.outputLocation = layout.buildDirectory.dir("reports/jacoco/html")
+        csv.outputLocation = layout.buildDirectory.file("reports/jacoco/report.csv")
     }
 
     onlyIf = {

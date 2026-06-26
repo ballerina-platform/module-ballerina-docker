@@ -37,6 +37,9 @@ ext.lombokVersion = "1.18.38"
 
 allprojects {
     apply plugin: 'jacoco'
+jacoco {
+    toolVersion = jacocoVersion
+}
     repositories {
         mavenLocal()
         mavenCentral()

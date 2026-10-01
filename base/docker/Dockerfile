@@ -14,7 +14,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM alpine:3.21.3
+FROM alpine:3.22.6
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -30,9 +30,10 @@ COPY ${BALLERINA_DIST} /root/
 RUN mkdir -p /ballerina/files \
     && addgroup troupe \
     && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \
-    && apk add --upgrade apk-tools \
-    && apk upgrade \
-    && apk add --update --no-cache bash docker-cli libc6-compat gcompat libgcc
+    && apk add --no-cache --upgrade apk-tools \
+    && apk upgrade --no-cache \
+    && apk add --no-cache bash docker-cli gcompat libgcc \
+        "libcrypto3>=3.5.9-r0" "libssl3>=3.5.9-r0"
 
 RUN set -eux; \
     ARCH="$(apk --print-arch)"; \

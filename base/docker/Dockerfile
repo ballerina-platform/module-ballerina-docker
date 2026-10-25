@@ -76,6 +76,10 @@ RUN set -eux; \
     cat /tmp/emudhra-blocked-certs.txt >> "${JAVA_HOME}/lib/security/blocked.certs"; \
     rm /tmp/emudhra-blocked-certs.txt
 
+# Remove affected trust anchors so re-encoded intermediates cannot bypass the blocklist.
+COPY remove-emudhra-roots.sh /tmp/remove-emudhra-roots.sh
+RUN sh /tmp/remove-emudhra-roots.sh && rm /tmp/remove-emudhra-roots.sh
+
 RUN unzip /root/${BALLERINA_DIST} -d /ballerina/ > /dev/null 2>&1 \
     && mv /ballerina/ballerina* /ballerina/runtime \
     && mkdir -p /ballerina/runtime/logs \

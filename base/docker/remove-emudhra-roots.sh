@@ -15,8 +15,9 @@ find_roots() {
     "${JAVA_HOME}/bin/keytool" -J-Duser.language=en -J-Duser.country=US \
         -list -v -keystore "$truststore" -storepass changeit > "$listing"
     awk '
-        /^Alias name: / { alias = substr($0, 13) }
-        /^Owner: / {
+        /^Alias name: / { alias = substr($0, 13); trusted = 0 }
+        /^Entry type: / { trusted = ($0 == "Entry type: trustedCertEntry") }
+        trusted && /^Owner: / {
             subject = substr($0, 8)
             if (subject ~ /(^|, )CN=(emSign Root CA - G1|emSign Root CA - G2|emSign ECC Root CA - G3|AAA Certificate Services)(,|$)/) {
                 print alias
